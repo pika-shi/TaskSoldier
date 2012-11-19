@@ -99,11 +99,7 @@
 
 -(void)removeFromTabGroup
 {
-	if (current!=nil)
-	{
-		TiWindowProxy *currentWindow = [current window];
-		[self closeWindow:currentWindow animated:YES removeTab:YES];
-	}
+    [self closeWindow:[current window] animated:YES removeTab:YES];
 }
 
 -(void)closeTab
@@ -200,7 +196,7 @@
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     id activeTab = [tabGroup valueForKey:@"activeTab"];
-    if (activeTab == nil) {
+    if (activeTab == nil || activeTab == [NSNull null]) {
         //Make sure that the activeTab property is set
         [self setActive:[NSNumber numberWithBool:YES]];
     }
@@ -321,6 +317,10 @@
     UIViewController *windowController = [[window controller] retain];
     if (closingCurrentWindow) {
         [self setTabGroup:nil];
+        if ((windowController == nil) && (window == nil)) {
+            // tab was never focused so its controller was never added to the stack
+            windowController = [rootController retain];
+        }
     }
 
 	// Manage the navigation controller stack
