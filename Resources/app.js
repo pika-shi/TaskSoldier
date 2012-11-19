@@ -1,6 +1,12 @@
 // name space
 var app = {};
 
+// connect database
+con = Titanium.Database.open('task');
+
+//
+db.execute('CREATE TABLE IF NOT EXISTS TASK (ID INTEGER, NAME TEXT)');
+
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
 
@@ -10,6 +16,8 @@ Titanium.include('./include/log.js');
 Titanium.include('./include/tasklist.js');
 // config
 Titanium.include('./include/config.js');
+// db
+Titanium.include('./include/db.js');
 
 // call objects
 var LogTab = app.log.createTab();
