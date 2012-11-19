@@ -4,14 +4,14 @@ var app = {};
 // connect database
 con = Titanium.Database.open('task');
 
-//
-db.execute('CREATE TABLE IF NOT EXISTS TASK (ID INTEGER, NAME TEXT)');
-
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
 
 // log
 Titanium.include('./include/log.js');
+// addtask
+Titanium.include('./include/addtask.js');
+var AddTaskWin = app.addtask.createWindow();
 // tasklist
 Titanium.include('./include/tasklist.js');
 // config
