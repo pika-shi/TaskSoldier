@@ -11,7 +11,6 @@ var tabGroup = Titanium.UI.createTabGroup();
 Titanium.include('./include/log.js');
 // addtask
 Titanium.include('./include/addtask.js');
-var AddTaskWin = app.addtask.createWindow();
 // tasklist
 Titanium.include('./include/tasklist.js');
 // config
