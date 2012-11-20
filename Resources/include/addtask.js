@@ -3,14 +3,10 @@
     app.addtask = {};
     // tab object
     app.addtask.createWindow = function(){
-        var rootwin = Titanium.UI.createWindow();
         // create win
         var win = Titanium.UI.createWindow({
             title:'タスクの追加',
             backgroundColor:'#fff'
-        });
-        var nav = Titanium.UI.iPhone.createNavigationGroup({
-            window: win
         });
         // create label
         var label = Titanium.UI.createLabel({
@@ -20,12 +16,8 @@
             textAlign:'center',
             width:'auto'
         });
-        var nav = Titanium.UI.iPhone.createNavigationGroup({
-            window: win
-        });
-        rootwin.add(nav);
         // set label
-        //win.add(label);
-        return rootwin;
+        win.add(label);
+        return win;
     };
 })();
