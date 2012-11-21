@@ -9,6 +9,7 @@
     app.addtask = {};
     // tab object
     app.addtask.createWindow = function(){
+        var ImportanceLevel = 2;
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
@@ -52,10 +53,81 @@
             width: '200dp',
         });
 
+        // importance level
+        var ImportanceLabel = Ti.UI.createLabel({
+            color:'#999',
+            text: '重要度',
+            height: '30dp',
+            top: '110dp',
+            left: '20dp',
+            width: '70dp',
+        });
+        var ImportanceView1 = Ti.UI.createView({
+            backgroundColor:'#999',
+            height: '30dp',
+            top: '110dp',
+            left: '130dp',
+            width: '30dp',
+        });
+        var ImportanceView2 = Ti.UI.createView({
+            backgroundColor:'#999',
+            height: '30dp',
+            top: '110dp',
+            left: '180dp',
+            width: '30dp',
+        });
+        var ImportanceView3 = Ti.UI.createView({
+            backgroundColor:'#999',
+            height: '30dp',
+            top: '110dp',
+            left: '230dp',
+            width: '30dp',
+        });
+
+        // click importance mark
+        ImportanceView1.addEventListener('click', function(e){
+            ImportanceView1.backgroundColor = '#000';
+            ImportanceView2.backgroundColor = '#999';
+            ImportanceView3.backgroundColor = '#999';
+            ImportanceLevel = 1;
+        });
+        ImportanceView2.addEventListener('click', function(e){
+            ImportanceView1.backgroundColor = '#000';
+            ImportanceView2.backgroundColor = '#000';
+            ImportanceView3.backgroundColor = '#999';
+            ImportanceLevel = 2;
+        });
+        ImportanceView3.addEventListener('click', function(e){
+            ImportanceView1.backgroundColor = '#000';
+            ImportanceView2.backgroundColor = '#000';
+            ImportanceView3.backgroundColor = '#000';
+            ImportanceLevel = 3;
+        });
+
+        // memo
+        var MemoForm = Ti.UI.createTextArea({
+            color: '#333333',
+            height: '70dp',
+            top: '150dp',
+            left: '100dp',
+            width: '200dp',
+            borderWidth:2,
+            borderColor:'#ccc',
+            borderRadius:10
+        });
+        var MemoLabel = Ti.UI.createLabel({
+            color:'#999',
+            text: 'メモ',
+            height: '30dp',
+            top: '150dp',
+            left: '20dp',
+            width: '70dp',
+        });
+
         // add button
         var SubmitButton = Ti.UI.createButton({
             title: '追加',
-            top: '140dp',
+            top: '250dp',
             left: '120dp',
             width: '70dp',
             height: '30dp'
@@ -72,6 +144,12 @@
         AddTaskWin.add(DeadLineLabel);
         AddTaskWin.add(DeadLineView);
         AddTaskWin.add(SubmitButton);
+        AddTaskWin.add(ImportanceLabel);
+        AddTaskWin.add(ImportanceView1);
+        AddTaskWin.add(ImportanceView2);
+        AddTaskWin.add(ImportanceView3);
+        AddTaskWin.add(MemoForm);
+        AddTaskWin.add(MemoLabel);
 
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
