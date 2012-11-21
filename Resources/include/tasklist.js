@@ -29,8 +29,8 @@
         // click addtask button
         button.addEventListener('click', function()
         {
-            AddTaskWin = app.addtask.createWindow();
-            tab.open(AddTaskWin)
+            var AddTaskWindow = app.addtask.createWindow();
+            tab.open(AddTaskWindow)
         });
         // set label
         win1.add(label);
