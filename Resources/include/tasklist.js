@@ -4,7 +4,7 @@
     // tab object
     app.tasklist.createTab = function(){
         // create win
-        var win1 = Titanium.UI.createWindow({
+        var win = Titanium.UI.createWindow({
             title:'タスク',
             backgroundColor:'#fff'
         });
@@ -12,7 +12,7 @@
         var tab = Titanium.UI.createTab({
             icon:'KS_nav_ui.png',
             title:'タスク',
-            window:win1
+            window:win
         });
         // create button for add task
         var button = Titanium.UI.createButton({
@@ -26,16 +26,34 @@
             textAlign:'center',
             width:'auto'
         });
+
+        // link to task
+        var TaskLabel = Titanium.UI.createLabel({
+            color:'#999',
+            text:'あるタスク',
+            font:{fontSize:20,fontFamily:'Helvetica Neue'},
+            textAlign:'center',
+            width:'auto',
+            top: '30dp',
+        });
         // click addtask button
         button.addEventListener('click', function()
         {
             var AddTaskWindow = app.addtask.createWindow();
-            tab.open(AddTaskWindow)
+            tab.open(AddTaskWindow);
+        });
+
+        // click task label
+        TaskLabel.addEventListener('click', function()
+        {
+            var TaskDetailWindow = app.taskdetail.createWindow();
+            tab.open(TaskDetailWindow);
         });
         // set label
-        win1.add(label);
+        win.add(label);
+        win.add(TaskLabel);
         // set button
-        win1.setRightNavButton(button);
+        win.setRightNavButton(button);
         return tab;
     };
 })();

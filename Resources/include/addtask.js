@@ -53,7 +53,7 @@
             width: '200dp',
         });
 
-        // importance level
+        // Importance Level
         var ImportanceLabel = Ti.UI.createLabel({
             color:'#999',
             text: '重要度',
@@ -104,7 +104,7 @@
             ImportanceLevel = 3;
         });
 
-        // memo
+        // FORM(Memo)
         var MemoForm = Ti.UI.createTextArea({
             color: '#333333',
             height: '70dp',
@@ -134,7 +134,14 @@
         });
 
         SubmitButton.addEventListener('click', function(e){
-            Ti.API.info(TaskNameForm.getValue());
+            // add record into TaskDB
+            var record = {};
+            record.name = TaskNameForm.getValue();
+            record.deadline = DeadLineForm.getValue();
+            record.importance = ImportanceLevel;
+            record.memo = MemoForm.getValue();
+            var db = new TaskDB();
+            db.insertTask(record);
         });
 
         // set label ＆ form
@@ -153,7 +160,6 @@
 
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
-                    alert(e.value);
                     DeadLineForm.value = e.value;
                 }
             });
