@@ -2,7 +2,12 @@
     // name space for taskdetail
     app.taskdetail = {};
     // tab object
-    app.taskdetail.createWindow = function(TaskNum){
+    app.taskdetail.createWindow = function(TaskId){
+        // get record from DB
+        var db = new TaskDB();
+        task = db.fetchOne(1);
+
+        Ti.API.info(task);
         // create win
         var win = Ti.UI.createWindow({
             title:'タスクの詳細',
@@ -18,6 +23,15 @@
             width: '70dp',
         });
 
+        var TaskName = Ti.UI.createLabel({
+            color:'#999',
+            text: task.name,
+            height: '30dp',
+            top: '30dp',
+            left: '100dp',
+            width: '70dp',
+        });
+
         // DeadLine
         var DeadLineLabel = Ti.UI.createLabel({
             color:'#999',
@@ -25,6 +39,15 @@
             height: '30dp',
             top: '70dp',
             left: '20dp',
+            width: '70dp',
+        });
+
+        var DeadLine = Ti.UI.createLabel({
+            color:'#999',
+            text: task.deadline,
+            height: '30dp',
+            top: '70dp',
+            left: '100dp',
             width: '70dp',
         });
 
@@ -68,15 +91,27 @@
             left: '20dp',
             width: '70dp',
         });
+        var Memo = Ti.UI.createLabel({
+            color:'#999',
+            text: task.memo,
+            height: '30dp',
+            top: '150dp',
+            left: '100dp',
+            width: '70dp',
+        });
 
         // set label ＆ form
         win.add(TaskNameLabel);
+        win.add(TaskName);
         win.add(DeadLineLabel);
+        win.add(DeadLine);
         win.add(ImportanceLabel);
+        //win.add(Importance);
         win.add(ImportanceView1);
         win.add(ImportanceView2);
         win.add(ImportanceView3);
         win.add(MemoLabel);
+        win.add(Memo);
 
         return win;
     };
