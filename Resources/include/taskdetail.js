@@ -2,7 +2,7 @@
     // name space for taskdetail
     app.taskdetail = {};
     // tab object
-    app.taskdetail.createWindow = function(){
+    app.taskdetail.createWindow = function(TaskNum){
         // create win
         var win = Ti.UI.createWindow({
             title:'タスクの詳細',

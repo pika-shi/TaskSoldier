@@ -8,7 +8,7 @@
         <target device="blackberry">false</target>
     </deployment-targets>
     <sdk-version>1.8.2</sdk-version>
-    <id>Task.Soldier</id>
+    <id>jp.co.TaskSoldier</id>
     <name>TaskSoldier</name>
     <version>1.0</version>
     <publisher>takemurahikaru</publisher>

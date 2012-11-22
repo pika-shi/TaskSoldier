@@ -34,7 +34,7 @@
             font:{fontSize:20,fontFamily:'Helvetica Neue'},
             textAlign:'center',
             width:'auto',
-            top: '30dp',
+            top: '100dp',
         });
         // click addtask button
         button.addEventListener('click', function()
@@ -46,7 +46,7 @@
         // click task label
         TaskLabel.addEventListener('click', function()
         {
-            var TaskDetailWindow = app.taskdetail.createWindow();
+            var TaskDetailWindow = app.taskdetail.createWindow(1);
             tab.open(TaskDetailWindow);
         });
         // set label
