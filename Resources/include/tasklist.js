@@ -9,14 +9,14 @@
             backgroundColor:'#fff',
             layout: 'absolute'
         });
-        
+
         // create tab
         var tab = Titanium.UI.createTab({
             icon:'KS_nav_ui.png',
             title:'タスク',
             window:taskListWin
         });
-        
+
         // create button for add task
         var button = Titanium.UI.createButton({
             title: '+',
@@ -27,7 +27,7 @@
             var addTaskWindow = app.addtask.createWindow();
             tab.open(addTaskWindow);
         });
-        
+
         // sample object of records (for test run)
         var deadline = new Array(10,30,50,100,200);
         var importance = new Array(3,1,2,2,3);
@@ -43,12 +43,12 @@
         	}
         	return records;
         }
-        
+
         // get tasks from DB
         var db = TaskDB();
         // var records = db.fetchToList(0);
         var records = new genRecords(5);	// for test run
-        
+
         // draw tasks
 		for (var i = 0; i < records.length; i++) {
 			var record = records[i];
@@ -65,15 +65,15 @@
 				text: imageView.name,
 				size: imageView.size,
 				font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
-				touchEnabled: false
+                                touchEnabled: false
 			}));
 			taskListWin.add(imageView);
-       		
+
        		var touched = false;
        		imageView.addEventListener('touchstart', function(e){
        			touched = true;
        			var img = e.source;
-       			var confirmAlert = 
+       			var confirmAlert =
        				Titanium.UI.createAlertDialog({
        					title: 'タスク"' + img.name + '"を削除します．',
        					message: 'よろしいですか?',
@@ -90,17 +90,17 @@
 					if (touched) confirmAlert.show();
 				}, 1000);
        		});
-       		
+
 			// // create detail window
 			imageView.addEventListener('touchend', function(e) {
 				touched = false;
             	var taskDetailWindow = app.taskdetail.createWindow(e.source.id);
             	tab.open(taskDetailWindow);
        		});
-       		
+
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
-        
+
         // set button
         taskListWin.setRightNavButton(button);
         return tab;
