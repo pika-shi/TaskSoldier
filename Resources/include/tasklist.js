@@ -121,12 +121,12 @@
 		});
 		
 		taskListWin.addEventListener('focus', function(e) {
-			if (prevRecords != null && prevRecords != 0) {
+			if (prevRecords != null) {
 				// var laterRecords = db.fetchToList(0);
 				var laterRecords = genRecords(4);
 				var removed = prevRecords.filter(exists, laterRecords)[0];
 				removeTask(removed.id);
-				prevRecords = 0;
+				prevRecords = null;
 			}
 		});
         
