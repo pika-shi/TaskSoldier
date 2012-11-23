@@ -63,7 +63,8 @@
 			});
 			imageView.add(Titanium.UI.createLabel({
 				text: imageView.name,
-				size: imageView.size,
+				width: imageView.width,
+				textAlign: 'center',
 				font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
                                 touchEnabled: false
 			}));
