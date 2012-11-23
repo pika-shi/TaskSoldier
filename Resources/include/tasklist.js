@@ -50,6 +50,7 @@
         var records = new genRecords(5);	// for test run
         
         // draw tasks
+        var views = {};
 		for (var i = 0; i < records.length; i++) {
 			var record = records[i];
 		 	var imageView = Titanium.UI.createImageView({
@@ -68,6 +69,7 @@
 				font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
 				touchEnabled: false
 			}));
+			views[record.id] = imageView;
 			taskListWin.add(imageView);
        		
        		var touched = false;
@@ -83,7 +85,7 @@
        				});
        			confirmAlert.addEventListener('click', function(e) {
 			   		switch (e.index) {
-			   			case 0: taskListWin.remove(img); db.deleteTask(img.id); break;
+			   			case 0: removeTask(img.id); break;
 			      		case 1: break;
 			 		}
 				});
@@ -97,10 +99,36 @@
 				touched = false;
             	var taskDetailWindow = app.taskdetail.createWindow(e.source.id);
             	tab.open(taskDetailWindow);
+            	// var timerWindow = app.timer.createWindow();
+            	// tab.open(timerWindow);
        		});
        		
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
+		
+		// remove a task given its imageView
+		function removeTask(id) {	//TODO animation
+			taskListWin.remove(views[id]);
+			db.deleteTask(id);
+		}
+		
+		function exists(ele, index, array) {
+			return (this.indexOf(ele) == -1);
+		}
+		var prevRecords;
+		taskListWin.addEventListener('blur', function(e) {
+			prevRecords = records;
+		});
+		
+		taskListWin.addEventListener('focus', function(e) {
+			if (prevRecords != null && prevRecords != 0) {
+				// var laterRecords = db.fetchToList(0);
+				var laterRecords = genRecords(4);
+				var removed = prevRecords.filter(exists, laterRecords)[0];
+				removeTask(removed.id);
+				prevRecords = 0;
+			}
+		});
         
         // set button
         taskListWin.setRightNavButton(button);
