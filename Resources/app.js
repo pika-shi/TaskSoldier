@@ -15,6 +15,8 @@ Titanium.include('./include/addtask.js');
 Titanium.include('./include/taskdetail.js');
 // tasklist
 Titanium.include('./include/tasklist.js');
+// timer
+Titanium.include('./include/timer.js');
 // config
 Titanium.include('./include/config.js');
 // db
