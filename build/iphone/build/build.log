@@ -5,7 +5,7 @@ reporting an issue to help us understand your environment, build settings
 and aid in debugging. Please attach this log to any issue that you report.
 ================================================================================
 
-Starting build at 11/23/12 23:58
+Starting build at 11/25/12 00:12
 
 Build details:
 
@@ -17,14 +17,8 @@ Build details:
 
 Script arguments:
    /Library/Application Support/Titanium/mobilesdk/osx/1.8.2/iphone/builder.py
-   simulator
-   4.3
-   /Users/takemurahikaru/Documents/Titanium Studio Workspace/TaskSoldier
-   jp.co.TaskSoldier
-   TaskSoldier
-   universal
-   iphone
-   
+   run
+   /Users/takemurahikaru/Documents/Titanium Studio Workspace/TaskSoldier/
 
 Building from: /Library/Application Support/Titanium/mobilesdk/osx/1.8.2/iphone
 Platform: Darwin Kernel Version 10.8.0: Tue Jun  7 16:33:36 PDT 2011; root:xnu-1504.15.3~1/RELEASE_I386

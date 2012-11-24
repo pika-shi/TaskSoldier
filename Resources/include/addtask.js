@@ -137,7 +137,7 @@
             // add record into TaskDB
             var record = {};
             record.name = TaskNameForm.getValue();
-            record.deadline = DeadLineForm.getValue();
+            record.deadline = DeadLineForm.getValue().replace("/", "-");
             record.importance = ImportanceLevel;
             record.memo = MemoForm.getValue();
             var db = new TaskDB();
@@ -160,7 +160,14 @@
 
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
-                    DeadLineForm.value = e.value;
+                    var time = e.value;
+                    Ti.API.info(typeof time);
+                    var year = time.slice(11,15);
+                    var month = ChangeMonth(time.slice(4,7));
+                    var day = time.slice(8,10);
+                    var hour = time.slice(16,24);
+                    DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
+                    Ti.API.info(DeadLineForm.value);
                 }
             });
         DeadLineView.addEventListener('click', function()
@@ -168,7 +175,21 @@
             optionPickerDialog.open();
         });
 
-
         return AddTaskWin;
     };
 })();
+
+function ChangeMonth (str) {
+    if (str == 'Jan') return 1;
+    if (str == 'Feb') return 2;
+    if (str == 'Mar') return 3;
+    if (str == 'Apr') return 4;
+    if (str == 'May') return 5;
+    if (str == 'Jun') return 6;
+    if (str == 'Jul') return 7;
+    if (str == 'Aug') return 8;
+    if (str == 'Sep') return 9;
+    if (str == 'Oct') return 10;
+    if (str == 'Nov') return 11;
+    if (str == 'Dec') return 12;
+}

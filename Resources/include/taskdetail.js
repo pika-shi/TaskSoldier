@@ -61,7 +61,7 @@
             width: '70dp',
         });
         var ImportanceView1 = Ti.UI.createView({
-            backgroundColor:'#999',
+            backgroundColor:'#000',
             height: '30dp',
             top: '110dp',
             left: '130dp',
@@ -81,6 +81,13 @@
             left: '230dp',
             width: '30dp',
         });
+
+        if (task.importance == 2) {
+            ImportanceView2.backgroundColor = '#000';
+        }
+        if (task.importance == 3) {
+            ImportanceView3.backgroundColor = '#000';
+        }
 
         // memo
         var MemoLabel = Ti.UI.createLabel({
