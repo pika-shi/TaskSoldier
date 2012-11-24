@@ -31,11 +31,12 @@ var TaskDB = function() {
         return record;
     };
     
-    this.fetchToList = function (flag) { // flag = 0:incomplete, 1:completed
+    this.fetchToList = function (flag) { // flag = 0:incomplete tasks, 1:completed tasks
     	this.open();
-    	var rows = this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endflag = ? ORDER BY deadline ASC', flag);
+    	var rows = (flag == 0)? 
+    		this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NULL ORDER BY deadline ASC')
+    		: this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NOT NULL ORDER BY deadline ASC');
     	var records = new Array(0);
-		// for (var row in rows) {
 		for (var i = 0; i < rows.length; i++) {
 			var row = rows[i];
 			var record = {};
@@ -55,6 +56,6 @@ var TaskDB = function() {
     //this.db.execute('DROP TABLE task');
     this.db.execute('CREATE TABLE IF NOT EXISTS task ( id INTEGER PRIMARY KEY AUTOINCREMENT,' +
                     'name TEXT, deadline TEXT, importance INTEGER, memo TEXT,' +
-                    'passedtime TEXT, endtime TEXT, endflag INTEGER)');
+                    'passedtime TEXT, endtime TEXT)');
     this.close();
 };

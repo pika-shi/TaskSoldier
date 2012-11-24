@@ -52,6 +52,7 @@
         // draw tasks
         var views = {};
 		for (var i = 0; i < records.length; i++) {
+			// arranging image and label for each task
 			var record = records[i];
 		 	var imageView = Titanium.UI.createImageView({
 		 		id: record.id,
@@ -72,6 +73,7 @@
 			views[record.id] = imageView;
 			taskListWin.add(imageView);
 
+			// detection of long-press (to delete task)
        		var touched = false;
        		imageView.addEventListener('touchstart', function(e){
        			touched = true;
@@ -91,18 +93,19 @@
 				});
 				setTimeout(function() {
 					if (touched) confirmAlert.show();
-				}, 1000);
+				}, 1000);	// interval to detect long-press is 1 sec
        		});
 
-			// // create detail window
+			// create detail window according to the touched task
 			imageView.addEventListener('touchend', function(e) {
 				touched = false;
             	var taskDetailWindow = app.taskdetail.createWindow(e.source.id);
             	tab.open(taskDetailWindow);
-            	// var timerWindow = app.timer.createWindow();
+            	// var timerWindow = app.timer.createWindow(e.source.id);
             	// tab.open(timerWindow);
        		});
-
+       		
+       		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
 
@@ -112,21 +115,32 @@
 			db.deleteTask(id);
 		}
 
+		// function to calculate difference between two arrays
 		function exists(ele, index, array) {
 			return (this.indexOf(ele) == -1);
 		}
-		var prevRecords;
+		// memory (ids of) existing tasks when the window unfocused
+		var prevRecords = new Array(0);
 		taskListWin.addEventListener('blur', function(e) {
-			prevRecords = records;
+			for (var i = 0; i < records.length; i++) {
+				prevRecords.push(records[i].id);
+			}
 		});
-
+		
+		// detect a task finished when the window re-focused
 		taskListWin.addEventListener('focus', function(e) {
-			if (prevRecords != null) {
-				// var laterRecords = db.fetchToList(0);
-				var laterRecords = genRecords(4);
+			var tmpRecords = genRecords(5);
+      		// var tmpRecords = db.execute('SELECT id FROM task WHERE endtime IS NOT NULL');
+			var laterRecords = new Array(0);
+			if (prevRecords.length != 0) {
+				for (var i = 0; i < tmpRecords.length; i++) {
+					laterRecords.push(tmpRecords[i].id);
+				}
 				var removed = prevRecords.filter(exists, laterRecords)[0];
-				removeTask(removed.id);
-				prevRecords = null;
+				if (removed != null) {
+					removeTask(removed);
+					prevRecords = new Array(0);
+				}
 			}
 		});
 
