@@ -11,7 +11,10 @@ var TaskDB = function() {
         this.open();
         this.db.execute('INSERT INTO task (name, deadline, importance, memo) VALUES(?,?,?,?)',
                         record.name, record.deadline, record.importance, record.memo);
+        row = this.db.execute('SELECT MAX(id) FROM task');
+        id = row.field(0);
         this.close();
+        return id;
     };
     this.deleteTask = function (id) {
     	this.open();
@@ -56,6 +59,6 @@ var TaskDB = function() {
     //this.db.execute('DROP TABLE task');
     this.db.execute('CREATE TABLE IF NOT EXISTS task ( id INTEGER PRIMARY KEY AUTOINCREMENT,' +
                     'name TEXT, deadline TEXT, importance INTEGER, memo TEXT,' +
-                    'passedtime TEXT, endtime TEXT)');
+                    'passedtime INTEGER, endtime TEXT)');
     this.close();
 };

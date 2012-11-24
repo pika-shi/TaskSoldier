@@ -8,8 +8,8 @@
     // name space for addtask
     app.addtask = {};
     // tab object
-    app.addtask.createWindow = function(){
-        var ImportanceLevel = 2;
+    app.addtask.createWindow = function(tab, TaskId){
+        var ImportanceLevel = 1;
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
@@ -27,7 +27,6 @@
             left: '20dp',
             width: '70dp',
         });
-
         // FORM (DeadLine)
         var DeadLineForm = Ti.UI.createTextField({
             color: '#333333',
@@ -63,7 +62,7 @@
             width: '70dp',
         });
         var ImportanceView1 = Ti.UI.createView({
-            backgroundColor:'#999',
+            backgroundColor:'#000',
             height: '30dp',
             top: '110dp',
             left: '130dp',
@@ -133,6 +132,22 @@
             height: '30dp'
         });
 
+        if (TaskId) {
+            var db = new TaskDB();
+            task = db.fetchOne(TaskId);
+            TaskNameForm.value = task.name;
+            DeadLineForm.value = task.deadline;
+            ImportanceLevel = task.importance;
+            MemoForm.value = task.memo;
+
+            if (ImportanceLevel >= 2) {
+                ImportanceView2.backgroundColor = '#000';
+            }
+            if (ImportanceLevel == 3) {
+                ImportanceView3.backgroundColor = '#000';
+            }
+        }
+
         SubmitButton.addEventListener('click', function(e){
             // add record into TaskDB
             var record = {};
@@ -141,9 +156,14 @@
             record.importance = ImportanceLevel;
             record.memo = MemoForm.getValue();
             var db = new TaskDB();
-            db.insertTask(record);
+            TaskId = db.insertTask(record);
             //Ti.API.info(db.fetchOne(1).name);
-
+            var TaskDetailWindow = app.taskdetail.createWindow(TaskId);
+            //tab.close(AddTaskWin);
+            //tab.open(TaskDetailWindow);
+            //TaskDetailWindow.open();
+            AddTaskWin.title = "まじきち";
+            AddTaskWin.add(TaskDetailWindow);
         });
 
         // set label ＆ form

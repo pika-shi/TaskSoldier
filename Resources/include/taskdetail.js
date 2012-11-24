@@ -1,8 +1,14 @@
 (function(){
+    // create view (global)
+    TaskDetailView = Ti.UI.createWindow({
+        backgroundColor:'#fff',
+        width: '320dp',
+        height: '400dp'
+    });
     // name space for taskdetail
     app.taskdetail = {};
     // tab object
-    app.taskdetail.createWindow = function(TaskId){
+    app.taskdetail.createWindow = function(TaskId, tab){
         // get record from DB
         var db = new TaskDB();
         task = db.fetchOne(TaskId);
@@ -13,6 +19,7 @@
             title:'タスクの詳細',
             backgroundColor:'#fff'
         });
+
         // Task Name
         var TaskNameLabel = Ti.UI.createLabel({
             color:'#999',
@@ -108,18 +115,52 @@
             width: '70dp',
         });
 
+        // add button
+        var EditButton = Ti.UI.createButton({
+            title: '編集',
+            top: '250dp',
+            left: '50dp',
+            width: '70dp',
+            height: '30dp'
+        });
+
+        var TimerButton = Ti.UI.createButton({
+            title: 'タイマー',
+            top: '250dp',
+            left: '140dp',
+            width: '70dp',
+            height: '30dp'
+        });
+
+        EditButton.addEventListener('click', function(e){
+            // add record into TaskDB
+            var addTaskWin = app.addtask.createWindow(tab, TaskId);
+            addTaskWin.title = "タスクの編集";
+            win.remove(TaskDetailView);
+            tab.open(addTaskWin);
+        });
+
+        TimerButton.addEventListener('click', function(e){
+            // add record into TaskDB
+            var TimerWindow = app.timer.createWindow(TaskId);
+            TimerWindow.open();
+        });
+
         // set label ＆ form
-        win.add(TaskNameLabel);
-        win.add(TaskName);
-        win.add(DeadLineLabel);
-        win.add(DeadLine);
-        win.add(ImportanceLabel);
+        TaskDetailView.add(TaskNameLabel);
+        TaskDetailView.add(TaskName);
+        TaskDetailView.add(DeadLineLabel);
+        TaskDetailView.add(DeadLine);
+        TaskDetailView.add(ImportanceLabel);
         //win.add(Importance);
-        win.add(ImportanceView1);
-        win.add(ImportanceView2);
-        win.add(ImportanceView3);
-        win.add(MemoLabel);
-        win.add(Memo);
+        TaskDetailView.add(ImportanceView1);
+        TaskDetailView.add(ImportanceView2);
+        TaskDetailView.add(ImportanceView3);
+        TaskDetailView.add(MemoLabel);
+        TaskDetailView.add(Memo);
+        TaskDetailView.add(EditButton);
+        TaskDetailView.add(TimerButton);
+        win.add(TaskDetailView);
 
         return win;
     };

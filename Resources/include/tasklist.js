@@ -24,7 +24,9 @@
         // click addtask button
         button.addEventListener('click', function()
         {
-            var addTaskWindow = app.addtask.createWindow();
+            var addTaskWindow = app.addtask.createWindow(tab);
+            addTaskWindow.title = "タスクの追加";
+            //addTaskWindow.remove(TaskDetailView);
             tab.open(addTaskWindow);
         });
 
@@ -99,7 +101,7 @@
 			// create detail window according to the touched task
 			imageView.addEventListener('touchend', function(e) {
 				touched = false;
-            	var taskDetailWindow = app.taskdetail.createWindow(e.source.id);
+                                var taskDetailWindow = app.taskdetail.createWindow(e.source.id, tab);
             	tab.open(taskDetailWindow);
             	// var timerWindow = app.timer.createWindow(e.source.id);
             	// tab.open(timerWindow);
