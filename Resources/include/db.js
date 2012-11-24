@@ -30,10 +30,10 @@ var TaskDB = function() {
         this.close();
         return record;
     };
-    
+
     this.fetchToList = function (flag) { // flag = 0:incomplete tasks, 1:completed tasks
     	this.open();
-    	var rows = (flag == 0)? 
+    	var rows = (flag == 0)?
     		this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NULL ORDER BY deadline ASC')
     		: this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NOT NULL ORDER BY deadline ASC');
     	var records = new Array(0);
@@ -49,7 +49,7 @@ var TaskDB = function() {
     	this.close();
     	return records;
     };
-    
+
     // create table
     this.open();
     // time -> YYYY-MM-DD HH:MM:SS

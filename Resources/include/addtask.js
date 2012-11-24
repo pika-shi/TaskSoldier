@@ -137,11 +137,13 @@
             // add record into TaskDB
             var record = {};
             record.name = TaskNameForm.getValue();
-            record.deadline = DeadLineForm.getValue().replace("/", "-");
+            record.deadline = DeadLineForm.getValue().replace("/", "-") + ':00';
             record.importance = ImportanceLevel;
             record.memo = MemoForm.getValue();
             var db = new TaskDB();
             db.insertTask(record);
+            //Ti.API.info(db.fetchOne(1).name);
+
         });
 
         // set label ＆ form
@@ -165,7 +167,7 @@
                     var year = time.slice(11,15);
                     var month = ChangeMonth(time.slice(4,7));
                     var day = time.slice(8,10);
-                    var hour = time.slice(16,24);
+                    var hour = time.slice(16,21);
                     DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
                     Ti.API.info(DeadLineForm.value);
                 }

@@ -46,7 +46,7 @@
 
         // get tasks from DB
         var db = TaskDB();
-        // var records = db.fetchToList(0);
+        //var records = db.fetchToList(0);
         var records = new genRecords(5);	// for test run
 
         // draw tasks
@@ -104,7 +104,7 @@
             	// var timerWindow = app.timer.createWindow(e.source.id);
             	// tab.open(timerWindow);
        		});
-       		
+
        		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
@@ -126,7 +126,7 @@
 				prevRecords.push(records[i].id);
 			}
 		});
-		
+
 		// detect a task finished when the window re-focused
 		taskListWin.addEventListener('focus', function(e) {
 			var tmpRecords = genRecords(5);

@@ -5,7 +5,7 @@
     app.taskdetail.createWindow = function(TaskId){
         // get record from DB
         var db = new TaskDB();
-        task = db.fetchOne(1);
+        task = db.fetchOne(TaskId);
 
         Ti.API.info(task);
         // create win
@@ -86,6 +86,7 @@
             ImportanceView2.backgroundColor = '#000';
         }
         if (task.importance == 3) {
+            ImportanceView2.backgroundColor = '#000';
             ImportanceView3.backgroundColor = '#000';
         }
 
