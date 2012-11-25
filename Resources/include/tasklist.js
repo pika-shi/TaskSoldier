@@ -6,9 +6,17 @@
         // create win
         var taskListWin = Titanium.UI.createWindow({
             title:'タスク',
-            backgroundColor:'#fff',
-            layout: 'absolute'
+            backgroundColor:'#fff'
         });
+        
+        // scroll view
+        var scrollView = Titanium.UI.createScrollView({
+			contentWidth:'auto',
+			contentHeight:'auto',
+			top:0,
+			bottom: 0
+        });
+        taskListWin.add(scrollView);
 
         // create tab
         tab = Titanium.UI.createTab({
@@ -47,38 +55,73 @@
 
         // get tasks from DB
         var db = TaskDB();
-        //var records = db.fetchToList(0);
+        // var records = db.fetchToList(0);
         var records = new genRecords(5);	// for test run
 
+		function nextPoint(point, prevRadius, nextRadius) {
+			var x = point.x;
+			var nextX = 0;
+			if (x == 0) {
+				while (nextX + nextRadius > Titanium.Platform.displayCaps.platformWidth
+					|| nextX - nextRadius < 0) {
+					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
+				}
+			} else {
+				while (Math.abs(nextX - x) < prevRadius + nextRadius / 2 
+					|| nextX + nextRadius > Titanium.Platform.displayCaps.platformWidth
+					|| nextX - nextRadius < 0) {
+					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
+				}
+			}
+			
+			var y = point.y;
+			var nextY = 0;
+			if (y == 0) {
+				nextY =  nextRadius;
+			} else {
+				nextY = y + prevRadius + nextRadius * (Math.random() / 2 + 0.5);
+			}
+			return {x: nextX, y: nextY};
+		}
+		
         // draw tasks
         var views = {};
+        var prevPoint = {x: 0, y: 0};
+        var prevRadius = 0;
 		for (var i = 0; i < records.length; i++) {
 			// arranging image and label for each task
 			var record = records[i];
+			var nextRadius = record.importance * 25;
+			var next = nextPoint(prevPoint, prevRadius, nextRadius);
 		 	var imageView = Titanium.UI.createImageView({
 		 		id: record.id,
 		 		name: record.name,
 				image: 'circle_blue.png',
-				width: record.importance * 50 + 'dp',	//TODO arrange tasks not to duplicate
-				top: record.deadline - Titanium.Platform.displayCaps.platformHeight / 2 + 'dp',
-				left: Titanium.Platform.displayCaps.platformWidth * Math.random() * 0.8 + 'dp',
+				width: nextRadius * 2 + 'dp',
+				height: nextRadius * 2 + 'dp',
+				center: {x: next.x +'dp', y: next.y + 'dp'},
 				opacity: 0.8
 			});
+			prevPoint = next;
+			prevRadius = nextRadius;
+			
 			imageView.add(Titanium.UI.createLabel({
 				text: imageView.name,
 				width: imageView.width,
+				height: 20,
 				textAlign: 'center',
 				font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
-                                touchEnabled: false
+                touchEnabled: false
 			}));
+			scrollView.add(imageView);
 			views[record.id] = imageView;
-			taskListWin.add(imageView);
 
 			// detection of long-press (to delete task)
        		var touched = false;
        		imageView.addEventListener('touchstart', function(e){
        			touched = true;
        			var img = e.source;
+       			Ti.API.info(img.id);
        			var confirmAlert =
        				Titanium.UI.createAlertDialog({
        					title: 'タスク"' + img.name + '"を削除します．',
@@ -102,17 +145,16 @@
 				touched = false;
                                 var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
             	tab.open(taskDetailWindow);
-            	// var timerWindow = app.timer.createWindow(e.source.id);
-            	// tab.open(timerWindow);
        		});
-
+       		
        		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
 
 		// remove a task given its imageView
-		function removeTask(id) {	//TODO animation
-			taskListWin.remove(views[id]);
+		function removeTask(id) {
+			scrollView.remove(views[id]);
+			delete views[id];
 			db.deleteTask(id);
 		}
 
@@ -127,7 +169,7 @@
 				prevRecords.push(records[i].id);
 			}
 		});
-
+		
 		// detect a task finished when the window re-focused
 		taskListWin.addEventListener('focus', function(e) {
 			var tmpRecords = genRecords(5);

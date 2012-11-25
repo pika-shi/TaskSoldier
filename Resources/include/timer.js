@@ -9,25 +9,24 @@
             backgroundColor:'#fff'
         });
         
+        // label to put section in
         var statusLabel = Titanium.UI.createLabel({
-        	top: '20dp',
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 30 + 'dp'},
         	textAlign: 'center',
 			font: {fontSize: 24, fontFamily: 'Helvetica Neue'},
 			touchEnabled: false
         });
-        timerWin.add(statusLabel);
         
         // label to put time in
         var timerLabel = Titanium.UI.createLabel({
-        	top: '80dp',
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 120 + 'dp'},
         	textAlign: 'center',
 			font: {fontSize: 60, fontFamily: 'Helvetica Neue'},
 			touchEnabled: false
         });
-        timerWin.add(timerLabel);
         
         // timer (countdown)
-        var chosenTime = new Array(3, 3);	// work: 1500sec = 25min	//TODO	apply chosen interval
+        var chosenTime = new Array(5, 3);	// work: 1500sec = 25min	//TODO	apply chosen interval
         var section = 0;
         var count = chosenTime[section];
         var totalTime = 0;
@@ -66,7 +65,6 @@
 	    	} else {
 	    		totalTime++;
 	    	}
-	    	Ti.API.info(totalTime);
 	    	return second;
         }
         
@@ -83,8 +81,7 @@
         var pauseFlag = 0;
         var pauseButton = Titanium.UI.createButton({
             title: '一時停止',
-            top: '200dp',
-            left: '100dp',
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 250 + 'dp'},
             width: '120dp',
             height: '30dp'
         });
@@ -94,21 +91,19 @@
         		case 1: pauseFlag = 0; setTimer(); this.title = '一時停止'; break;
         	}
         });
-        timerWin.add(pauseButton);
         
-        // stop timer when window unforcused
+        // regard unfocusing timer window as pause operation
         timerWin.addEventListener('blur', function(e) {
-			switch (pauseFlag) {
-        		case 0:	pauseFlag = 1; stopTimer(1); this.title = '再開'; break;
-        		case 1: pauseFlag = 0; setTimer(); this.title = '一時停止'; break;
-        	}
+        	stopTimer(1);
+        	var db = TaskDB();
+			db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
+			db.close();
 		});
         
         // button to finish working on the task
         var finishButton = Titanium.UI.createButton({
-            title: 'タスク完了!!',
-            top: '280dp',
-            left: '100dp',
+            title: '作業終了',
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 300 + 'dp'},
             width: '120dp',
             height: '30dp'
         });
@@ -117,7 +112,6 @@
         	pauseButton.title = '再開';
         	stopTimer(0);
         });
-        timerWin.add(finishButton);
         
         // alert of finishing work
 		var confirmAlert = Titanium.UI.createAlertDialog({
@@ -131,14 +125,18 @@
 				case 0:
 					var date = getDate();
 					var db = TaskDB();
-					var passedTime = db.execute('SELECT passedtime FROM task WHERE id = ?', taskID);
-					db.execute('UPDATE task SET passedtime = ?, endtime = ? WHERE id = ?', passedTime + totalTime, date, taskID);
+					// var passedTime = db.execute('SELECT passedtime FROM task WHERE id = ?', taskID);
+					var passedTime = db.fetchOne(taskID, 'passedtime');
+					// db.execute('UPDATE task SET passedtime = ?, endtime = ? WHERE id = ?', passedTime + totalTime, date, taskID);
+					db.updateOne(taskID, 'passedtime', passedTime + totalTime);
+					db.updateOne(taskID, 'endtime', date);
 					db.close();
 					timerWin.close();
 					break;
 				case 1: 
 					var db = TaskDB();
-					db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
+					// db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
+					db.updateOne(taskID, 'passedtime', passedTime + totalTime);
 					db.close();
 					timerWin.close(); 
 					break;
@@ -164,9 +162,54 @@
 
 			return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec; 
 		}
-        
-        // start countdown when window opened
-        setTimer();
+		
+		// show fullscreen countdown
+		function showCountDown() {
+			var blackView = Titanium.UI.createView({
+				width : Titanium.Platform.displayCaps.platformWidth,
+				height : Titanium.Platform.displayCaps.platformHeight,
+				backgroundColor : 'black'
+			});
+			var countLabel = Titanium.UI.createLabel({
+				center : {
+					x : Titanium.Platform.displayCaps.platformWidth / 2 + 'dp',
+					y : Titanium.Platform.displayCaps.platformHeight / 2 + 'dp'
+				},
+				textAlign : 'center',
+				font : {
+					fontSize : 200,
+					fontFamily : 'Helvetica Neue'
+				},
+				color :'white',
+				touchEnabled : false
+			});
+			blackView.add(countLabel);
+			timerWin.add(blackView);
+			
+			var count = 3;
+			myCount = setInterval(function() {
+        		if (count > 0) {
+        			countLabel.text = count;
+        			count--;
+        		} else {
+        			clearInterval(myCount);
+        			timerWin.remove(blackView);
+        			drawTimer();
+        			setTimer();	// start timer
+        		}
+        	}, 800);
+		}
+		
+		// arrange labels and buttons for timer
+		function drawTimer() {
+			timerWin.add(statusLabel);
+			timerWin.add(timerLabel);
+			timerWin.add(pauseButton);
+        	timerWin.add(finishButton);
+		}
+		
+        // show countdown
+        showCountDown();
 
         return timerWin;
     };
