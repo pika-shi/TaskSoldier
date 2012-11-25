@@ -28,9 +28,10 @@
         // timer (countdown)
         var timeSet = (Ti.App.Properties.getString('timeset'))? Ti.App.Properties.getString('timeset') : 25;
         var chosenTime;
-        switch (timeSet) {
-        	case 25: chosenTime = new Array(25 * 60, 5 * 60); break;
-        	case 50: chosenTime = new Array(50 * 60, 10 * 60); break;
+        if (timeSet == 25) {
+        	chosenTime = new Array(25*60, 5*60);
+        } else if (timeSet == 50) {
+        	chosenTime = new Array(50*60, 10*60);
         }
         var section = 0;
         var count = chosenTime[section];
