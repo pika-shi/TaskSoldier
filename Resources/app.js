@@ -28,8 +28,8 @@ var TaskListTab = app.tasklist.createTab();
 var ConfigTab = app.config.createTab();
 
 // add tabs
-tabGroup.addTab(LogTab);
 tabGroup.addTab(TaskListTab);
+tabGroup.addTab(LogTab);
 tabGroup.addTab(ConfigTab);
 
 // open tab group
