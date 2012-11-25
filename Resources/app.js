@@ -11,8 +11,12 @@ var tabGroup = Titanium.UI.createTabGroup();
 Titanium.include('./include/log.js');
 // addtask
 Titanium.include('./include/addtask.js');
+// taskdetail
+Titanium.include('./include/taskdetail.js');
 // tasklist
 Titanium.include('./include/tasklist.js');
+// timer
+Titanium.include('./include/timer.js');
 // config
 Titanium.include('./include/config.js');
 // db

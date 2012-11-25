@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
 #import "TiUIiPhoneNavigationGroup.h"
+#import "TiApp.h"
 
 @implementation TiUIiPhoneNavigationGroupProxy
 
@@ -33,6 +34,7 @@
 	[self rememberProxy:window];
 
 	ENSURE_UI_THREAD(open, args);
+	[[[TiApp app] controller] dismissKeyboard];
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	[[self view] performSelector:@selector(open:withObject:) withObject:window withObject:properties];
 }

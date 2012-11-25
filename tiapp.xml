@@ -7,8 +7,8 @@
         <target device="android">false</target>
         <target device="blackberry">false</target>
     </deployment-targets>
-    <sdk-version>2.1.3.GA</sdk-version>
-    <id>Task.Soldier</id>
+    <sdk-version>2.1.4.GA</sdk-version>
+    <id>jp.co.TaskSoldier</id>
     <name>TaskSoldier</name>
     <version>1.0</version>
     <publisher>takemurahikaru</publisher>
