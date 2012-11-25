@@ -33,6 +33,19 @@ var TaskDB = function() {
         this.close();
         return record;
     };
+    
+    this.fetchOne = function(id, attr) {
+    	this.open();
+    	var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
+    	this.close();
+    	return cell;
+    };
+    
+    this.updateOne = function(id, attr, val) {
+    	this.open();
+    	this.db.execute('UPDATE task SET ? = ? WHERE id = ?', attr, val, id);
+    	this.close();
+    };
 
     this.fetchToList = function (flag) { // flag = 0:incomplete tasks, 1:completed tasks
     	this.open();
