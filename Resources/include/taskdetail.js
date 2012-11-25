@@ -1,14 +1,8 @@
 (function(){
-    // create view (global)
-    TaskDetailView = Ti.UI.createWindow({
-        backgroundColor:'#fff',
-        width: '320dp',
-        height: '400dp'
-    });
     // name space for taskdetail
     app.taskdetail = {};
     // tab object
-    app.taskdetail.createWindow = function(TaskId, tab){
+    app.taskdetail.createWindow = function(from, TaskId){
         // get record from DB
         var db = new TaskDB();
         task = db.fetchOne(TaskId);
@@ -19,6 +13,13 @@
             title:'タスクの詳細',
             backgroundColor:'#fff'
         });
+
+        // create view (global)
+        TaskDetailView = Ti.UI.createView({
+                backgroundColor:'#fff',
+                width: '320dp',
+                height: '400dp'
+            });
 
         // Task Name
         var TaskNameLabel = Ti.UI.createLabel({
@@ -134,9 +135,8 @@
 
         EditButton.addEventListener('click', function(e){
             // add record into TaskDB
-            var addTaskWin = app.addtask.createWindow(tab, TaskId);
+            var addTaskWin = app.addtask.createWindow(TaskId);
             addTaskWin.title = "タスクの編集";
-            win.remove(TaskDetailView);
             tab.open(addTaskWin);
         });
 
@@ -158,7 +158,7 @@
         TaskDetailView.add(ImportanceView3);
         TaskDetailView.add(MemoLabel);
         TaskDetailView.add(Memo);
-        TaskDetailView.add(EditButton);
+        if (from == 'tasklist') TaskDetailView.add(EditButton);
         TaskDetailView.add(TimerButton);
         win.add(TaskDetailView);
 

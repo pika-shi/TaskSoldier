@@ -1,15 +1,15 @@
 (function(){
-    // create win (global)
-    AddTaskWin = Ti.UI.createWindow({
-        title:'タスクの追加',
-        backgroundColor:'#fff'
-    });
     Titanium.include('optionPickerDialog.js');
     // name space for addtask
     app.addtask = {};
     // tab object
-    app.addtask.createWindow = function(tab, TaskId){
+    app.addtask.createWindow = function(TaskId){
         var ImportanceLevel = 1;
+        // create win (global)
+        AddTaskWin = Ti.UI.createWindow({
+            title:'タスクの追加',
+            backgroundColor:'#fff'
+        });
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
@@ -133,6 +133,7 @@
         });
 
         if (TaskId) {
+            SubmitButton.title = '更新';
             var db = new TaskDB();
             task = db.fetchOne(TaskId);
             TaskNameForm.value = task.name;
@@ -157,12 +158,8 @@
             record.memo = MemoForm.getValue();
             var db = new TaskDB();
             TaskId = db.insertTask(record);
-            //Ti.API.info(db.fetchOne(1).name);
-            var TaskDetailWindow = app.taskdetail.createWindow(TaskId);
-            //tab.close(AddTaskWin);
-            //tab.open(TaskDetailWindow);
-            //TaskDetailWindow.open();
-            AddTaskWin.title = "まじきち";
+            var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
+            AddTaskWin.title = "タスクの詳細";
             AddTaskWin.add(TaskDetailWindow);
         });
 

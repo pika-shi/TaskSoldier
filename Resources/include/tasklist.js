@@ -11,7 +11,7 @@
         });
 
         // create tab
-        var tab = Titanium.UI.createTab({
+        tab = Titanium.UI.createTab({
             icon:'KS_nav_ui.png',
             title:'タスク',
             window:taskListWin
@@ -24,9 +24,8 @@
         // click addtask button
         button.addEventListener('click', function()
         {
-            var addTaskWindow = app.addtask.createWindow(tab);
+            var addTaskWindow = app.addtask.createWindow();
             addTaskWindow.title = "タスクの追加";
-            //addTaskWindow.remove(TaskDetailView);
             tab.open(addTaskWindow);
         });
 
@@ -101,7 +100,7 @@
 			// create detail window according to the touched task
 			imageView.addEventListener('touchend', function(e) {
 				touched = false;
-                                var taskDetailWindow = app.taskdetail.createWindow(e.source.id, tab);
+                                var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
             	tab.open(taskDetailWindow);
             	// var timerWindow = app.timer.createWindow(e.source.id);
             	// tab.open(timerWindow);
