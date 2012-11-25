@@ -168,6 +168,9 @@
                 var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
                 AddTaskWin.title = "タスクの詳細";
                 AddTaskWin.add(TaskDetailWindow);
+                Titanium.UI.createAlertDialog({
+                    title:'保存しました．',
+                }).show();
             } else {
                 Titanium.UI.createAlertDialog({
                     title:'Alert',
