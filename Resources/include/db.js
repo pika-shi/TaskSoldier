@@ -42,14 +42,14 @@ var TaskDB = function() {
         return record;
     };
 
-    //this.fetchOne = function(id, attr) {
-    //	this.open();
-    //	var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
-    //	this.close();
-    //	return cell;
-    //};
+    this.fetchCell = function(id, attr) {
+    	this.open();
+    	var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
+    	this.close();
+    	return cell;
+    };
 
-    this.updateOne = function(id, attr, val) {
+    this.updateCell = function(id, attr, val) {
     	this.open();
     	this.db.execute('UPDATE task SET ? = ? WHERE id = ?', attr, val, id);
     	this.close();
