@@ -38,26 +38,9 @@
             tab.open(addTaskWindow);
         });
 
-        // sample object of records (for test run)
-        var deadline = new Array(10,30,50,100,200);
-        var importance = new Array(3,1,2,2,3);
-        function genRecords(num) {
-        	var records = Array(0);
-        	for (var i = 0; i < num; i++) {
-        		var record = {};
-        		record.id = i;
-        		record.name = 'task' + i;
-        		record.deadline = deadline[i];
-        		record.importance = importance[i];
-        		records.push(record);
-        	}
-        	return records;
-        }
-
         // get tasks from DB
-        var db = TaskDB();
-        // var records = db.fetchToList(0);
-        var records = new genRecords(5);	// for test run
+        var db = new TaskDB();
+        records = db.fetchToList(0);
 
 		function nextPoint(point, prevRadius, nextRadius) {
 			var x = point.x;
@@ -92,6 +75,11 @@
 		for (var i = 0; i < records.length; i++) {
 			// arranging image and label for each task
 			var record = records[i];
+			addTask(record, prevPoint, prevRadius);
+		}
+
+		//add a task with imageView
+		function addTask(record, prevP, prevR) {
 			var nextRadius = record.importance * 25;
 			var next = nextPoint(prevPoint, prevRadius, nextRadius);
 		 	var imageView = Titanium.UI.createImageView({
@@ -143,14 +131,14 @@
 			// create detail window according to the touched task
 			imageView.addEventListener('touchend', function(e) {
 				touched = false;
-                                var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
+                var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
             	tab.open(taskDetailWindow);
        		});
 
        		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
-
+		
 		// remove a task given its imageView
 		function removeTask(id) {
 			scrollView.remove(views[id]);
@@ -163,8 +151,10 @@
 			return (this.indexOf(ele) == -1);
 		}
 		// memory (ids of) existing tasks when the window unfocused
+		var blurFlag = 0;
 		var prevRecords = new Array(0);
 		taskListWin.addEventListener('blur', function(e) {
+			blurFlag = 1;
 			for (var i = 0; i < records.length; i++) {
 				prevRecords.push(records[i].id);
 			}
@@ -172,18 +162,33 @@
 
 		// detect a task finished when the window re-focused
 		taskListWin.addEventListener('focus', function(e) {
-			var tmpRecords = genRecords(5);
-      		// var tmpRecords = db.execute('SELECT id FROM task WHERE endtime IS NOT NULL');
+      		records = db.fetchToList(0);
 			var laterRecords = new Array(0);
-			if (prevRecords.length != 0) {
-				for (var i = 0; i < tmpRecords.length; i++) {
-					laterRecords.push(tmpRecords[i].id);
+			if (blurFlag == 1) {
+				for (var i = 0; i < records.length; i++) {
+					laterRecords.push(records[i].id);
 				}
+				var added = laterRecords.filter(exists, prevRecords)[0];
 				var removed = prevRecords.filter(exists, laterRecords)[0];
-				if (removed != null) {
+				if (added != null) {
+					taskListWin.remove(scrollView);
+					scrollView = Titanium.UI.createScrollView({
+						contentWidth : 'auto',
+						contentHeight : 'auto',
+						top : 0,
+						bottom : 0
+					}); 
+					taskListWin.add(scrollView);
+					views = {};
+					prevPoint = {x: 0, y: 0};
+        			prevRadius = 0;
+					for (var i = 0; i < laterRecords.length; i++) {
+						addTask(records[i], prevPoint, prevRadius); 
+					}
+				} else if (removed != null && views[removed] != null) {
 					removeTask(removed);
-					prevRecords = new Array(0);
 				}
+				prevRecords = new Array(0);
 			}
 		});
 
