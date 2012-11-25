@@ -26,16 +26,16 @@
             height: '30dp',
             top: '30dp',
             left: '20dp',
-            width: '70dp',
+            width: '100dp',
         });
 
         var TaskName = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: task.name,
             height: '30dp',
-            top: '30dp',
-            left: '100dp',
-            width: '70dp',
+            top: '80dp',
+            textAlign:'center',
+            width: '120dp',
         });
 
         // DeadLine
@@ -49,12 +49,12 @@
         });
 
         var DeadLine = Ti.UI.createLabel({
-            color:'#999',
-            text: task.deadline,
+            color:'#000',
+            text: task.deadline.split('-').join('/'),
             height: '30dp',
-            top: '70dp',
-            left: '100dp',
-            width: '70dp',
+            top: '120dp',
+            textAlign:'center',
+            width: '200dp',
         });
 
         // Importance Level
@@ -69,22 +69,22 @@
         var ImportanceView1 = Ti.UI.createView({
             backgroundColor:'#000',
             height: '30dp',
-            top: '110dp',
-            left: '130dp',
+            top: '160dp',
+            left: '80dp',
             width: '30dp',
         });
         var ImportanceView2 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '180dp',
+            top: '160dp',
+            left: '120dp',
             width: '30dp',
         });
         var ImportanceView3 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '230dp',
+            top: '160dp',
+            left: '160dp',
             width: '30dp',
         });
 
@@ -106,21 +106,17 @@
             width: '70dp',
         });
         var Memo = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: task.memo,
             height: '30dp',
-            top: '150dp',
-            left: '100dp',
-            width: '70dp',
+            top: '200dp',
+            textAlign:'center',
+            width: '200dp',
         });
 
         // add button
         var EditButton = Ti.UI.createButton({
-            title: '編集',
-            top: '250dp',
-            left: '50dp',
-            width: '70dp',
-            height: '30dp'
+            title: 'edit',
         });
 
         var TimerButton = Ti.UI.createButton({
@@ -145,17 +141,17 @@
         });
 
         // set label ＆ form
-        TaskDetailView.add(TaskNameLabel);
+        //TaskDetailView.add(TaskNameLabel);
         TaskDetailView.add(TaskName);
-        TaskDetailView.add(DeadLineLabel);
+        //TaskDetailView.add(DeadLineLabel);
         TaskDetailView.add(DeadLine);
-        TaskDetailView.add(ImportanceLabel);
+        //TaskDetailView.add(ImportanceLabel);
         TaskDetailView.add(ImportanceView1);
         TaskDetailView.add(ImportanceView2);
         TaskDetailView.add(ImportanceView3);
-        TaskDetailView.add(MemoLabel);
+        //TaskDetailView.add(MemoLabel);
         TaskDetailView.add(Memo);
-        if (from == 'tasklist') TaskDetailView.add(EditButton);
+        if (from == 'tasklist') win.setRightNavButton(EditButton);
         TaskDetailView.add(TimerButton);
         win.add(TaskDetailView);
 

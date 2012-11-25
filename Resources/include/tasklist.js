@@ -28,6 +28,7 @@
         // create button for add task
         var button = Titanium.UI.createButton({
             title: '+',
+            //backgroundImage: 'add.png',
         });
         // click addtask button
         button.addEventListener('click', function()

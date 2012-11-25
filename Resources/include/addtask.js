@@ -14,16 +14,16 @@
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
             height: '30dp',
-            top: '30dp',
-            left: '100dp',
-            width: '200dp',
+            top: '45dp',
+            left: '30dp',
+            width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var TaskNameLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: 'タスク名',
             height: '30dp',
-            top: '30dp',
+            top: '10dp',
             left: '20dp',
             width: '70dp',
         });
@@ -31,55 +31,55 @@
         var DeadLineForm = Ti.UI.createTextField({
             color: '#333333',
             height: '30dp',
-            top: '70dp',
-            left: '100dp',
-            width: '200dp',
+            top: '115dp',
+            left: '30dp',
+            width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var DeadLineLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: '締切日時',
             height: '30dp',
-            top: '70dp',
+            top: '80dp',
             left: '20dp',
             width: '70dp',
         });
         var DeadLineView = Ti.UI.createView({
             color:'transparent',
             height: '30dp',
-            top: '70dp',
-            left: '100dp',
-            width: '200dp',
+            top: '115dp',
+            left: '30dp',
+            width: '260dp',
         });
 
         // Importance Level
         var ImportanceLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: '重要度',
             height: '30dp',
-            top: '110dp',
+            top: '150dp',
             left: '20dp',
             width: '70dp',
         });
         var ImportanceView1 = Ti.UI.createView({
             backgroundColor:'#000',
             height: '30dp',
-            top: '110dp',
-            left: '130dp',
+            top: '195dp',
+            left: '80dp',
             width: '30dp',
         });
         var ImportanceView2 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '180dp',
+            top: '195dp',
+            left: '140dp',
             width: '30dp',
         });
         var ImportanceView3 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '230dp',
+            top: '195dp',
+            left: '200dp',
             width: '30dp',
         });
 
@@ -107,18 +107,18 @@
         var MemoForm = Ti.UI.createTextArea({
             color: '#333333',
             height: '70dp',
-            top: '150dp',
-            left: '100dp',
-            width: '200dp',
+            top: '255dp',
+            left: '30dp',
+            width: '260dp',
             borderWidth:2,
             borderColor:'#ccc',
             borderRadius:10
         });
         var MemoLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: 'メモ',
             height: '30dp',
-            top: '150dp',
+            top: '220dp',
             left: '20dp',
             width: '70dp',
         });
@@ -126,9 +126,9 @@
         // add button
         var SubmitButton = Ti.UI.createButton({
             title: '追加',
-            top: '250dp',
-            left: '120dp',
-            width: '70dp',
+            top: '335dp',
+            left: '80dp',
+            width: '160dp',
             height: '30dp'
         });
 
@@ -154,7 +154,9 @@
                 // add record into TaskDB
                 var record = {};
                 record.name = TaskNameForm.getValue();
-                record.deadline = DeadLineForm.getValue().replace("/", "-") + ':00';
+                //Ti.API.info(DeadLineForm.getValue());
+                record.deadline = DeadLineForm.getValue().split('/').join('-') + ':00';
+                record.deadline = DeadLineForm.getValue() + ':00';
                 record.importance = ImportanceLevel;
                 record.memo = MemoForm.getValue();
                 var db = new TaskDB();
@@ -191,13 +193,11 @@
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
                     var time = e.value;
-                    Ti.API.info(typeof time);
                     var year = time.slice(11,15);
                     var month = ChangeMonth(time.slice(4,7));
                     var day = time.slice(8,10);
                     var hour = time.slice(16,21);
                     DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
-                    Ti.API.info(DeadLineForm.value);
                 }
             });
         DeadLineView.addEventListener('click', function()
