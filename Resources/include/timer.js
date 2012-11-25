@@ -26,7 +26,12 @@
         });
         
         // timer (countdown)
-        var chosenTime = new Array(5, 3);	// work: 1500sec = 25min	//TODO	apply chosen interval
+        var timeSet = (Ti.App.Properties.getString('timeset'))? Ti.App.Properties.getString('timeset') : 25;
+        var chosenTime;
+        switch (timeSet) {
+        	case 25: chosenTime = new Array(25 * 60, 5 * 60); break;
+        	case 50: chosenTime = new Array(50 * 60, 10 * 60); break;
+        }
         var section = 0;
         var count = chosenTime[section];
         var totalTime = 0;
@@ -94,10 +99,12 @@
         
         // regard unfocusing timer window as pause operation
         timerWin.addEventListener('blur', function(e) {
-        	stopTimer(1);
-        	var db = TaskDB();
-			db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
-			db.close();
+        	if (pauseFlag == 0) {
+	        	stopTimer(1);
+	        	var db = new TaskDB();
+				db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+				db.close();	
+        	}
 		});
         
         // button to finish working on the task
@@ -116,7 +123,7 @@
         // alert of finishing work
 		var confirmAlert = Titanium.UI.createAlertDialog({
 			title: '集中作業の終了',
-			message: 'タスクが完了しましたか?',
+			message: 'タスクは完了しましたか?',
 			buttonNames: ['はい', 'いいえ', 'キャンセル'],
 			cancel: 2
 		});
@@ -124,18 +131,15 @@
 			switch (e.index) {
 				case 0:
 					var date = getDate();
-					var db = TaskDB();
-					// var passedTime = db.execute('SELECT passedtime FROM task WHERE id = ?', taskID);
-					var passedTime = db.fetchCell(taskID, 'passedtime');
-					// db.execute('UPDATE task SET passedtime = ?, endtime = ? WHERE id = ?', passedTime + totalTime, date, taskID);
+					var db = new TaskDB();
+					passedTime = db.fetchCell(taskID, 'passedtime');
 					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					db.updateCell(taskID, 'endtime', date);
 					db.close();
 					timerWin.close();
 					break;
 				case 1: 
-					var db = TaskDB();
-					// db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
+					var db = new TaskDB();
 					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					db.close();
 					timerWin.close(); 
