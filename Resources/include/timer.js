@@ -126,17 +126,17 @@
 					var date = getDate();
 					var db = TaskDB();
 					// var passedTime = db.execute('SELECT passedtime FROM task WHERE id = ?', taskID);
-					var passedTime = db.fetchOne(taskID, 'passedtime');
+					var passedTime = db.fetchCell(taskID, 'passedtime');
 					// db.execute('UPDATE task SET passedtime = ?, endtime = ? WHERE id = ?', passedTime + totalTime, date, taskID);
-					db.updateOne(taskID, 'passedtime', passedTime + totalTime);
-					db.updateOne(taskID, 'endtime', date);
+					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+					db.updateCell(taskID, 'endtime', date);
 					db.close();
 					timerWin.close();
 					break;
 				case 1: 
 					var db = TaskDB();
 					// db.execute('UPDATE task SET passedtime = ? WHERE id = ?', passedTime + totalTime, taskID);
-					db.updateOne(taskID, 'passedtime', passedTime + totalTime);
+					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					db.close();
 					timerWin.close(); 
 					break;
