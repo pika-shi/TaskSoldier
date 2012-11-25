@@ -6,8 +6,6 @@
         // get record from DB
         var db = new TaskDB();
         task = db.fetchOne(TaskId);
-
-        Ti.API.info(task);
         // create win
         var win = Ti.UI.createWindow({
             title:'タスクの詳細',
@@ -152,7 +150,6 @@
         TaskDetailView.add(DeadLineLabel);
         TaskDetailView.add(DeadLine);
         TaskDetailView.add(ImportanceLabel);
-        //win.add(Importance);
         TaskDetailView.add(ImportanceView1);
         TaskDetailView.add(ImportanceView2);
         TaskDetailView.add(ImportanceView3);

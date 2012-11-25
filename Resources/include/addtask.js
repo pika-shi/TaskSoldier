@@ -150,17 +150,28 @@
         }
 
         SubmitButton.addEventListener('click', function(e){
-            // add record into TaskDB
-            var record = {};
-            record.name = TaskNameForm.getValue();
-            record.deadline = DeadLineForm.getValue().replace("/", "-") + ':00';
-            record.importance = ImportanceLevel;
-            record.memo = MemoForm.getValue();
-            var db = new TaskDB();
-            TaskId = db.insertTask(record);
-            var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
-            AddTaskWin.title = "タスクの詳細";
-            AddTaskWin.add(TaskDetailWindow);
+            if (TaskNameForm.getValue() && DeadLineForm.getValue()) {
+                // add record into TaskDB
+                var record = {};
+                record.name = TaskNameForm.getValue();
+                record.deadline = DeadLineForm.getValue().replace("/", "-") + ':00';
+                record.importance = ImportanceLevel;
+                record.memo = MemoForm.getValue();
+                var db = new TaskDB();
+                if (TaskId) {
+                    db.updateTask(TaskId, record);
+                } else {
+                    TaskId = db.insertTask(record);
+                }
+                var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
+                AddTaskWin.title = "タスクの詳細";
+                AddTaskWin.add(TaskDetailWindow);
+            } else {
+                Titanium.UI.createAlertDialog({
+                    title:'Alert',
+                    message:'未入力項目があります．'
+                }).show();
+            }
         });
 
         // set label ＆ form

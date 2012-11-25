@@ -8,7 +8,7 @@
             title:'タスク',
             backgroundColor:'#fff'
         });
-        
+
         // scroll view
         var scrollView = Titanium.UI.createScrollView({
 			contentWidth:'auto',
@@ -67,13 +67,13 @@
 					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
 				}
 			} else {
-				while (Math.abs(nextX - x) < prevRadius + nextRadius / 2 
+				while (Math.abs(nextX - x) < prevRadius + nextRadius / 2
 					|| nextX + nextRadius > Titanium.Platform.displayCaps.platformWidth
 					|| nextX - nextRadius < 0) {
 					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
 				}
 			}
-			
+
 			var y = point.y;
 			var nextY = 0;
 			if (y == 0) {
@@ -83,7 +83,7 @@
 			}
 			return {x: nextX, y: nextY};
 		}
-		
+
         // draw tasks
         var views = {};
         var prevPoint = {x: 0, y: 0};
@@ -104,7 +104,7 @@
 			});
 			prevPoint = next;
 			prevRadius = nextRadius;
-			
+
 			imageView.add(Titanium.UI.createLabel({
 				text: imageView.name,
 				width: imageView.width,
@@ -121,7 +121,6 @@
        		imageView.addEventListener('touchstart', function(e){
        			touched = true;
        			var img = e.source;
-       			Ti.API.info(img.id);
        			var confirmAlert =
        				Titanium.UI.createAlertDialog({
        					title: 'タスク"' + img.name + '"を削除します．',
@@ -146,7 +145,7 @@
                                 var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
             	tab.open(taskDetailWindow);
        		});
-       		
+
        		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
@@ -169,7 +168,7 @@
 				prevRecords.push(records[i].id);
 			}
 		});
-		
+
 		// detect a task finished when the window re-focused
 		taskListWin.addEventListener('focus', function(e) {
 			var tmpRecords = genRecords(5);

@@ -16,6 +16,14 @@ var TaskDB = function() {
         this.close();
         return id;
     };
+
+    this.updateTask = function (id, record) {
+        this.open();
+        this.db.execute('UPDATE task SET name = ?, deadline = ?, importance = ?, memo = ? WHERE id = ?',
+                        record.name, record.deadline, record.importance, record.memo, id);
+        this.close();
+        return id;
+    };
     this.deleteTask = function (id) {
     	this.open();
     	this.db.execute('DELETE FROM task WHERE id = ?', id);
@@ -33,14 +41,14 @@ var TaskDB = function() {
         this.close();
         return record;
     };
-    
-    this.fetchOne = function(id, attr) {
-    	this.open();
-    	var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
-    	this.close();
-    	return cell;
-    };
-    
+
+    //this.fetchOne = function(id, attr) {
+    //	this.open();
+    //	var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
+    //	this.close();
+    //	return cell;
+    //};
+
     this.updateOne = function(id, attr, val) {
     	this.open();
     	this.db.execute('UPDATE task SET ? = ? WHERE id = ?', attr, val, id);
