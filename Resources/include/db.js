@@ -54,6 +54,7 @@ var TaskDB = function() {
 		return record;
 	};
 
+<<<<<<< HEAD
 	this.fetchCell = function(id, attr) {
 		this.open();
 		var cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
@@ -83,6 +84,39 @@ var TaskDB = function() {
 		this.close();
 		return records;
 	};
+=======
+    this.fetchCell = function(id, attr) {
+    	this.open();
+    	cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
+    	this.close();
+    	return cell;
+    };
+
+    this.updateCell = function(id, attr, val) {
+    	this.open();
+    	this.db.execute('UPDATE task SET ' + attr + ' = ? WHERE id = ?', val, id);
+    	this.close();
+    };
+
+    this.fetchToList = function (flag) { // flag = 0:incomplete tasks, 1:completed tasks
+    	this.open();
+    	rows = (flag == 0)?
+    		this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NULL ORDER BY deadline ASC')
+    		: this.db.execute('SELECT id, name, deadline, importance FROM task WHERE endtime IS NOT NULL ORDER BY deadline ASC');
+    	var records = new Array(0);
+		while(rows.isValidRow()) {
+			var record = {};
+			record.id = rows.field(0);
+			record.name = rows.field(1);
+        	record.deadline = rows.field(2);
+        	record.importance = rows.field(3);
+        	records.push(record);
+        	rows.next();
+		}
+    	this.close();
+    	return records;
+    };
+>>>>>>> e60b49a17123ec0dcfe7da86aa900c4749d1eb5f
 
 	// create table
 	this.open();
