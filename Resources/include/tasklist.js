@@ -185,7 +185,7 @@
 					for (var i = 0; i < laterRecords.length; i++) {
 						addTask(records[i], prevPoint, prevRadius); 
 					}
-				} else if (removed != null && views[removed] != null) {
+				} else if (removed != null && views[removed] != null) {	//TODO animation of removal
 					removeTask(removed);
 				}
 				prevRecords = new Array(0);

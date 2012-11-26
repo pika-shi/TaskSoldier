@@ -2,7 +2,7 @@
     // name space for taskdetail
     app.timer = {};
     // tab object
-    app.timer.createWindow = function(taskID){
+    app.timer.createWindow = function(taskID, caller){
         // create win
         var timerWin = Titanium.UI.createWindow({
             title:'timer',
@@ -137,10 +137,12 @@
 					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					db.updateCell(taskID, 'endtime', date);
 					db.close();
-					timerWin.close();
+					caller.close();
+					timerWin.close();	//TODO fire a event to animate removal
 					break;
 				case 1: 
 					var db = new TaskDB();
+					passedTime = db.fetchCell(taskID, 'passedtime');
 					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					db.close();
 					timerWin.close(); 
