@@ -136,7 +136,7 @@
 
         TimerButton.addEventListener('click', function(e){
             // add record into TaskDB
-            var TimerWindow = app.timer.createWindow(TaskId);
+            var TimerWindow = app.timer.createWindow (TaskId, win);
             TimerWindow.open();
         });
 

@@ -165,6 +165,7 @@
                 } else {
                     TaskId = db.insertTask(record);
                 }
+                optionPickerDialog.close();
                 var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
                 AddTaskWin.title = "タスクの詳細";
                 AddTaskWin.add(TaskDetailWindow);
@@ -205,6 +206,7 @@
             });
         DeadLineView.addEventListener('click', function()
         {
+            //optionPickerDialog.close();
             optionPickerDialog.open();
         });
 
