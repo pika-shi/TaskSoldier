@@ -1,6 +1,5 @@
 var pika_shi = function(monthNum, tab) {
 	var con = Ti.Database.open('task');
-	// var con = Titanium.Database.open('task');
 	var date = new Date();
 	var year = date.getYear();
 	if (year < 2000) {
@@ -10,22 +9,13 @@ var pika_shi = function(monthNum, tab) {
 	if (monthNum > month) {
 		year -= 1;
 	}
-	// Ti.API.info('year:' + year + ', month:' + monthNum);
-	// Ti.API.info(rows.field(0) + ', ' + rows.field(1));
-	// while (rows.isValidRow()) {
-	// Ti.API.info(rows.field(0) + ', ' + rows.field(1));
-	// rows.next();
-	// }
 	var monthDetail = Ti.UI.createWindow({
-		title : '詳細',
+		title : monthNum + '月',
 		backgroundColor : '#fff'
 	});
-	// Ti.API.info('hoge1');
 	var tableView = Ti.UI.createTableView();
-	// Ti.API.info('hoge2');
 
 	for (var i = myzac(year, monthNum); i > 0; i--) {
-		// Ti.API.info('hoge3');
 		var date;
 		if (i < 10) {
 			date = '0' + i;
@@ -37,11 +27,9 @@ var pika_shi = function(monthNum, tab) {
 			height : 44,
 			dayNum : date
 		});
+		
+		// 日毎の合計集中時間を取得
 		var rows = con.execute('SELECT total(passedtime) FROM task WHERE endtime LIKE \'%-' + monthNum + '-' + date + '%\';');
-		// while (rows.isValidRow()) {
-		// Ti.API.info(rows.field(0));
-		// rows.next();
-		// }
 		var second = (rows.field(0)) % 60;
 		var minute = ((rows.field(0) - second) % 3600) / 60;
 		var hour = (rows.field(0) - (minute * 60) - second) / 3600;
@@ -54,23 +42,49 @@ var pika_shi = function(monthNum, tab) {
 		if (hour < 10) {
 			hour = '0' + hour;
 		}
-		// Ti.API.info(hour + ':' + minute + ':' + second);
 		var length;
 		if (rows.field(0) > 18000) {
 			length = 18000;
 		} else {
 			length = rows.field(0);
 		}
+		var maxGraphView = Ti.UI.createView({
+			height : 20,
+			width : 150,
+			left : 70,
+			backgroundGradient : {
+				type : 'linear',
+				startPoint : {
+					x : '0%',
+					y : '50%'
+				},
+				endPoint : {
+					x : '100%',
+					y : '50%'
+				},
+				colors : [{
+					color : '#228b22',
+					offset : 0.0
+				}, {
+					color : 'yellow',
+					offset : 0.5
+				}, {
+					color : 'red',
+					offset : 1.0
+				}]
+			}
+		});
 		var graphView = Ti.UI.createView({
 			height : 20,
-			width : (length / 18000) * 150,
-			left : 70,
-			backgroundColor : '#228b22'
+			right : 100,
+			width : (1 - (length / 18000)) * 150,
+			backgroundColor : '#fff'
 		});
 		var timeLabel = Ti.UI.createLabel({
 			text : hour + ':' + minute + ':' + second,
 			right : 10
 		});
+		tableViewRow.add(maxGraphView);
 		tableViewRow.add(graphView);
 		tableViewRow.add(timeLabel);
 		if (rows.field(0) != 0) {
@@ -80,19 +94,10 @@ var pika_shi = function(monthNum, tab) {
 
 	Ti.include('./include/dayDetail.js');
 	tableView.addEventListener('click', function(e) {
-		// Ti.API.info(e.row.monthNum);
-		// pika_shi(e.row.monthNum, tab);
 		tab.open(day_detail(monthNum, e.row.dayNum, tab));
 	});
-	// Ti.API.info('hoge4');
-	// var dLabel = Ti.UI.createLabel({
-	// text : monthNum
-	// });
-	// monthDetail.add(dLabel);
 	monthDetail.add(tableView);
 
-	// Ti.API.info('hoge5');
-	// tab.open(monthDetail);
 	return monthDetail;
 };
 

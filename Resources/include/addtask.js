@@ -1,86 +1,85 @@
 (function(){
-    // create win (global)
-    AddTaskWin = Ti.UI.createWindow({
-        title:'タスクの追加',
-        backgroundColor:'#fff'
-    });
     Titanium.include('optionPickerDialog.js');
     // name space for addtask
     app.addtask = {};
     // tab object
-    app.addtask.createWindow = function(){
-        var ImportanceLevel = 2;
+    app.addtask.createWindow = function(TaskId){
+        var ImportanceLevel = 1;
+        // create win (global)
+        AddTaskWin = Ti.UI.createWindow({
+            title:'タスクの追加',
+            backgroundColor:'#fff'
+        });
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
             height: '30dp',
-            top: '30dp',
-            left: '100dp',
-            width: '200dp',
+            top: '45dp',
+            left: '30dp',
+            width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var TaskNameLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: 'タスク名',
             height: '30dp',
-            top: '30dp',
+            top: '10dp',
             left: '20dp',
             width: '70dp',
         });
-
         // FORM (DeadLine)
         var DeadLineForm = Ti.UI.createTextField({
             color: '#333333',
             height: '30dp',
-            top: '70dp',
-            left: '100dp',
-            width: '200dp',
+            top: '115dp',
+            left: '30dp',
+            width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var DeadLineLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: '締切日時',
             height: '30dp',
-            top: '70dp',
+            top: '80dp',
             left: '20dp',
             width: '70dp',
         });
         var DeadLineView = Ti.UI.createView({
             color:'transparent',
             height: '30dp',
-            top: '70dp',
-            left: '100dp',
-            width: '200dp',
+            top: '115dp',
+            left: '30dp',
+            width: '260dp',
         });
 
         // Importance Level
         var ImportanceLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: '重要度',
             height: '30dp',
-            top: '110dp',
+            top: '150dp',
             left: '20dp',
             width: '70dp',
         });
         var ImportanceView1 = Ti.UI.createView({
-            backgroundColor:'#999',
+            backgroundColor:'#000',
             height: '30dp',
-            top: '110dp',
-            left: '130dp',
+            top: '195dp',
+            left: '80dp',
             width: '30dp',
         });
         var ImportanceView2 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '180dp',
+            top: '195dp',
+            left: '140dp',
             width: '30dp',
         });
         var ImportanceView3 = Ti.UI.createView({
             backgroundColor:'#999',
             height: '30dp',
-            top: '110dp',
-            left: '230dp',
+            top: '195dp',
+            left: '200dp',
             width: '30dp',
         });
 
@@ -108,18 +107,18 @@
         var MemoForm = Ti.UI.createTextArea({
             color: '#333333',
             height: '70dp',
-            top: '150dp',
-            left: '100dp',
-            width: '200dp',
+            top: '255dp',
+            left: '30dp',
+            width: '260dp',
             borderWidth:2,
             borderColor:'#ccc',
             borderRadius:10
         });
         var MemoLabel = Ti.UI.createLabel({
-            color:'#999',
+            color:'#000',
             text: 'メモ',
             height: '30dp',
-            top: '150dp',
+            top: '220dp',
             left: '20dp',
             width: '70dp',
         });
@@ -127,21 +126,57 @@
         // add button
         var SubmitButton = Ti.UI.createButton({
             title: '追加',
-            top: '250dp',
-            left: '120dp',
-            width: '70dp',
+            top: '335dp',
+            left: '80dp',
+            width: '160dp',
             height: '30dp'
         });
 
-        SubmitButton.addEventListener('click', function(e){
-            // add record into TaskDB
-            var record = {};
-            record.name = TaskNameForm.getValue();
-            record.deadline = DeadLineForm.getValue();
-            record.importance = ImportanceLevel;
-            record.memo = MemoForm.getValue();
+        if (TaskId) {
+            SubmitButton.title = '更新';
             var db = new TaskDB();
-            db.insertTask(record);
+            task = db.fetchOne(TaskId);
+            TaskNameForm.value = task.name;
+            DeadLineForm.value = task.deadline;
+            ImportanceLevel = task.importance;
+            MemoForm.value = task.memo;
+
+            if (ImportanceLevel >= 2) {
+                ImportanceView2.backgroundColor = '#000';
+            }
+            if (ImportanceLevel == 3) {
+                ImportanceView3.backgroundColor = '#000';
+            }
+        }
+
+        SubmitButton.addEventListener('click', function(e){
+            if (TaskNameForm.getValue() && DeadLineForm.getValue()) {
+                // add record into TaskDB
+                var record = {};
+                record.name = TaskNameForm.getValue();
+                //Ti.API.info(DeadLineForm.getValue());
+                record.deadline = DeadLineForm.getValue().split('/').join('-') + ':00';
+                record.deadline = DeadLineForm.getValue() + ':00';
+                record.importance = ImportanceLevel;
+                record.memo = MemoForm.getValue();
+                var db = new TaskDB();
+                if (TaskId) {
+                    db.updateTask(TaskId, record);
+                } else {
+                    TaskId = db.insertTask(record);
+                }
+                var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
+                AddTaskWin.title = "タスクの詳細";
+                AddTaskWin.add(TaskDetailWindow);
+                Titanium.UI.createAlertDialog({
+                    title:'保存しました．',
+                }).show();
+            } else {
+                Titanium.UI.createAlertDialog({
+                    title:'Alert',
+                    message:'未入力項目があります．'
+                }).show();
+            }
         });
 
         // set label ＆ form
@@ -160,7 +195,12 @@
 
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
-                    DeadLineForm.value = e.value;
+                    var time = e.value;
+                    var year = time.slice(11,15);
+                    var month = ChangeMonth(time.slice(4,7));
+                    var day = time.slice(8,10);
+                    var hour = time.slice(16,21);
+                    DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
                 }
             });
         DeadLineView.addEventListener('click', function()
@@ -168,7 +208,21 @@
             optionPickerDialog.open();
         });
 
-
         return AddTaskWin;
     };
 })();
+
+function ChangeMonth (str) {
+    if (str == 'Jan') return 1;
+    if (str == 'Feb') return 2;
+    if (str == 'Mar') return 3;
+    if (str == 'Apr') return 4;
+    if (str == 'May') return 5;
+    if (str == 'Jun') return 6;
+    if (str == 'Jul') return 7;
+    if (str == 'Aug') return 8;
+    if (str == 'Sep') return 9;
+    if (str == 'Oct') return 10;
+    if (str == 'Nov') return 11;
+    if (str == 'Dec') return 12;
+}

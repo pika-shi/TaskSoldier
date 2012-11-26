@@ -17,50 +17,15 @@
 			title : 'ログ',
 			window : win
 		});
-		// var buttonView = Ti.UI.createView({
-		// top : 0,
-		// height : 44,
-		// backgroundColor : '#800'
-		// });
+
+		// create view
 		var yearlyGraphView = Ti.UI.createView({
 			backgroundColor : '#009'
 		});
-		// var monthlyGraphView = Ti.UI.createView({
-		// top : 44,
-		// backgroundColor : '#500'
-		// });
-		// var yearlyListView = Ti.UI.createView({
-		// top : 44,
-		// backgroundColor : '#099'
-		// });
-		// var monthlyListView = Ti.UI.createView({
-		// top : 44,
-		// backgroundColor : '#550'
-		// });
-		// var graphButton = Ti.UI.createButton({
-		// title : '集中時間',
-		// left : 10,
-		// height : 30
-		// });
-		// var listButton = Ti.UI.createButton({
-		// title : 'これまでのタスク',
-		// right : 10,
-		// height : 30
-		// });
-		// buttonView.add(graphButton);
-		// buttonView.add(listButton);
-		// win.add(buttonView);
+
 		win.add(yearlyGraphView);
 
-		// graphButton.addEventListener('click', function(e) {
-		// win.remove(yearlyListView);
-		// win.add(yearlyGraphView);
-		// });
-		// listButton.addEventListener('click', function(e) {
-		// win.remove(yearlyGraphView);
-		// win.add(yearlyListView);
-		// });
-
+		// 月
 		var monthName = '';
 		var date = new Date();
 		var mon = date.getMonth() + 1;
@@ -97,12 +62,6 @@
 		// con.execute('INSERT INTO task (name, deadline, importance, memo, passedtime, endtime, endflag)' + 'VALUES(?, ?, ?, ?, ?, ?, ?)', 'タスク28', '2012-12-25 00:00:00', 3, 'メモ28', 300, '2012-08-02 00:00:00', 1);
 		// con.execute('INSERT INTO task (name, deadline, importance, memo, passedtime, endtime, endflag)' + 'VALUES(?, ?, ?, ?, ?, ?, ?)', 'タスク29', '2012-12-25 00:00:00', 2, 'メモ29', 3008, '2012-07-02 00:00:00', 1);
 
-		// var rows = con.execute('SELECT total(passedtime) FROM task WHERE endtime LIKE \'%-' + mon + '-%\';');
-		// while (rows.isValidRow()) {
-		// Ti.API.info('TOTAL: ' + rows.field(0));
-		// rows.next();
-		// }
-
 		for (var i = 0; i < 12; i++) {
 			if (i == 0) {
 				mon = date.getMonth() + 1;
@@ -121,8 +80,11 @@
 				height : 44,
 				monthNum : mon
 			});
+
+			// 月の合計集中時間を取得
 			var rows = con.execute('SELECT total(passedtime) FROM task WHERE endtime LIKE \'%-' + mon + '-%\';');
-			// Ti.API.info(monthName);
+
+			// 秒表示を整形
 			var second = (rows.field(0)) % 60;
 			var minute = ((rows.field(0) - second) % 3600) / 60;
 			var hour = (rows.field(0) - (minute * 60) - second) / 3600;
@@ -135,23 +97,53 @@
 			if (hour < 10) {
 				hour = '0' + hour;
 			}
-			// Ti.API.info(hour + ':' + minute + ':' + second);
 			var length;
 			if (rows.field(0) > 360000) {
 				length = 360000;
 			} else {
 				length = rows.field(0);
 			}
+
+			// 最長のグラフ
+			var maxGraphView = Ti.UI.createView({
+				height : 20,
+				width : 150,
+				left : 70,
+				backgroundGradient : {
+					type : 'linear',
+					startPoint : {
+						x : '0%',
+						y : '50%'
+					},
+					endPoint : {
+						x : '100%',
+						y : '50%'
+					},
+					colors : [{
+						color : '#228b22',
+						offset : 0.0
+					}, {
+						color : 'yellow',
+						offset : 0.5
+					}, {
+						color : 'red',
+						offset : 1.0
+					}]
+				}
+			});
+			
+			// 最長のグラフに白いグラフを重ねて集中時間を表現
 			var graphView = Ti.UI.createView({
 				height : 20,
-				width : (length / 360000) * 150,
-				left : 70,
-				backgroundColor : '#228b22'
+				width : (1 - (length / 360000)) * 150,
+				right : 100,
+				backgroundColor : '#fff'
 			});
 			var timeLabel = Ti.UI.createLabel({
 				text : hour + ':' + minute + ':' + second,
 				right : 10
 			});
+			tableViewRow.add(maxGraphView);
 			tableViewRow.add(graphView);
 			tableViewRow.add(timeLabel);
 			tableView.appendRow(tableViewRow);
@@ -159,19 +151,11 @@
 
 		Ti.include('./include/monthDetail.js');
 		tableView.addEventListener('click', function(e) {
-			// Ti.API.info(e.row.monthNum);
-			// pika_shi(e.row.monthNum, tab);
 			tab.open(pika_shi(e.row.monthNum, tab));
 		});
-		// Ti.API.info(mon);
-		// var webView = Ti.UI.createWebView({
-		// url : 'plot.html'
-		// });
-		// yearlyGraphView.add(webView);
 
 		rows.close();
 		con.close();
 		return tab;
 	};
-
-})();
+})(); 

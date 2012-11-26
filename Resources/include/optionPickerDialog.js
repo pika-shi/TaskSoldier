@@ -98,7 +98,8 @@ var optionPickerDialog = (function(){
 
             picker.addEventListener('change',function(ee)
             {
-                e.value = ee.value.toLocaleString();
+                e.value = ee.value.toString();
+                //e.value = ee.value;
                 Ti.API.info(e.value);
             });
 
@@ -141,7 +142,7 @@ var optionPickerDialog = (function(){
                 e = {
                     cancel:false,
                     done:false,
-                    value:currentDate
+                    value:currentDate.toString()
                 };
             }
             createControls();
