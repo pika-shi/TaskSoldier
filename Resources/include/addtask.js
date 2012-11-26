@@ -5,11 +5,20 @@
     // tab object
     app.addtask.createWindow = function(TaskId){
         var ImportanceLevel = 1;
-        // create win (global)
-        AddTaskWin = Ti.UI.createWindow({
-            title:'タスクの追加',
-            backgroundColor:'#fff'
+        if (typeof(AddTaskWin) == "undefined"){
+            // create win (global)
+            AddTaskWin = Ti.UI.createWindow({
+                title:'タスクの追加',
+                backgroundColor:'#fff'
+            });
+        }
+
+        var BackGroundView = Ti.UI.createView({
+            backgroundColor:'#fff',
+            height: '480dp',
+            width: '320dp',
         });
+
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
@@ -165,7 +174,6 @@
                 } else {
                     TaskId = db.insertTask(record);
                 }
-                optionPickerDialog.close();
                 var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
                 AddTaskWin.title = "タスクの詳細";
                 AddTaskWin.add(TaskDetailWindow);
@@ -181,6 +189,7 @@
         });
 
         // set label ＆ form
+        AddTaskWin.add(BackGroundView);
         AddTaskWin.add(TaskNameForm);
         AddTaskWin.add(TaskNameLabel);
         AddTaskWin.add(DeadLineForm);
@@ -206,7 +215,6 @@
             });
         DeadLineView.addEventListener('click', function()
         {
-            //optionPickerDialog.close();
             optionPickerDialog.open();
         });
 

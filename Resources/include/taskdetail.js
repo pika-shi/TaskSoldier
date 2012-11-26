@@ -7,7 +7,7 @@
         var db = new TaskDB();
         task = db.fetchOne(TaskId);
         // create win
-        var win = Ti.UI.createWindow({
+        TaskDetailWin = Ti.UI.createWindow({
             title:'タスクの詳細',
             backgroundColor:'#fff'
         });
@@ -151,10 +151,10 @@
         TaskDetailView.add(ImportanceView3);
         //TaskDetailView.add(MemoLabel);
         TaskDetailView.add(Memo);
-        if (from == 'tasklist') win.setRightNavButton(EditButton);
+        if (from == 'tasklist') TaskDetailWin.setRightNavButton(EditButton);
         TaskDetailView.add(TimerButton);
-        win.add(TaskDetailView);
+        TaskDetailWin.add(TaskDetailView);
 
-        return win;
+        return TaskDetailWin;
     };
 })();
