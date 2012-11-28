@@ -13,15 +13,30 @@
             });
         }
 
-        var BackGroundView = Ti.UI.createView({
-            backgroundColor:'#fff',
-            height: '480dp',
-            width: '320dp',
+        var ScrollView = Titanium.UI.createScrollView({
+                contentWidth:'320dp',
+                contentHeight:'400dp',
+                top:0,
+                bottom: 0,
+                showVerticalScrollIndicator:true,
+        });
+
+        var BackGroundView = Ti.UI.createImageView({
+            image: './back.jpg',
+            width: '500dp',
         });
 
         // FORM (Task Name)
         var TaskNameForm = Ti.UI.createTextField({
             color: '#333333',
+            height: '30dp',
+            top: '45dp',
+            left: '30dp',
+            width: '260dp',
+            borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
+        });
+        var TaskNameView = Ti.UI.createImageView({
+            image: './text.png',
             height: '30dp',
             top: '45dp',
             left: '30dp',
@@ -36,6 +51,9 @@
             left: '20dp',
             width: '70dp',
         });
+        var leftButton = Titanium.UI.createButton({
+                style:Titanium.UI.iPhone.SystemButton.DISCLOSURE
+            });
         // FORM (DeadLine)
         var DeadLineForm = Ti.UI.createTextField({
             color: '#333333',
@@ -43,7 +61,9 @@
             top: '115dp',
             left: '30dp',
             width: '260dp',
-            borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
+            borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
+            leftButton:leftButton,
+            leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
         });
         var DeadLineLabel = Ti.UI.createLabel({
             color:'#000',
@@ -54,7 +74,7 @@
             width: '70dp',
         });
         var DeadLineView = Ti.UI.createView({
-            color:'transparent',
+            bacegroundColor: '#fff',
             height: '30dp',
             top: '115dp',
             left: '30dp',
@@ -70,45 +90,54 @@
             left: '20dp',
             width: '70dp',
         });
-        var ImportanceView1 = Ti.UI.createView({
-            backgroundColor:'#000',
+        var ImportanceView1 = Ti.UI.createImageView({
+            image: 'star_on.png',
             height: '30dp',
-            top: '195dp',
+            top: '180dp',
             left: '80dp',
             width: '30dp',
         });
-        var ImportanceView2 = Ti.UI.createView({
-            backgroundColor:'#999',
-            height: '30dp',
-            top: '195dp',
+        var ImportanceView2 = Ti.UI.createImageView({
+            image: 'star_off.png',
+            height: '33dp',
+            top: '180dp',
             left: '140dp',
-            width: '30dp',
+            width: '33dp',
         });
-        var ImportanceView3 = Ti.UI.createView({
-            backgroundColor:'#999',
-            height: '30dp',
-            top: '195dp',
+        var ImportanceView3 = Ti.UI.createImageView({
+            image: 'star_off.png',
+            height: '33dp',
+            top: '180dp',
             left: '200dp',
-            width: '30dp',
+            width: '33dp',
         });
 
         // click importance mark
         ImportanceView1.addEventListener('click', function(e){
-            ImportanceView1.backgroundColor = '#000';
-            ImportanceView2.backgroundColor = '#999';
-            ImportanceView3.backgroundColor = '#999';
+            ImportanceView2.image = 'star_off.png';
+            ImportanceView2.width = '33dp',
+            ImportanceView2.height = '33dp',
+            ImportanceView3.image = 'star_off.png';
+            ImportanceView3.width = '33dp',
+            ImportanceView3.height = '33dp',
             ImportanceLevel = 1;
         });
         ImportanceView2.addEventListener('click', function(e){
-            ImportanceView1.backgroundColor = '#000';
-            ImportanceView2.backgroundColor = '#000';
-            ImportanceView3.backgroundColor = '#999';
+            ImportanceView2.image = 'star_on.png';
+            ImportanceView2.width = '30dp',
+            ImportanceView2.height = '30dp',
+            ImportanceView3.image = 'star_off.png';
+            ImportanceView3.width = '33dp',
+            ImportanceView3.height = '33dp',
             ImportanceLevel = 2;
         });
         ImportanceView3.addEventListener('click', function(e){
-            ImportanceView1.backgroundColor = '#000';
-            ImportanceView2.backgroundColor = '#000';
-            ImportanceView3.backgroundColor = '#000';
+            ImportanceView2.image = 'star_on.png';
+            ImportanceView2.width = '30dp',
+            ImportanceView2.height = '30dp',
+            ImportanceView3.image = 'star_on.png';
+            ImportanceView3.width = '30dp',
+            ImportanceView3.height = '30dp',
             ImportanceLevel = 3;
         });
 
@@ -116,7 +145,7 @@
         var MemoForm = Ti.UI.createTextArea({
             color: '#333333',
             height: '70dp',
-            top: '255dp',
+            top: '245dp',
             left: '30dp',
             width: '260dp',
             borderWidth:2,
@@ -127,7 +156,7 @@
             color:'#000',
             text: 'メモ',
             height: '30dp',
-            top: '220dp',
+            top: '210dp',
             left: '20dp',
             width: '70dp',
         });
@@ -163,9 +192,7 @@
                 // add record into TaskDB
                 var record = {};
                 record.name = TaskNameForm.getValue();
-                //Ti.API.info(DeadLineForm.getValue());
                 record.deadline = DeadLineForm.getValue().split('/').join('-') + ':00';
-                record.deadline = DeadLineForm.getValue() + ':00';
                 record.importance = ImportanceLevel;
                 record.memo = MemoForm.getValue();
                 var db = new TaskDB();
@@ -190,18 +217,20 @@
 
         // set label ＆ form
         AddTaskWin.add(BackGroundView);
-        AddTaskWin.add(TaskNameForm);
-        AddTaskWin.add(TaskNameLabel);
-        AddTaskWin.add(DeadLineForm);
-        AddTaskWin.add(DeadLineLabel);
-        AddTaskWin.add(DeadLineView);
-        AddTaskWin.add(SubmitButton);
-        AddTaskWin.add(ImportanceLabel);
-        AddTaskWin.add(ImportanceView1);
-        AddTaskWin.add(ImportanceView2);
-        AddTaskWin.add(ImportanceView3);
-        AddTaskWin.add(MemoForm);
-        AddTaskWin.add(MemoLabel);
+        ScrollView.add(TaskNameForm);
+        ScrollView.add(TaskNameLabel);
+        //ScrollView.add(TaskNameView);
+        ScrollView.add(DeadLineForm);
+        ScrollView.add(DeadLineLabel);
+        //ScrollView.add(DeadLineView);
+        ScrollView.add(SubmitButton);
+        ScrollView.add(ImportanceLabel);
+        ScrollView.add(ImportanceView1);
+        ScrollView.add(ImportanceView2);
+        ScrollView.add(ImportanceView3);
+        ScrollView.add(MemoForm);
+        ScrollView.add(MemoLabel);
+        AddTaskWin.add(ScrollView);
 
         optionPickerDialog.addEventListener('close', function(e){
                 if (e.done==true && e.value){
@@ -213,7 +242,7 @@
                     DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
                 }
             });
-        DeadLineView.addEventListener('click', function()
+        leftButton.addEventListener('click', function()
         {
             optionPickerDialog.open();
         });

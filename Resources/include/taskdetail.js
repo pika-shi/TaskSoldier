@@ -7,16 +7,22 @@
         var db = new TaskDB();
         task = db.fetchOne(TaskId);
         // create win
-        win = Ti.UI.createWindow({
+        var win = Ti.UI.createWindow({
             title:'タスクの詳細',
             backgroundColor:'#fff'
         });
 
         // create view (global)
-        TaskDetailView = Ti.UI.createView({
-                backgroundColor:'#fff',
-                width: '320dp',
-                height: '400dp'
+        TaskDetailView = Ti.UI.createImageView({
+                image: './back.jpg',
+                width: '500dp',
+            });
+
+        var TaskView = Ti.UI.createImageView({
+                image: './detail.png',
+                top: '40dp',
+                left: '-20dp',
+                height: '250dp'
             });
 
         // Task Name
@@ -33,9 +39,10 @@
             color:'#000',
             text: task.name,
             height: '30dp',
-            top: '80dp',
+            top: '90dp',
             textAlign:'center',
             width: '120dp',
+            font:{fontSize:24},
         });
 
         // DeadLine
@@ -50,8 +57,8 @@
 
         var DeadLine = Ti.UI.createLabel({
             color:'#000',
-            text: task.deadline.split('-').join('/'),
-            height: '30dp',
+            text: task.deadline.split('-').join('/').slice(0,16) + ' まで',
+            height: '35dp',
             top: '120dp',
             textAlign:'center',
             width: '200dp',
@@ -66,34 +73,40 @@
             left: '20dp',
             width: '70dp',
         });
-        var ImportanceView1 = Ti.UI.createView({
-            backgroundColor:'#000',
+        var ImportanceView1 = Ti.UI.createImageView({
+            image: './star_on.png',
             height: '30dp',
             top: '160dp',
-            left: '80dp',
+            left: '190dp',
             width: '30dp',
         });
-        var ImportanceView2 = Ti.UI.createView({
-            backgroundColor:'#999',
-            height: '30dp',
+        var ImportanceView2 = Ti.UI.createImageView({
+            image: './star_off.png',
+            height: '33dp',
             top: '160dp',
-            left: '120dp',
-            width: '30dp',
+            left: '230dp',
+            width: '33dp',
         });
-        var ImportanceView3 = Ti.UI.createView({
-            backgroundColor:'#999',
-            height: '30dp',
+        var ImportanceView3 = Ti.UI.createImageView({
+            image: './star_off.png',
+            height: '33dp',
             top: '160dp',
-            left: '160dp',
-            width: '30dp',
+            left: '270dp',
+            width: '33dp',
         });
 
         if (task.importance == 2) {
-            ImportanceView2.backgroundColor = '#000';
+            ImportanceView2.image = './star_on.png';
+            ImportanceView2.height = '33dp',
+            ImportanceView2.width = '33dp',
         }
         if (task.importance == 3) {
-            ImportanceView2.backgroundColor = '#000';
-            ImportanceView3.backgroundColor = '#000';
+            ImportanceView2.image = './star_on.png';
+            ImportanceView2.height = '33dp',
+            ImportanceView2.width = '33dp',
+            ImportanceView3.image = './star_on.png';
+            ImportanceView3.height = '33dp',
+            ImportanceView3.width = '33dp',
         }
 
         // memo
@@ -136,12 +149,13 @@
 
         TimerButton.addEventListener('click', function(e){
             // add record into TaskDB
-            var TimerWindow = app.timer.createWindow (TaskId, TaskDetailWin);
+            var TimerWindow = app.timer.createWindow(TaskId, win);
             TimerWindow.open();
         });
 
         // set label ＆ form
         //TaskDetailView.add(TaskNameLabel);
+        TaskDetailView.add(TaskView);
         TaskDetailView.add(TaskName);
         //TaskDetailView.add(DeadLineLabel);
         TaskDetailView.add(DeadLine);
