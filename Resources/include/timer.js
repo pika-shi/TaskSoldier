@@ -3,10 +3,12 @@
     app.timer = {};
     // tab object
     app.timer.createWindow = function(taskID, caller){
+    	//FIXME investigate 'passedtime' format
         // create win
         var timerWin = Titanium.UI.createWindow({
-            title:'timer',
-            backgroundColor:'#fff'
+            title: 'timer',
+            backgroundColor: '#fff',
+            backgroundImage: 'back.jpg'
         });
         
         // label to put section in
@@ -134,16 +136,24 @@
 					var date = getDate();
 					var db = new TaskDB();
 					passedTime = db.fetchCell(taskID, 'passedtime');
-					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+					if ( typeof passedTime != typeof 1) {
+						db.updateCell(taskID, 'passedtime', totalTime);
+					} else {
+						db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+					}
 					db.updateCell(taskID, 'endtime', date);
 					db.close();
 					caller.close();
-					timerWin.close();	//TODO fire a event to animate removal
+					timerWin.close();
 					break;
 				case 1: 
 					var db = new TaskDB();
 					passedTime = db.fetchCell(taskID, 'passedtime');
-					db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+					if (typeof passedTime != typeof 1) {
+						db.updateCell(taskID, 'passedtime', totalTime);	
+					} else {
+						db.updateCell(taskID, 'passedtime', passedTime + totalTime);
+					}
 					db.close();
 					timerWin.close(); 
 					break;
