@@ -97,16 +97,16 @@
 
         if (task.importance == 2) {
             ImportanceView2.image = './star_on.png';
-            ImportanceView2.height = '33dp',
-            ImportanceView2.width = '33dp',
+            ImportanceView2.height = '33dp';
+            ImportanceView2.width = '33dp';
         }
         if (task.importance == 3) {
             ImportanceView2.image = './star_on.png';
-            ImportanceView2.height = '33dp',
-            ImportanceView2.width = '33dp',
+            ImportanceView2.height = '33dp';
+            ImportanceView2.width = '33dp';
             ImportanceView3.image = './star_on.png';
-            ImportanceView3.height = '33dp',
-            ImportanceView3.width = '33dp',
+            ImportanceView3.height = '33dp';
+            ImportanceView3.width = '33dp';
         }
 
         // memo

@@ -56,7 +56,7 @@ var TaskDB = function() {
 
     this.fetchCell = function(id, attr) {
     	this.open();
-    	cell = this.db.execute('SELECT ? FROM task WHERE id = ?', attr, id);
+    	cell = this.db.execute('SELECT ' + attr + ' FROM task WHERE id = ?', id).field(0);
     	this.close();
     	return cell;
     };
