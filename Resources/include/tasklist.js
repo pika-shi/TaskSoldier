@@ -11,13 +11,7 @@
         });
 
         // scroll view
-        var scrollView = Titanium.UI.createScrollView({
-			contentWidth:'auto',
-			contentHeight: 'auto',
-			top:0,
-			showVerticalScrollIndicator: true
-        });
-        taskListWin.add(scrollView);
+        var scrollView;
 
         // create tab
         tab = Titanium.UI.createTab({
@@ -100,6 +94,12 @@
         	views = {};
         	prevPoint = {x: 0, y: 0};
         	prevRadius = 0;
+			scrollView = Titanium.UI.createScrollView({
+				contentWidth : 'auto',
+				contentHeight : 'auto',
+				top : 0
+			});
+			taskListWin.add(scrollView); 
         }
         
         // putting images for each task
@@ -226,12 +226,6 @@
 				var removed = prevRecords.filter(exists, laterRecords)[0];
 				if (added != null) {
 					taskListWin.remove(scrollView);
-					scrollView = Titanium.UI.createScrollView({
-						contentWidth : 'auto',
-						contentHeight : 'auto',
-						top : 0
-					}); 
-					taskListWin.add(scrollView);
 					drawTasks(records);
 				} else if (removed != null && views[removed] != null) {
 					removeTaskImage(removed);
