@@ -24,28 +24,42 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBuffer.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBlob.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIAlertDialogProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/Ti2DMatrix.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/Ti3DMatrix.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiAnimation.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiPoint.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/ListenerEntry.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/LayoutConstraint.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiPhoneProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiPadProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiPadPopoverProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIView.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiGradient.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRect.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewController.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiPadSplitWindowProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiWindowProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTab.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTabGroup.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIWindow.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiPadDocumentViewerProxy.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSAdViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIClipboardProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSCoverFlowViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSToolbarProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiToolbar.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSTabbedBarProxy.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiApp.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiHost.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/Bridge.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiStylesheet.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/KrollBridge.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/XHRBridge.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootViewController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootController.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiWindowProxy.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewProxy.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIView.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiGradient.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRect.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTab.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTabGroup.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIWindow.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/ImageLoader.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/ASI/ASIHTTPRequest.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/ASI/ASIHTTPRequestConfig.h \

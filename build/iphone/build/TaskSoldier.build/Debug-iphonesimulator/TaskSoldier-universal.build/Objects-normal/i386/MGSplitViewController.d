@@ -27,6 +27,7 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiFile.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBuffer.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBlob.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/XHRBridge.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootViewController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiWindowProxy.h \
@@ -41,4 +42,8 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTab.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiTabGroup.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIWindow.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewController.h
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewController.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/MGSplitView/MGSplitViewController.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/MGSplitView/MGSplitDividerView.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/MGSplitView/MGSplitCornersView.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/MGSplitView/MGSplitView.h

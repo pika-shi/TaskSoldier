@@ -28,4 +28,8 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBuffer.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBlob.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/LayoutConstraint.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiGradient.h
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiGradient.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIiOSAdViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiUIViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiViewProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRect.h

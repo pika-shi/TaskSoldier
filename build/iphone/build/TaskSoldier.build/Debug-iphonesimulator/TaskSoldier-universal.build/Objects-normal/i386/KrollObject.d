@@ -31,6 +31,7 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiApp.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiHost.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiStylesheet.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/XHRBridge.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootViewController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiRootController.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiWindowProxy.h \

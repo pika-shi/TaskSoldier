@@ -15,4 +15,8 @@ dependencies: \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/headers/TiCore/TiContextRefPrivate.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/KrollCallback.h \
   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/KrollObject.h \
-  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiNetworkSocketTCPProxy.h
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiNetworkSocketTCPProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiStreamProxy.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/Tibuffer.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/TiBlob.h \
+  /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/Classes/AsyncSocket.h

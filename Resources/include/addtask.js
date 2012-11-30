@@ -23,7 +23,7 @@
 
         var BackGroundView = Ti.UI.createImageView({
             image: './back.jpg',
-            width: '500dp',
+            width: '700dp',
         });
 
         // FORM (Task Name)
@@ -51,9 +51,6 @@
             left: '20dp',
             width: '70dp',
         });
-        var leftButton = Titanium.UI.createButton({
-                style:Titanium.UI.iPhone.SystemButton.DISCLOSURE
-            });
         // FORM (DeadLine)
         var DeadLineForm = Ti.UI.createTextField({
             color: '#333333',
@@ -62,8 +59,6 @@
             left: '30dp',
             width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
-            leftButton:leftButton,
-            leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
         });
         var DeadLineLabel = Ti.UI.createLabel({
             color:'#000',
@@ -180,10 +175,14 @@
             MemoForm.value = task.memo;
 
             if (ImportanceLevel >= 2) {
-                ImportanceView2.backgroundColor = '#000';
+                ImportanceView2.image = 'star_on.png';
+                ImportanceView2.width = '30dp';
+                ImportanceView2.height = '30dp';
             }
             if (ImportanceLevel == 3) {
-                ImportanceView3.backgroundColor = '#000';
+                ImportanceView3.image = 'star_on.png';
+                ImportanceView3.width = '30dp';
+                ImportanceView3.height = '30dp';
             }
         }
 
@@ -195,22 +194,35 @@
                 record.deadline = DeadLineForm.getValue().split('/').join('-') + ':00';
                 record.importance = ImportanceLevel;
                 record.memo = MemoForm.getValue();
+                var AddTaskFlag = 0;
                 var db = new TaskDB();
                 if (TaskId) {
                     db.updateTask(TaskId, record);
                 } else {
                     TaskId = db.insertTask(record);
+                    AddTaskFlag = 1;
                 }
                 var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
                 AddTaskWin.title = "タスクの詳細";
                 AddTaskWin.add(TaskDetailWindow);
+                if (AddTaskFlag == 0) {
+                    Titanium.UI.createAlertDialog({
+                        title:'タスクを更新しました．',
+                    }).show();
+                } else {
+                    Titanium.UI.createAlertDialog({
+                        title:'タスクを追加しました．',
+                    }).show();
+                }
+            } else if (!TaskNameForm.getValue()) {
                 Titanium.UI.createAlertDialog({
-                    title:'保存しました．',
+                    title:'Alert',
+                    message:'タスク名が未入力です．'
                 }).show();
             } else {
                 Titanium.UI.createAlertDialog({
                     title:'Alert',
-                    message:'未入力項目があります．'
+                    message:'締切日時が未入力です．'
                 }).show();
             }
         });
@@ -222,7 +234,7 @@
         //ScrollView.add(TaskNameView);
         ScrollView.add(DeadLineForm);
         ScrollView.add(DeadLineLabel);
-        //ScrollView.add(DeadLineView);
+        ScrollView.add(DeadLineView);
         ScrollView.add(SubmitButton);
         ScrollView.add(ImportanceLabel);
         ScrollView.add(ImportanceView1);
@@ -242,7 +254,7 @@
                     DeadLineForm.value = year + '/' + month + '/' + day + ' ' + hour;
                 }
             });
-        leftButton.addEventListener('click', function()
+        DeadLineView.addEventListener('click', function()
         {
             optionPickerDialog.open();
         });

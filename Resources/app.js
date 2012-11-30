@@ -23,14 +23,13 @@ Titanium.include('./include/config.js');
 Titanium.include('./include/db.js');
 
 // call objects
-var LogTab = app.log.createTab();
+// var LogTab = app.log.createTab();
 var TaskListTab = app.tasklist.createTab();
 var ConfigTab = app.config.createTab();
 
 // create win
 var logWin = Titanium.UI.createWindow({
-	title : 'ログ',
-	backgroundColor : '#fff'
+	title : 'ログ'
 });
 // create tab
 var logTab2 = Titanium.UI.createTab({
@@ -50,7 +49,6 @@ tabGroup.addTab(ConfigTab);
 tabGroup.addEventListener('focus', function(e) {
 	if (e.index == 1) {
 		logWin.remove(logView);
-		Ti.API.info('hoge');
 		logView = app.log.createView(logTab2);
 		logWin.add(logView);
 	}

@@ -18,6 +18,11 @@
             title:'設定',
             window:win
         });
+
+        var BackGroundView = Ti.UI.createImageView({
+                image: './back.jpg',
+                width: '500dp',
+            });
         // time set
         var TimeLabel25 = Titanium.UI.createLabel({
             text: '集中時間:25分 休憩:5分',
@@ -35,18 +40,16 @@
             width: '200dp',
         });
 
-        var TimeView25 = Titanium.UI.createView({
-            backgroundColor:'#000',
-            borderColor:'#000',
+        var TimeView25 = Titanium.UI.createImageView({
+            image: 'checkbox_on.png',
             height: '30dp',
             top: '30dp',
             left: '30dp',
             width: '30dp'
         });
 
-        var TimeView50 = Titanium.UI.createView({
-            backgroundColor:'#fff',
-            borderColor:'#000',
+        var TimeView50 = Titanium.UI.createImageView({
+            image: 'checkbox_off.png',
             text: '集中時間:50分 休憩:10分',
             height: '30dp',
             top: '70dp',
@@ -63,19 +66,19 @@
         });
 
         if (TimeSet == 50) {
-            TimeView25.backgroundColor = '#fff';
-            TimeView50.backgroundColor = '#000';
+            TimeView25.image = 'checkbox_off.png';
+            TimeView50.image = 'checkbox_on.png';
         }
 
         TimeView25.addEventListener('click', function(e){
-            TimeView25.backgroundColor =  '#000';
-            TimeView50.backgroundColor = '#fff';
+            TimeView25.image = 'checkbox_on.png';
+            TimeView50.image = 'checkbox_off.png';
             TimeSet = 25;
         });
 
         TimeView50.addEventListener('click', function(e){
-            TimeView25.backgroundColor = '#fff';
-            TimeView50.backgroundColor = '#000';
+            TimeView25.image = 'checkbox_off.png';
+            TimeView50.image = 'checkbox_on.png';
             TimeSet = 50;
         });
 
@@ -87,6 +90,7 @@
         });
 
         // set label
+        win.add(BackGroundView);
         win.add(TimeLabel25);
         win.add(TimeLabel50);
         win.add(TimeView25);

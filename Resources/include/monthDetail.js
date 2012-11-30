@@ -13,13 +13,17 @@ var pika_shi = function(monthNum, tab) {
 		title : monthNum + '月',
 		backgroundColor : '#fff'
 	});
-	var tableView = Ti.UI.createTableView();
+	var tableView = Ti.UI.createTableView({
+		backgroundColor : 'transparent',
+		backgroundImage : 'back.jpg',
+		separatorColor : '#000'
+	});
 
-	var temprows = con.execute('SELECT * FROM task;');
-	while (temprows.isValidRow()) {
-		Ti.API.info(temprows.field(1) + ', ' + temprows.field(5) + ', ' + temprows.field(6));
-		temprows.next();
-	}
+	// var temprows = con.execute('SELECT * FROM task;');
+	// while (temprows.isValidRow()) {
+	// Ti.API.info(temprows.field(1) + ', ' + temprows.field(5) + ', ' + temprows.field(6));
+	// temprows.next();
+	// }
 
 	for (var i = myzac(year, monthNum); i > 0; i--) {
 		var date;
