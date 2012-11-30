@@ -143,7 +143,7 @@
 		function removeTask(id) {
 			scrollView.remove(views[id]);
 			delete views[id];
-			db.deleteTask(id);
+			// db.deleteTask(id);
 		}
 
 		// function to calculate difference between two arrays

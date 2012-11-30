@@ -15,6 +15,12 @@ var pika_shi = function(monthNum, tab) {
 	});
 	var tableView = Ti.UI.createTableView();
 
+	var temprows = con.execute('SELECT * FROM task;');
+	while (temprows.isValidRow()) {
+		Ti.API.info(temprows.field(1) + ', ' + temprows.field(5) + ', ' + temprows.field(6));
+		temprows.next();
+	}
+
 	for (var i = myzac(year, monthNum); i > 0; i--) {
 		var date;
 		if (i < 10) {
@@ -27,7 +33,7 @@ var pika_shi = function(monthNum, tab) {
 			height : 44,
 			dayNum : date
 		});
-		
+
 		// 日毎の合計集中時間を取得
 		var rows = con.execute('SELECT total(passedtime) FROM task WHERE endtime LIKE \'%-' + monthNum + '-' + date + '%\';');
 		var second = (rows.field(0)) % 60;
@@ -48,43 +54,45 @@ var pika_shi = function(monthNum, tab) {
 		} else {
 			length = rows.field(0);
 		}
-		var maxGraphView = Ti.UI.createView({
-			height : 20,
-			width : 150,
-			left : 70,
-			backgroundGradient : {
-				type : 'linear',
-				startPoint : {
-					x : '0%',
-					y : '50%'
-				},
-				endPoint : {
-					x : '100%',
-					y : '50%'
-				},
-				colors : [{
-					color : '#228b22',
-					offset : 0.0
-				}, {
-					color : 'yellow',
-					offset : 0.5
-				}, {
-					color : 'red',
-					offset : 1.0
-				}]
-			}
-		});
+		// var maxGraphView = Ti.UI.createView({
+		// height : 20,
+		// width : 150,
+		// left : 70,
+		// backgroundGradient : {
+		// type : 'linear',
+		// startPoint : {
+		// x : '0%',
+		// y : '50%'
+		// },
+		// endPoint : {
+		// x : '100%',
+		// y : '50%'
+		// },
+		// colors : [{
+		// color : '#228b22',
+		// offset : 0.0
+		// }, {
+		// color : 'yellow',
+		// offset : 0.5
+		// }, {
+		// color : 'red',
+		// offset : 1.0
+		// }]
+		// }
+		// });
 		var graphView = Ti.UI.createView({
 			height : 20,
-			right : 100,
-			width : (1 - (length / 18000)) * 150,
-			backgroundColor : '#fff'
+			// right : 100,
+			left : 70,
+			width : (length / 18000) * 150,
+			// width : (1 - (length / 18000)) * 150,
+			backgroundColor : '#228b22'
 		});
 		var timeLabel = Ti.UI.createLabel({
 			text : hour + ':' + minute + ':' + second,
 			right : 10
 		});
-		tableViewRow.add(maxGraphView);
+		// tableViewRow.add(maxGraphView);
 		tableViewRow.add(graphView);
 		tableViewRow.add(timeLabel);
 		if (rows.field(0) != 0) {
@@ -94,6 +102,7 @@ var pika_shi = function(monthNum, tab) {
 
 	Ti.include('./include/dayDetail.js');
 	tableView.addEventListener('click', function(e) {
+		// tableViewRow.remove(maxGraphView);
 		tab.open(day_detail(monthNum, e.row.dayNum, tab));
 	});
 	monthDetail.add(tableView);
