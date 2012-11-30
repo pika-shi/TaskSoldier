@@ -38,11 +38,11 @@
         var TaskName = Ti.UI.createLabel({
             color:'#000',
             text: task.name,
-            height: '30dp',
+            height: '60dp',
             top: '90dp',
             textAlign:'center',
-            width: '120dp',
-            font:{fontSize:24},
+            width: '180dp',
+            font:{fontSize:20},
         });
 
         // DeadLine
@@ -59,7 +59,7 @@
             color:'#000',
             text: task.deadline.split('-').join('/').slice(0,16) + ' まで',
             height: '35dp',
-            top: '120dp',
+            top: '145dp',
             textAlign:'center',
             width: '200dp',
         });
@@ -76,21 +76,21 @@
         var ImportanceView1 = Ti.UI.createImageView({
             image: './star_on.png',
             height: '30dp',
-            top: '160dp',
+            top: '180dp',
             left: '190dp',
             width: '30dp',
         });
         var ImportanceView2 = Ti.UI.createImageView({
             image: './star_off.png',
             height: '33dp',
-            top: '160dp',
+            top: '180dp',
             left: '230dp',
             width: '33dp',
         });
         var ImportanceView3 = Ti.UI.createImageView({
             image: './star_off.png',
             height: '33dp',
-            top: '160dp',
+            top: '180dp',
             left: '270dp',
             width: '33dp',
         });
@@ -121,21 +121,21 @@
         var Memo = Ti.UI.createLabel({
             color:'#000',
             text: task.memo,
-            height: '30dp',
+            height: '90dp',
             top: '200dp',
             textAlign:'center',
-            width: '200dp',
+            width: '180dp',
         });
 
         // add button
         var EditButton = Ti.UI.createButton({
-            title: 'edit',
+            systemButton: Titanium.UI.iPhone.SystemButton.COMPOSE
         });
 
         var TimerButton = Ti.UI.createButton({
             title: 'タイマー',
-            top: '250dp',
-            left: '140dp',
+            top: '320dp',
+            left: '200dp',
             width: '70dp',
             height: '30dp'
         });

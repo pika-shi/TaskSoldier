@@ -27,8 +27,7 @@
 
         // create button for add task
         var button = Titanium.UI.createButton({
-            title: '+',
-            //backgroundImage: 'add.png',
+            systemButton: Titanium.UI.iPhone.SystemButton.ADD
         });
         // click addtask button
         button.addEventListener('click', function()
@@ -138,7 +137,7 @@
        		// cancel long-press when moved within detection interval
        		imageView.addEventListener('touchmove', function(e) { touched = false });
 		}
-		
+
 		// remove a task given its imageView
 		function removeTask(id) {
 			scrollView.remove(views[id]);
@@ -177,13 +176,13 @@
 						contentHeight : 'auto',
 						top : 0,
 						bottom : 0
-					}); 
+					});
 					taskListWin.add(scrollView);
 					views = {};
 					prevPoint = {x: 0, y: 0};
         			prevRadius = 0;
 					for (var i = 0; i < laterRecords.length; i++) {
-						addTask(records[i], prevPoint, prevRadius); 
+						addTask(records[i], prevPoint, prevRadius);
 					}
 				} else if (removed != null && views[removed] != null) {	//TODO animation of removal
 					removeTask(removed);
