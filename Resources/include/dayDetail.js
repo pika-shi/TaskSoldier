@@ -4,8 +4,12 @@ var day_detail = function(monthNum, dayNum, tab) {
 		title : dayNum + '日',
 		backgroundColor : '#fff'
 	});
-	var tableView = Ti.UI.createTableView();
-	
+	var tableView = Ti.UI.createTableView({
+		backgroundColor : 'transparent',
+		backgroundImage : 'back.jpg',
+		separatorColor : '#000'
+	});
+
 	// その日のタスクを取得
 	var rows = con.execute('SELECT name, passedtime, id FROM task WHERE endtime LIKE \'%-' + monthNum + '-' + dayNum + '%\';');
 	while (rows.isValidRow()) {
@@ -39,8 +43,8 @@ var day_detail = function(monthNum, dayNum, tab) {
 	tableView.addEventListener('click', function(e) {
 		tab.open(past_task_detail(e.row.id));
 	});
-	
+
 	dayDetail.add(tableView);
-	
+
 	return dayDetail;
 };
