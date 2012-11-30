@@ -3,17 +3,20 @@ var past_task_detail = function(id) {
 
 	var pastTaskDetail = Ti.UI.createWindow({
 		title : 'タスク詳細',
-		backgroundColor : '#fff'
+		backgroundColor : 'transparent',
+		backgroundImage : 'back.jpg'
 	});
-	
+
 	// fetchOneとほぼ同じメソッド
 	var task = con.fetchPastOne(id);
 
 	// create view (global)
-	TaskDetailView = Ti.UI.createView({
-		backgroundColor : '#fff',
-		width : '320dp',
-		height : '400dp'
+	TaskDetailView = Ti.UI.createImageView();
+
+	var TaskView = Ti.UI.createImageView({
+		image : './detail.png',
+		top : '40dp',
+		height : '250dp'
 	});
 
 	// Task Name
@@ -29,10 +32,13 @@ var past_task_detail = function(id) {
 	var TaskName = Ti.UI.createLabel({
 		color : '#000',
 		text : task.name,
-		height : '30dp',
-		top : '80dp',
+		height : '60dp',
+		top : '90dp',
 		textAlign : 'center',
-		width : '120dp',
+		width : '180dp',
+		font : {
+			fontSize : 20
+		}
 	});
 
 	// DeadLine
@@ -47,9 +53,9 @@ var past_task_detail = function(id) {
 
 	var DeadLine = Ti.UI.createLabel({
 		color : '#000',
-		text : task.deadline.split('-').join('/'),
-		height : '30dp',
-		top : '120dp',
+		text : task.deadline.split('-').join('/').slice(0, 16) + ' まで',
+		height : '35dp',
+		top : '145dp',
 		textAlign : 'center',
 		width : '200dp',
 	});
@@ -63,34 +69,40 @@ var past_task_detail = function(id) {
 		left : '20dp',
 		width : '70dp',
 	});
-	var ImportanceView1 = Ti.UI.createView({
-		backgroundColor : '#000',
+	var ImportanceView1 = Ti.UI.createImageView({
+		image : './star_on.png',
 		height : '30dp',
-		top : '160dp',
-		left : '80dp',
+		top : '180dp',
+		left : '190dp',
 		width : '30dp',
 	});
-	var ImportanceView2 = Ti.UI.createView({
-		backgroundColor : '#999',
-		height : '30dp',
-		top : '160dp',
-		left : '120dp',
-		width : '30dp',
+	var ImportanceView2 = Ti.UI.createImageView({
+		image : './star_off.png',
+		height : '33dp',
+		top : '180dp',
+		left : '230dp',
+		width : '33dp',
 	});
-	var ImportanceView3 = Ti.UI.createView({
-		backgroundColor : '#999',
-		height : '30dp',
-		top : '160dp',
-		left : '160dp',
-		width : '30dp',
+	var ImportanceView3 = Ti.UI.createImageView({
+		image : './star_off.png',
+		height : '33dp',
+		top : '180dp',
+		left : '270dp',
+		width : '33dp',
 	});
 
 	if (task.importance == 2) {
-		ImportanceView2.backgroundColor = '#000';
+		ImportanceView2.image = './star_on.png';
+		ImportanceView2.height = '33dp';
+		ImportanceView2.width = '33dp';
 	}
 	if (task.importance == 3) {
-		ImportanceView2.backgroundColor = '#000';
-		ImportanceView3.backgroundColor = '#000';
+		ImportanceView2.image = './star_on.png';
+		ImportanceView2.height = '33dp';
+		ImportanceView2.width = '33dp';
+		ImportanceView3.image = './star_on.png';
+		ImportanceView3.height = '33dp';
+		ImportanceView3.width = '33dp';
 	}
 
 	// memo
@@ -105,10 +117,10 @@ var past_task_detail = function(id) {
 	var Memo = Ti.UI.createLabel({
 		color : '#000',
 		text : task.memo,
-		height : '30dp',
-		top : '200dp',
+		height : '90dp',
+		top : '180dp',
 		textAlign : 'center',
-		width : '200dp',
+		width : '180dp',
 	});
 
 	var second = (task.passedtime) % 60;
@@ -161,6 +173,7 @@ var past_task_detail = function(id) {
 	});
 
 	// set label ＆ form
+	TaskDetailView.add(TaskView);
 	TaskDetailView.add(TaskName);
 	TaskDetailView.add(DeadLine);
 	TaskDetailView.add(ImportanceView1);

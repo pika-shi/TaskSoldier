@@ -176,13 +176,13 @@
 
             if (ImportanceLevel >= 2) {
                 ImportanceView2.image = 'star_on.png';
-                ImportanceView2.width = '30dp',
-                ImportanceView2.height = '30dp',
+                ImportanceView2.width = '30dp';
+                ImportanceView2.height = '30dp';
             }
             if (ImportanceLevel == 3) {
                 ImportanceView3.image = 'star_on.png';
-                ImportanceView3.width = '30dp',
-                ImportanceView3.height = '30dp',
+                ImportanceView3.width = '30dp';
+                ImportanceView3.height = '30dp';
             }
         }
 
