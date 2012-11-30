@@ -23,14 +23,36 @@ Titanium.include('./include/config.js');
 Titanium.include('./include/db.js');
 
 // call objects
-var LogTab = app.log.createTab();
+// var LogTab = app.log.createTab();
 var TaskListTab = app.tasklist.createTab();
 var ConfigTab = app.config.createTab();
 
+// create win
+var logWin = Titanium.UI.createWindow({
+	title : 'ログ'
+});
+// create tab
+var logTab2 = Titanium.UI.createTab({
+	icon : 'KS_nav_ui.png',
+	title : 'ログ',
+	window : logWin
+});
+
+var logView = {};
+logView = app.log.createView(logTab2);
+logWin.add(logView);
+
 // add tabs
 tabGroup.addTab(TaskListTab);
-tabGroup.addTab(LogTab);
+tabGroup.addTab(logTab2);
 tabGroup.addTab(ConfigTab);
+tabGroup.addEventListener('focus', function(e) {
+	if (e.index == 1) {
+		logWin.remove(logView);
+		logView = app.log.createView(logTab2);
+		logWin.add(logView);
+	}
+});
 
 // open tab group
-tabGroup.open();
+tabGroup.open(); 
