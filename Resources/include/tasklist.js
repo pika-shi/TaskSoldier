@@ -6,8 +6,8 @@
 		// create win
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
-			backgroundColor : '#fff',
-			backgroundImage : 'back.jpg'
+			backgroundColor : '#f0ffff'
+			// backgroundImage : 'back.jpg'
 		});
 
 		// scroll view
@@ -61,31 +61,34 @@
 			};
 		}
 
-		function nextRad(rec) {
+		function subDate(rec) {
 			// record deadline
 			var tmp = rec.deadline.split('-');
 			var rYear = tmp[0];
 			var rMonth = tmp[1];
 			var rDay = tmp[2].split(' ')[0];
-			var rDate = new Date(rYear, rMonth - 1, rDay);
+			var tmp2 = tmp[2].split(' ')[1].split(':');
+			var rHour = tmp2[0];
+			var rMin = tmp2[1];
+			var rSec = tmp2[2];
+			var rDate = new Date(rYear, rMonth - 1, rDay, rHour, rMin, rSec);
 
 			// current date
 			var date = new Date();
 
-			// last day
-			var last = (rDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+			// last sec
+			return (rDate.getTime() - date.getTime()) / 1000;
+		}
+		
+		function nextRad(rec) {
+			//last day
+			var last = subDate(rec) / (60 * 60 * 24);
 
-			if (last < 0)
-				return 15;
-			else if (last < 1)
-				return rec.importance * (25 + 5 * (1 - last));
-			// myzac's secret formula!!
-			else if (last < 3)
-				return rec.importance * (18 + 0.5 * (3 - last));
-			else if (last < 7)
-				return rec.importance * (15 + 0.5 * (7 - last));
-			else
-				return rec.importance * 15;
+			if (last < 0) return 15;
+			else if (last < 1) return rec.importance * (15 + 5 * (1 - last)) + 25;	// myzac's secret formula!!
+			else if (last < 3) return rec.importance * (14 + 0.5 * (3 - last)) + 20;
+			else if (last < 7) return rec.importance * (10 + 0.5 * (7 - last)) + 20;
+			else return rec.importance * 8 + 20;
 		}
 
 		// parameters to determine the position of tasks(images)
@@ -98,7 +101,7 @@
 			views = {};
 			prevPoint = {
 				x : 0,
-				y : 0
+				y : 30
 			};
 			prevRadius = 0;
 			scrollView = Titanium.UI.createScrollView({
@@ -112,14 +115,40 @@
 		// putting images for each task
 		function drawTasks(recs) {
 			initialize();
+			var excessRecords = new Array(0);
+			var dangerRecords = new Array(0);
 			for (var i = 0; i < recs.length; i++) {
 				// arranging image and label for each task
 				var rec = recs[i];
+				if (subDate(rec) < 0) excessRecords.push(rec);
+				else {
+					var next = addTask(rec, prevPoint, prevRadius);
+					prevPoint = next.point;
+					prevRadius = next.radius;
+					if(subDate(rec) < 60 * 60 * 24) {
+						dangerRecords.push(rec);
+					}
+				}
+			}
+			for (var i = 0; i < excessRecords.length; i++) {
+				var rec = excessRecords[i];
 				var next = addTask(rec, prevPoint, prevRadius);
 				prevPoint = next.point;
 				prevRadius = next.radius;
 			}
 			scrollView.contentHeight = prevPoint.y + prevRadius;
+			
+			if (dangerRecords.length > 0) {
+				var message = '';
+				for (var i = 0; i < dangerRecords.length; i++) {
+					message = message + dangerRecords[i].name + '\n';
+				}
+				Titanium.Media.vibrate();
+				Titanium.UI.createAlertDialog({
+					title: '締切が近付いています!!',
+					message: message
+				}).show();
+			}
 		}
 
 		drawTasks(records);
@@ -138,7 +167,7 @@
 					x : nextPoint.x + 'dp',
 					y : nextPoint.y + 'dp'
 				},
-				opacity : 0.8
+				opacity: 0.8
 			});
 
 			imageView.add(Titanium.UI.createLabel({
@@ -150,6 +179,7 @@
 					fontSize : 20,
 					fontFamily : 'Helvetica Neue'
 				},
+				color: '#555555',
 				touchEnabled : false
 			}));
 			scrollView.add(imageView);
@@ -177,8 +207,7 @@
 					}
 				});
 				setTimeout(function() {
-					if (touched)
-						confirmAlert.show();
+					if (touched) confirmAlert.show();
 				}, 1000);
 				// interval to detect long-press is 1 sec
 			});
@@ -243,6 +272,7 @@
 		taskListWin.addEventListener('focus', function(e) {
 			records = db.fetchToList(0);
 			var laterRecords = new Array(0);
+			var tmp;
 			if (blurFlag == 1) {
 				for (var i = 0; i < records.length; i++) {
 					laterRecords.push(records[i].id);
