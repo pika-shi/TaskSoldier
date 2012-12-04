@@ -3,27 +3,37 @@
     app.timer = {};
     // tab object
     app.timer.createWindow = function(taskID, caller){
-    	//FIXME investigate 'passedtime' format
         // create win
         var timerWin = Titanium.UI.createWindow({
             title: 'timer',
-            backgroundColor: '#fff',
-            backgroundImage: 'back.jpg'
+            backgroundColor: '#f0ffff'
+            // backgroundImage: 'back.jpg'
         });
         
         // label to put section in
         var statusLabel = Titanium.UI.createLabel({
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 30 + 'dp'},
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 50 + 'dp'},
         	textAlign: 'center',
-			font: {fontSize: 24, fontFamily: 'Helvetica Neue'},
+			font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
 			touchEnabled: false
+        });
+        
+        // basement of timer label
+        var whiteView = Titanium.UI.createView({
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 150 + 'dp'},
+        	// backgroundColor: 'white',
+        	backgroundColor: '#7fbfff',
+        	opacity: 0.6,
+        	width: 180 + 'dp',
+        	height: 100 + 'dp'
         });
         
         // label to put time in
         var timerLabel = Titanium.UI.createLabel({
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 120 + 'dp'},
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 150 + 'dp'},
         	textAlign: 'center',
 			font: {fontSize: 60, fontFamily: 'Helvetica Neue'},
+			color: 'white',
 			touchEnabled: false
         });
         
@@ -58,8 +68,6 @@
         
         // generate time for timerLabel
         function calcTime(second) {
-        	genMessage(section);
-        	
 	    	var min = Math.floor(second / 60);
 	    	min = (min > 9)? min : '0' + min;
 	    	var sec = second % 60;
@@ -78,8 +86,10 @@
         
         // generate message for statusLabel according to current section (work or rest)
         function genMessage(section) {
+        	var message = {0: 'まだ慌てるような時間じゃない', 1: '今を大切に!!', 2: '明日やろうは馬鹿野郎', 3: '無限の彼方へェェェェェ!!'}[Math.floor(Math.random() * 4)];
+        	if (message == 'まだ慌てるような時間じゃない') timerWin.backgroundImage = 'sendou.jpg';	//FIXME
         	switch(section % 2) {
-        		case 0: statusLabel.text = 'ファイト百発!!'; break;	//TODO looking for a better message ;(
+        		case 0: statusLabel.text = message; break;
         		case 1: statusLabel.text = '休憩!!'; break;
         		default: statusLabel.text = 'ERROR'; break;
         	}
@@ -88,15 +98,15 @@
         // button to pause countdown
         var pauseFlag = 0;
         var pauseButton = Titanium.UI.createButton({
-            title: '一時停止',
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 250 + 'dp'},
-            width: '120dp',
-            height: '30dp'
+            backgroundImage: 'button_pause.png',
+            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 280 + 'dp'},
+            width: '150dp',
+            height: '50dp'
         });
         pauseButton.addEventListener('click', function(e){
         	switch (pauseFlag) {
-        		case 0:	pauseFlag = 1; stopTimer(1); this.title = '再開'; break;
-        		case 1: pauseFlag = 0; setTimer(); this.title = '一時停止'; break;
+        		case 0:	pauseFlag = 1; stopTimer(1); this.backgroundImage = 'button_resume.png'; break;
+        		case 1: pauseFlag = 0; setTimer(); this.backgroundImage = 'button_pause.png'; break;
         	}
         });
         
@@ -106,20 +116,20 @@
 	        	stopTimer(1);
 	        	var db = new TaskDB();
 				db.updateCell(taskID, 'passedtime', passedTime + totalTime);
-				db.close();	
+				db.close();
         	}
 		});
         
         // button to finish working on the task
         var finishButton = Titanium.UI.createButton({
-            title: '作業終了',
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 300 + 'dp'},
-            width: '120dp',
-            height: '30dp'
+            backgroundImage: 'button_exit.png',
+            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 350 + 'dp'},
+            width: '150dp',
+            height: '50dp'
         });
         finishButton.addEventListener('click', function(e){
         	pauseFlag = 1;
-        	pauseButton.title = '再開';
+        	pauseButton.backgroundImage = 'button_resume.png';
         	stopTimer(0);
         });
         
@@ -131,23 +141,12 @@
 			cancel: 2
 		});
 		confirmAlert.addEventListener('click', function(e) {
+			var db = new TaskDB();
 			switch (e.index) {
 				case 0:
 					var date = getDate();
-					var db = new TaskDB();
-					passedTime = db.fetchCell(taskID, 'passedtime');
-					if ( typeof passedTime != typeof 1) {
-						db.updateCell(taskID, 'passedtime', totalTime);
-					} else {
-						db.updateCell(taskID, 'passedtime', passedTime + totalTime);
-					}
 					db.updateCell(taskID, 'endtime', date);
-					db.close();
-					caller.close();
-					timerWin.close();
-					break;
-				case 1: 
-					var db = new TaskDB();
+				case 1:
 					passedTime = db.fetchCell(taskID, 'passedtime');
 					if (typeof passedTime != typeof 1) {
 						db.updateCell(taskID, 'passedtime', totalTime);	
@@ -155,6 +154,7 @@
 						db.updateCell(taskID, 'passedtime', passedTime + totalTime);
 					}
 					db.close();
+					caller.close();
 					timerWin.close(); 
 					break;
 			}
@@ -220,11 +220,14 @@
 		// arrange labels and buttons for timer
 		function drawTimer() {
 			timerWin.add(statusLabel);
+			timerWin.add(whiteView);
 			timerWin.add(timerLabel);
 			timerWin.add(pauseButton);
         	timerWin.add(finishButton);
 		}
 		
+		genMessage(section);
+        
         // show countdown
         showCountDown();
 
