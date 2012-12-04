@@ -27,7 +27,7 @@
         var TimeLabel25 = Titanium.UI.createLabel({
             text: '集中時間:25分 休憩:5分',
             height: '30dp',
-            top: '30dp',
+            top: '100dp',
             left: '80dp',
             width: '200dp'
         });
@@ -35,7 +35,7 @@
         var TimeLabel50 = Titanium.UI.createLabel({
             text: '集中時間:50分 休憩:10分',
             height: '30dp',
-            top: '70dp',
+            top: '140dp',
             left: '80dp',
             width: '200dp',
         });
@@ -43,8 +43,8 @@
         var TimeView25 = Titanium.UI.createImageView({
             image: 'checkbox_on.png',
             height: '30dp',
-            top: '30dp',
-            left: '30dp',
+            top: '100dp',
+            left: '40dp',
             width: '30dp'
         });
 
@@ -52,17 +52,17 @@
             image: 'checkbox_off.png',
             text: '集中時間:50分 休憩:10分',
             height: '30dp',
-            top: '70dp',
-            left: '30dp',
+            top: '140dp',
+            left: '40dp',
             width: '30dp'
         });
 
         var SaveButton = Titanium.UI.createButton({
-            title: '保存',
-            height: '40dp',
-            top: '120dp',
-            left: '80dp',
-            width: '160dp'
+            backgroundImage:'save.png',
+            height: '50dp',
+            top: '190dp',
+            left: '85dp',
+            width: '150dp'
         });
 
         if (TimeSet == 50) {

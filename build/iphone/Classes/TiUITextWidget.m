@@ -9,7 +9,7 @@
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
 #import "TiUITextWidget.h"
-#import "TiUITextWidgetProxy.h"
+
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
@@ -157,12 +157,7 @@
 
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didFocusWithText:(NSString *)value
 {
-	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
-
-	if ([ourProxy suppressFocusEvents]) {
-		return;
-	}
-
+	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
 	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
@@ -173,11 +168,7 @@
 
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didBlurWithText:(NSString *)value
 {
-	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
-
-	if ([ourProxy suppressFocusEvents]) {
-		return;
-	}
+	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
 
 	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 

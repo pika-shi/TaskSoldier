@@ -10,7 +10,6 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
-#import "TiUIiOSAdViewProxy.h"
 #import <iAd/iAd.h>
 
 @interface TiUIiOSAdView : TiUIView<ADBannerViewDelegate> {

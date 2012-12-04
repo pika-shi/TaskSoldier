@@ -54,19 +54,17 @@
 
 -(void)setMovie:(MPMoviePlayerController*)controller_
 {
-	if (controller_ == controller) {
-        // don't add the movie more than once if the same
-        return;
-    }
-	[[controller view] removeFromSuperview];
-    [spinner removeFromSuperview];
-    RELEASE_TO_NIL(spinner);
-    RELEASE_TO_NIL(controller);
-
-    if (controller_ == nil) {
-        return;
-    }
-    controller = [controller_ retain];
+	if (controller!=nil)
+	{
+		if ([controller_ isEqual:controller])
+		{
+			// don't add the movie more than once if the same
+			return;
+		}
+		[[controller view] removeFromSuperview];
+	}
+	RELEASE_TO_NIL(controller);
+	controller = [controller_ retain];
 	
 	[TiUtils setView:[controller view] positionRect:self.bounds];
 	[self addSubview:[controller view]];
@@ -107,20 +105,12 @@
 	}
 }
 
--(BOOL)touchedContentViewWithEvent:(UIEvent *)event
-{
-    // The view hierarchy of the movie player controller's view is subject to change,
-    // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
-    // assume it falls into the movie player view hiearchy; this matches previous
-    // behavior as well.
-    
-    UITouch* touch = [[event allTouches] anyObject];
-    return (![[touch view] isKindOfClass:[TiUIView class]]);
-}
-
 -(void)dealloc
 {
-	[[controller view] removeFromSuperview];
+	if (controller!=nil)
+	{
+		[[controller view] removeFromSuperview];
+	}
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(spinner);
 	[super dealloc];

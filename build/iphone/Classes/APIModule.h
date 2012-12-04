@@ -8,10 +8,12 @@
  */
 #import "TiModule.h"
 
+#ifdef USE_TI_API
+
 @interface APIModule : TiModule {
 
 }
 
--(void)logMessage:(NSArray*)messages severity:(NSString*)severity; // Used by TiConsole
-
 @end
+
+#endif

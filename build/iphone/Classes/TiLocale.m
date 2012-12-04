@@ -30,7 +30,7 @@
 	[super dealloc];
 }
 
-+(NSString*)defaultLocale
++(NSString*)currentLocale
 {
 	TiLocale *l = [TiLocale instance];
 	if (l.currentLocale == nil)
@@ -63,7 +63,7 @@
 	if (l.bundle==nil)
 	{
 		// force the bundle to be loaded
-		[TiLocale defaultLocale];
+		[TiLocale currentLocale];
 	}
 	return [l.bundle localizedStringForKey:key value:comment table:nil];
 }

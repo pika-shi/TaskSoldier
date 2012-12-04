@@ -36,7 +36,6 @@
 	[self rememberSelf];
 	ENSURE_UI_THREAD(show,args);
 	
-	showDialog = YES;
 	NSMutableArray *options = [self valueForKey:@"options"];
 	if (options==nil)
 	{
@@ -44,13 +43,8 @@
 		[options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
-	if (actionSheet != nil) {
-		[actionSheet setDelegate:nil];
-		[actionSheet release];
-	}
 	actionSheet = [[UIActionSheet alloc] init];
 	[actionSheet setDelegate:self];
-
 	[actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
 	
 	for (id thisOption in options)
@@ -77,57 +71,16 @@
 		{
 			dialogRect = CGRectZero;
 		}
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateOptionDialog:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 		[self updateOptionDialogNow];
 		return;
 	}
-	[actionSheet showInView:[[TiApp app] topMostView]];
-}
-
--(void)completeWithButton:(int)buttonIndex
-{
-    if (showDialog) {
-        showDialog = NO;
-        if ([self _hasListeners:@"click"])
-        {
-            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithInt:buttonIndex],@"index",
-                                   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
-                                   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
-                                   nil];
-            [self fireEvent:@"click" withObject:event];
-        }
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-        [self forgetSelf];
-        [self release];
-    }
-}
-
--(void)hide:(id)args
-{
-	if(actionSheet == nil || !showDialog){
-		return;
-	}
-
-	id options = nil;
-	if ([args count]>0) {
-		options = [args objectAtIndex:0];
-	}
-	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
-
-    TiThreadPerformOnMainThread(^{
-        if ([actionSheet isVisible]) {
-            [actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
-        }
-        else if(showDialog) {
-            [self completeWithButton:[actionSheet cancelButtonIndex]];
-        }
-    }, NO);
+	[actionSheet showInView:[[TiApp controller] view]];
 }
 
 #pragma mark AlertView Delegate
 
-- (void)actionSheet:(UIActionSheet *)actionSheet_ didDismissWithButtonIndex:(NSInteger)buttonIndex;
+- (void)actionSheet:(UIActionSheet *)actionSheet_ clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
 	if (buttonIndex == -2)
 	{
@@ -135,10 +88,21 @@
 		//A -2 is used by us to indicate that this was programatically dismissed to properly
 		//place the option dialog during a roation.
 	}
-	[self completeWithButton:buttonIndex];
+	if ([self _hasListeners:@"click"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+							   [NSNumber numberWithInt:buttonIndex],@"index",
+							   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
+							   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
+							   nil];
+		[self fireEvent:@"click" withObject:event];
+	}
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self forgetSelf];
+	[self release];
 }
 
--(void)deviceRotationBegan:(NSNotification *)notification
+-(void)updateOptionDialog:(NSNotification *)notification;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
     NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
@@ -156,9 +120,6 @@
 
 -(void)updateOptionDialogNow;
 {
-	if (!showDialog) {
-		return;
-	}
     accumulatedOrientationChanges = 0;
 	UIView *view = nil;
 	if (dialogView==nil)
@@ -176,9 +137,9 @@
 			return;
 		}
 		
-		if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
+		if ([dialogView isKindOfClass:[TiToolbar class]])
 		{
-			UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
+			UIToolbar *toolbar = [(TiToolbar*)dialogView toolbar];
 			[actionSheet showFromToolbar:toolbar];
 			return;
 		}

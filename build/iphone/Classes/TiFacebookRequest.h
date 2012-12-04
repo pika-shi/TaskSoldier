@@ -12,7 +12,7 @@
 #import "KrollCallback.h"
 #import "FBConnect/Facebook.h"
 
-@interface TiFacebookRequest : NSObject<FBRequestDelegate> {
+@interface TiFacebookRequest : NSObject<FBRequestDelegate2> {
 	NSString *path;
 	KrollCallback *callback;
 	FacebookModule *module;

@@ -13,7 +13,7 @@
 
 @interface TiFacebookLoginButton : TiUIView<TiFacebookStateListener> {
 
-	FBLoginButton *button;
+	FBLoginButton2 *button;
 }
 
 @end

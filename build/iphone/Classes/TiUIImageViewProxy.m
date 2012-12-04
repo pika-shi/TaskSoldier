@@ -34,19 +34,19 @@ static NSArray* imageKeySequence;
 	return imageKeySequence;
 }
 
--(void)propagateLoadEvent:(NSString *)stateString
+// TODO: Hack to resize 'auto' image views; other 'auto' views may still need to be
+// resized/relayed on iPad.  See #2227
+-(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-    //Send out a content change message if we are auto sizing
-    if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
-        TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
-        [self refreshSize];
-        [self willChangeSize];
-    }
-    
-    if ([self _hasListeners:@"load"]) {
-        NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
-        [self fireEvent:@"load" withObject:event];
-    }
+	UIViewAutoresizing resizing = suggestedResizing;
+	if (TiDimensionIsAuto(layoutProperties.width)) {
+		resizing |= UIViewAutoresizingFlexibleWidth;
+	}
+	if (TiDimensionIsAuto(layoutProperties.height)) {
+		resizing |= UIViewAutoresizingFlexibleHeight;
+	}
+	
+	return resizing;
 }
 
 -(void)_configure
@@ -164,9 +164,9 @@ static NSArray* imageKeySequence;
 	
 }
 
-USE_VIEW_FOR_CONTENT_WIDTH
+USE_VIEW_FOR_AUTO_WIDTH
 
-USE_VIEW_FOR_CONTENT_HEIGHT
+USE_VIEW_FOR_AUTO_HEIGHT
 
 #pragma mark Handling ImageLoader
 
@@ -232,14 +232,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
 
 @end
 

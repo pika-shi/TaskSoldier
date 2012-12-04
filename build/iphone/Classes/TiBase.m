@@ -14,55 +14,6 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-#if DEBUG
-
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-
-#endif
-
-static bool ApplicationBeingDebugged(void)
-// Returns true if the current process is being debugged (either
-// running under the debugger or has a debugger attached post facto).
-{
-#if TARGET_IPHONE_SIMULATOR
-    return 1;
-#elif DEBUG
-    int                 junk;
-    int                 mib[4];
-    struct kinfo_proc   info;
-    size_t              size;
-    
-    // Initialize the flags so that, if sysctl fails for some bizarre
-    // reason, we get a predictable result.
-    
-    info.kp_proc.p_flag = 0;
-    
-    // Initialize mib, which tells sysctl the info we want, in this case
-    // we're looking for information about a specific process ID.
-    
-    mib[0] = CTL_KERN;
-    mib[1] = KERN_PROC;
-    mib[2] = KERN_PROC_PID;
-    mib[3] = getpid();
-    
-    // Call sysctl.
-    
-    size = sizeof(info);
-    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-    if(junk != 0){
-        return 0;
-    }
-    // We're being debugged if the P_TRACED flag is set.
-    return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-#else
-    return 0;
-#endif
-}
-
 NSMutableArray* TiCreateNonRetainingArray() 
 {
 	CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
@@ -96,27 +47,19 @@ void TiLogMessage(NSString* str, ...) {
         TiDebuggerLogMessage(OUT, message);
     }
     else {
-        
-        if (ApplicationBeingDebugged()) {
-            const char* s = [message UTF8String];
-            if (s[0]=='[')
-            {
-                fprintf(stderr,"%s\n", s);
-                fflush(stderr);
-            }
-            else
-            {
-                fprintf(stderr,"[DEBUG] %s\n", s);
-                fflush(stderr);
-            }
+        const char* s = [message UTF8String];
+        if (s[0]=='[')
+        {
+            fprintf(stderr,"%s\n", s);
+            fflush(stderr);
         }
-        else{
-#pragma push
-#undef NSLog
-            NSLog(@"%@",message);
-#pragma pop
+        else
+        {
+            fprintf(stderr,"[DEBUG] %s\n", s);
+            fflush(stderr);
         }
     }
+
     [message release];
 }
 
@@ -138,7 +81,6 @@ NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
 NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
 NSString * const kTiShutdownNotification = @"TiShutdown";
 NSString * const kTiSuspendNotification = @"TiSuspend";
-NSString * const kTiPausedNotification = @"TiPaused";
 NSString * const kTiResumeNotification = @"TiResume";
 NSString * const kTiResumedNotification = @"TiResumed";
 NSString * const kTiAnalyticsNotification = @"TiAnalytics";
@@ -147,21 +89,6 @@ NSString * const kTiGestureShakeNotification = @"TiGestureShake";
 NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 
 NSString * const kTiLocalNotification = @"TiLocalNotification";
-
-NSString* const kTiBehaviorSize = @"SIZE";
-NSString* const kTiBehaviorFill = @"FILL";
-NSString* const kTiBehaviorAuto = @"auto";
-NSString* const kTiUnitPixel = @"px";
-NSString* const kTiUnitCm = @"cm";
-NSString* const kTiUnitMm = @"mm";
-NSString* const kTiUnitInch = @"in";
-NSString* const kTiUnitDip = @"dip";
-NSString* const kTiUnitDipAlternate = @"dp";
-NSString* const kTiUnitSystem = @"system";
-NSString* const kTiUnitPercent = @"%";
-
-
-
 
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
@@ -183,8 +110,7 @@ void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 	}
 	else
 	{
-        __block id blockVar = releasedObject;
-		TiThreadPerformOnMainThread(^{[blockVar release];}, waitForFinish);
+		TiThreadPerformOnMainThread(^{[releasedObject release];}, waitForFinish);
 	}
 }
 
@@ -198,20 +124,10 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 	}
 	else
 	{
-        __block UIView* blockVar = view;
-		TiThreadPerformOnMainThread(^{[blockVar removeFromSuperview];}, waitForFinish);
+		TiThreadPerformOnMainThread(^{[view removeFromSuperview];}, waitForFinish);
 	}
 }
 
-// NOTE: This method of batch-processing is actually fairly expensive
-// for us, and doesn't take full advantage of GCD scheduling (and requires
-// lots of mutexing). Unfortunately for now it seems to be necessary, as:
-// * We are required to complete all scheduled main thread GCD operations
-//   as "suspend" is fired
-
-// There may be other ways to do this (dispatch source on the main loop that
-// pulls from a private queue, for example) but in and of itself this could be
-// expensive (still have to semaphore the queue) and requires further research.
 
 NSMutableArray * TiThreadBlockQueue = nil;
 pthread_mutex_t TiThreadBlockMutex;
@@ -224,11 +140,16 @@ void TiThreadInitalize()
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 
+#define DISABLE_BATCH_PROCESSING
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
 	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
-
+#ifdef DISABLE_BATCH_PROCESSING
+	//Interim fix until we figure out scheduling issues.
+	usesWaitSemaphore = NO;
+#endif
 	__block dispatch_semaphore_t waitSemaphore;
 	if (usesWaitSemaphore) {
 		waitSemaphore = dispatch_semaphore_create(0);
@@ -251,62 +172,86 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		}
 	};
 	
-    
-    // If we're on the main thread and required to wait for completion, just
-    // run the block immediately. This behavior is consistent with
-    // -[NSObject performSelectorOnMainThread:withObject:waitUntilDone:], which
-    // our code may currently rely on the assumptions for.
-    
-    if (alreadyOnMainThread && waitForFinish) {
-        wrapperBlock();
-
-        if (caughtException != nil) {
-            [caughtException autorelease];
-            [caughtException raise];
-        }
-        
-        return;
-    }
-    
+#ifdef DISABLE_BATCH_PROCESSING
+	if (waitForFinish)
+	{
+		if (alreadyOnMainThread)
+		{
+			wrapperBlock();
+		}
+		else
+		{
+			dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		}
+	}
+	else
+	{
+		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+	}
+	
+	if (caughtException != nil) {
+		[caughtException autorelease];
+		[caughtException raise];
+	}
+	return;
+#endif
+	
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
+	
 	pthread_mutex_lock(&TiThreadBlockMutex);
-    [TiThreadBlockQueue addObject:wrapperBlockCopy];
+		if (!alreadyOnMainThread || !waitForFinish) {
+			[TiThreadBlockQueue addObject:wrapperBlockCopy];
+		}
     pthread_cond_signal(&TiThreadBlockCondition);
     pthread_mutex_unlock(&TiThreadBlockMutex);
 	
+	if (alreadyOnMainThread) {
+		// In order to maintain serial consistency, we have to stand in line
+		BOOL finished = TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+		if(waitForFinish)
+		{
+			//More or less. If things took too long, we cut.
+			wrapperBlockCopy();
+		}
+		[wrapperBlockCopy release];
+		if (caughtException != nil) {
+			[caughtException autorelease];
+			NSLog(@"[ERROR] %@",[caughtException reason]);
+			if (TiExceptionIsSafeOnMainThread) {
+				@throw caughtException;
+			}
+		}
+		return;
+	}
+
 	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
 		TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
 	};
-    
-    dispatch_async(dispatch_get_main_queue(), dispatchedMainBlock);
-    
-    if (waitForFinish)
-    {
-        /*
-         *	The reason we use a semaphore instead of simply calling the block sychronously
-         *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
-         *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
-         *	care about. In other words, sychronously waiting will lead to the thread
-         *	blocking much longer than necessary, especially during the shutdown sequence.
-         */
-        dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-        BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
-        if (waiting) {
-            DeveloperLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
-            dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
-        }
-        dispatch_release(waitSemaphore);
-    }
-
+	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
+	if (waitForFinish)
+	{
+		/*
+		 *	The reason we use a semaphore instead of simply calling the block sychronously
+		 *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
+		 *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
+		 *	care about. In other words, sychronously waiting will lead to the thread
+		 *	blocking much longer than necessary, especially during the shutdown sequence.
+		 */
+		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
+		if (waiting) {
+			NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+			dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
+		}
+		dispatch_release(waitSemaphore);
+	}
 	[wrapperBlockCopy release];
 	if (caughtException != nil) {
 		[caughtException autorelease];
 		[caughtException raise];
 	}
 }
-//Initializing krollContextCounter to zero.
-int krollContextCounter = 0;
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
 {
@@ -350,7 +295,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				shouldContinue = timercmp(&nowTime, &doneTime, <);
 			}
 			
-			if (shouldContinue && isEmpty && (krollContextCounter >0)) {
+			if (shouldContinue && isEmpty) {
 				struct timespec doneTimeSpec;
 				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
 				/*
@@ -361,23 +306,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
 			}
 		pthread_mutex_unlock(&TiThreadBlockMutex);
-	} while (shouldContinue && (krollContextCounter >0));
+
+	} while (shouldContinue);
 	return isEmpty;
-}
-
-//KrollCounter Helper function
-
-void incrementKrollCounter(){
-    OSAtomicIncrement32Barrier(&krollContextCounter);
-}
-
-void decrementKrollCounter(){
-    
-    int currentContextCount = OSAtomicDecrement32Barrier(&krollContextCounter);
-    if(currentContextCount == 0)
-    {
-        pthread_mutex_lock(&TiThreadBlockMutex);
-        pthread_cond_signal(&TiThreadBlockCondition);
-        pthread_mutex_unlock(&TiThreadBlockMutex);
-    }
 }

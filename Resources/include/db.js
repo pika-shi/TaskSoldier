@@ -39,7 +39,7 @@ var TaskDB = function() {
 		this.close();
 		return record;
 	};
-	
+
 	this.fetchPastOne = function(id) {
 		this.open();
 		row = this.db.execute('SELECT * FROM task WHERE id = ?', id);
@@ -90,8 +90,8 @@ var TaskDB = function() {
 	this.open();
 	// time -> YYYY-MM-DD HH:MM:SS
 	//this.db.execute('DROP TABLE task');
-	this.db.execute('CREATE TABLE IF NOT EXISTS task ( id INTEGER PRIMARY KEY AUTOINCREMENT,' + 
-					'name TEXT, deadline TEXT, importance INTEGER, memo TEXT,' + 
+	this.db.execute('CREATE TABLE IF NOT EXISTS task ( id INTEGER PRIMARY KEY AUTOINCREMENT,' +
+					'name TEXT, deadline TEXT, importance INTEGER, memo TEXT,' +
 					'passedtime INTEGER, endtime TEXT)');
 	this.close();
 };

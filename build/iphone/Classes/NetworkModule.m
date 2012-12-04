@@ -70,7 +70,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 -(void)_destroy
 {
-	TiThreadPerformOnMainThread(^{[self stopReachability];}, YES);
+	TiThreadPerformOnMainThread(^{[self stopReachability];}, NO);
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
 	RELEASE_TO_NIL(pushNotificationCallback);
@@ -143,7 +143,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 -(void)addConnectivityListener:(id)args
 {
-    DEPRECATED_REPLACED(@"Network.addConnectivityListener", @"1.8", @"Ti.Network.addEventListener('change',...)");
+    DEPRECATED_REPLACED(@"addConnectivityListener", @"1.8", @"1.9", @"addEventListener('change',...)");
 	id arg = [args objectAtIndex:0];
 	ENSURE_TYPE(arg,KrollCallback);
 	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
@@ -152,7 +152,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 -(void)removeConnectivityListener:(id)args
 {
-    DEPRECATED_REPLACED(@"Network.removeConnectivityListener", @"1.8", @"Ti.Network.removeEventListener('change',...)");    
+    DEPRECATED_REPLACED(@"removeConnectivityListener", @"1.8", @"1.9", @"removeEventListener('change',...)");    
 	id arg = [args objectAtIndex:0];
 	ENSURE_TYPE(arg,KrollCallback);
 	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
@@ -213,7 +213,6 @@ MAKE_SYSTEM_PROP(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_BADGE,1);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_ALERT,2);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
-MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
 
 MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
@@ -248,12 +247,6 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	{
 		[result addObject:NUMINT(3)];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-	if ([TiUtils isIOS5OrGreater] && (types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
-	{
-		[result addObject:NUMINT(4)];
-	}
-#endif
 	return result;
 }
 
@@ -296,16 +289,6 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 					ourNotifications |= UIRemoteNotificationTypeSound;
 					break;
 				}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-        case 4: // NOTIFICATION_TYPE_NEWSSTAND
-        {
-          if([TiUtils isIOS5OrGreater])
-          {
-            ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
-          }
-          break;
-        }
-#endif
 			}
 		}
 	}
