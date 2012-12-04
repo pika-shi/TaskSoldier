@@ -279,7 +279,7 @@
 	float height = fullSize.height;
 	
 	if (NO) { // Just for debugging.
-		DeveloperLog(@"Target orientation is %@, dimensions will be %.0f x %.0f", 
+		NSLog(@"Target orientation is %@, dimensions will be %.0f x %.0f", 
 			  [self nameOfInterfaceOrientation:theOrientation], width, height);
 	}
 	
@@ -602,7 +602,7 @@
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
 		if ([[self view] window] != nil)
 		{
-			[_hiddenPopoverController presentPopoverFromRect:CGRectMake(0,0,1,1) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
+			[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 		}
 		
 		// Remove master from popover and destroy popover, if it exists.
@@ -961,7 +961,7 @@
 			self.masterViewController = [controllers objectAtIndex:0];
 			self.detailViewController = [controllers objectAtIndex:1];
 		} else {
-			DeveloperLog(@"[ERROR] %@ requires 2 view-controllers. (%@)", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
+			NSLog(@"Error: %@ requires 2 view-controllers. (%@)", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 		}
 		
 		[self layoutSubviews];

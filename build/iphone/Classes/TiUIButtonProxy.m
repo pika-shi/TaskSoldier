@@ -18,7 +18,6 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(button);
-    toolbar = nil;
 	[super _destroy];
 }
 
@@ -107,14 +106,9 @@
 	return suggestedResizing;
 }
 
--(BOOL)optimizeSubviewInsertion
-{
-    return YES;
-}
-
 -(UIView *) parentViewForChild:(TiViewProxy *)child
 {
-	return [(TiUIButton *)[self view] viewGroupWrapper];
+	return [(TiUIButton *)[self view] button];
 }
 
 -(void)removeBarButtonView
@@ -127,14 +121,15 @@
     [super removeBarButtonView];
 }
 
--(void)setToolbar:(id<TiToolbar>)toolbar_
+-(void)setToolbar:(TiToolbar*)toolbar_
 {
-	toolbar = toolbar_;
+	RELEASE_TO_NIL(toolbar);
+	toolbar = [toolbar_ retain];
 }
 
--(id<TiToolbar>)toolbar
+-(TiToolbar*)toolbar
 {
-	return [[toolbar retain] autorelease];
+	return toolbar;
 }
 
 -(BOOL)attachedToToolbar
@@ -152,17 +147,6 @@
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
 
 @end
 

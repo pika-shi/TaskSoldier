@@ -46,12 +46,12 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		}
 #if KMETHOD_DEBUG == 1
 		NSDate *reftime = [NSDate date];
-		NSLog(@"[DEBUG] Invoking %@ with args: %@",o,args);
+		NSLog(@"Invoking %@ with args: %@",o,args);
 #endif
 		id result = [o call:args];
 #if KMETHOD_DEBUG == 1
 		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
-		NSLog(@"[DEBUG] Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
+		NSLog(@"Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
 #endif
 		[args release];
 		return [KrollObject toValue:[o context] value:result];
@@ -312,7 +312,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		}
 		default:
 		{
-			DeveloperLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
+			NSLog(@"[ERROR] unknown & unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
 			break;
 		}
 	}

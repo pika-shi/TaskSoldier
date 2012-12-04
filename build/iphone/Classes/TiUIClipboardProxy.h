@@ -14,14 +14,15 @@
 }
 
 #pragma mark internal
+-(BOOL)hasData_:(NSString *)mimeType;
 -(id)getData_:(NSString *)mimeType;
 
 -(void)clearData:(id)args;
 -(void)clearText:(id)args;
 -(id)getData:(id)args;
 -(NSString *)getText:(id)args;
--(id)hasData:(id)args;
--(id)hasText:(id)args;
+-(BOOL)hasData:(id)args;
+-(BOOL)hasText:(id)args;
 -(void)setData:(id)args;
 -(void)setText:(id)args;
 

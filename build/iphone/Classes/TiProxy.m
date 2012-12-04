@@ -36,7 +36,6 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 //Rare exceptions to indicate a bug in the _tasksoldier code (Eg, method that a subclass should have implemented)
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
-NSString * const TiExceptionMemoryFailure = @"Memory allocation failed";
 
 
 SEL SetterForKrollProperty(NSString * key)
@@ -201,7 +200,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self = [super init])
 	{
 #if PROXY_MEMORY_TRACK == 1
-		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
+		NSLog(@"INIT: %@ (%d)",self,[self hash]);
 #endif
 		pthread_rwlock_init(&listenerLock, NULL);
 		pthread_rwlock_init(&dynpropsLock, NULL);
@@ -230,15 +229,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self init])
 	{
-		pageContext = (id)context; // do not retain
-		executionContext = context; //To ensure there is an execution context during _configure.
+		pageContext = (id)context; // do not retain 
 		if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
 		{
 			[pageContext registerProxy:self];
 			// allow subclasses to configure themselves
 		}
 		[self _configure];
-		executionContext = nil;
 	}
 	return self;
 }
@@ -279,7 +276,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if(OSAtomicDecrement32(&bridgeCount)<0)
 	{
-		DeveloperLog(@"[WARN] BridgeCount for %@ is now at %d",self,bridgeCount);
+		NSLog(@"[FATAL] BridgeCount for %@ is now at %d",self,bridgeCount);
 	}
 	if(oldBridge == pageContext) {
 		pageKrollObject = nil;
@@ -345,10 +342,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self _initWithPageContext:context_])
 	{
-		// If we are being created with a page context, assume that this is also
-		// the execution context during creation so that recursively-made
-		// proxies have the same page context.
-		executionContext = context_;
 		id a = nil;
 		int count = [args count];
 		
@@ -363,7 +356,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		}
 		
 		[self _initWithProperties:a];
-		executionContext = nil;
 	}
 	return self;
 }
@@ -378,7 +370,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	destroyed = YES;
 	
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"[DEBUG] DESTROY: %@ (%d)",self,[self hash]);
+	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil) && (pageContext != nil))
@@ -426,11 +418,18 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)dealloc
 {
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"[DEBUG] DEALLOC: %@ (%d)",self,[self hash]);
+	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
 	pthread_rwlock_destroy(&dynpropsLock);
+/*
+	//BridgeCount will be 1 on TopTiModule and TiUIWindow, so we should not
+	//Warn of this just yet.
+	if (bridgeCount > 0) {
+		NSLog(@"[FATAL] BridgeCount of %@ is %d during dealloc.",self,bridgeCount);
+	}
+*/
 	[super dealloc];
 }
 
@@ -585,7 +584,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		
 	if(![bridge usesProxy:self])
 	{
-		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
 	}
 	
 	return [bridge krollObjectForProxy:self];
@@ -602,7 +601,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	if(![ourBridge usesProxy:self])
 	{
-		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
 	}
 
 	return [ourBridge krollObjectForProxy:self];
@@ -630,7 +629,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		DeveloperLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.",self,rememberedProxy);
+		NSLog(@"[DEBUG] Orphaned %@ is trying to remember %@.",self,rememberedProxy);
 		return;
 	}
 	
@@ -669,9 +668,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		//While this may be of concern and there used to be a
-		//warning here, too many false alarms were raised during
-		//multi-context cleanups.
+		NSLog(@"[DEBUG] Orphaned %@ is trying to forget %@.",self,forgottenProxy);
 		return;
 	}
 
@@ -1115,14 +1112,11 @@ DEFINE_EXCEPTIONS
 	if (krollDescription==nil) 
 	{ 
 		// if we have a cached id, use it for our identifier
-        id temp = [self valueForUndefinedKey:@"id"];
-        NSString *cn =nil;
-        if (temp==nil||![temp isKindOfClass:[NSString class]]){
-              cn = NSStringFromClass([self class]);
-        }
-        else {
-            cn = temp;
-        }
+		NSString *cn = [self valueForUndefinedKey:@"id"];
+		if (cn==nil)
+		{
+			cn = [[self class] description];
+		}
 		krollDescription = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
 	}
 

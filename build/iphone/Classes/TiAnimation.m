@@ -8,7 +8,7 @@
  */
 #import "TiAnimation.h"
 #import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
+#import "TiUIiOS3DMatrix.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
@@ -236,7 +236,7 @@ self.p = v;\
 -(void)animationStarted:(NSString *)animationID context:(void *)context
 {
 #if ANIMATION_DEBUG==1	
-	NSLog(@"[DEBUG] ANIMATION: STARTING %@, %@",self,(id)context);
+	NSLog(@"ANIMATION: STARTING %@, %@",self,(id)context);
 #endif
 	
 	TiAnimation* animation = (TiAnimation*)context;
@@ -259,7 +259,7 @@ self.p = v;\
 -(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
 {
 #if ANIMATION_DEBUG==1	
-	NSLog(@"[DEBUG] ANIMATION: COMPLETED %@, %@",self,(id)context);
+	NSLog(@"ANIMATION: COMPLETED %@, %@",self,(id)context);
 #endif
 	
 	TiAnimation* animation = (TiAnimation*)context;
@@ -348,7 +348,7 @@ if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
 	ENSURE_UI_THREAD(animate,args);
 
 #if ANIMATION_DEBUG==1
-	NSLog(@"[DEBUG] ANIMATION: starting %@, %@, retain: %d",self,args,[self retainCount]);
+	NSLog(@"ANIMATION: starting %@, %@, retain: %d",self,args,[self retainCount]);
 #endif
 	
 	UIView *theview = nil;
@@ -510,7 +510,7 @@ autoreverseLayout.a = TiDimensionUndefined; \
             
             if (zIndex!=nil)
             {
-                [(TiViewProxy *)[uiview proxy] setVzIndex:[zIndex intValue]];
+                [(TiViewProxy *)[uiview proxy] setZIndex:[zIndex intValue]];
             }
             
             if (doReposition)
@@ -587,7 +587,7 @@ autoreverseLayout.a = TiDimensionUndefined; \
 
 	
 #if ANIMATION_DEBUG==1	
-	NSLog(@"[DEBUG] ANIMATION: committed %@, %@",self,args);
+	NSLog(@"ANIMATION: committed %@, %@",self,args);
 #endif
 }
 

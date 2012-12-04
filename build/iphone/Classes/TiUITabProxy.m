@@ -16,7 +16,6 @@
 #import "TiUITabGroupProxy.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
-#import "TiApp.h"
 
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
@@ -100,7 +99,11 @@
 
 -(void)removeFromTabGroup
 {
-    [self closeWindow:[current window] animated:YES removeTab:YES];
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
+		[self closeWindow:currentWindow animated:YES removeTab:YES];
+	}
 }
 
 -(void)closeTab
@@ -197,7 +200,7 @@
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     id activeTab = [tabGroup valueForKey:@"activeTab"];
-    if (activeTab == nil || activeTab == [NSNull null]) {
+    if (activeTab == nil) {
         //Make sure that the activeTab property is set
         [self setActive:[NSNumber numberWithBool:YES]];
     }
@@ -256,7 +259,7 @@
 	[window setParentOrientationController:self];
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
-	[[[TiApp app] controller] dismissKeyboard];
+
 	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
 	}, YES);
@@ -318,10 +321,6 @@
     UIViewController *windowController = [[window controller] retain];
     if (closingCurrentWindow) {
         [self setTabGroup:nil];
-        if ((windowController == nil) && (window == nil)) {
-            // tab was never focused so its controller was never added to the stack
-            windowController = [rootController retain];
-        }
     }
 
 	// Manage the navigation controller stack

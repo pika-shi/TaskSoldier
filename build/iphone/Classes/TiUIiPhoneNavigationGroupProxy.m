@@ -12,7 +12,6 @@
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
 #import "TiUIiPhoneNavigationGroup.h"
-#import "TiApp.h"
 
 @implementation TiUIiPhoneNavigationGroupProxy
 
@@ -22,7 +21,7 @@
 	{
 		//This is done to insert the top line of the nav bar
 		//underneath the bottom line of the status bar.
-		layoutProperties.top = TiDimensionDip(-1);
+		layoutProperties.top = TiDimensionPixels(-1);
 	}
 	return self;
 }
@@ -34,7 +33,6 @@
 	[self rememberProxy:window];
 
 	ENSURE_UI_THREAD(open, args);
-	[[[TiApp app] controller] dismissKeyboard];
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	[[self view] performSelector:@selector(open:withObject:) withObject:window withObject:properties];
 }
@@ -121,52 +119,28 @@
 }
 
 /*
- if you add a UINavigationController as a subview of a UIViewController subclass, you must explicitly 
- call its viewWillAppear method from its container; otherwise, they won’t be called, and when moving 
- back and forth in the navigation tree, your UIViewControllers’ viewWillAppear: methods may not be called.
- 
- https://discussions.apple.com/thread/1529769?threadID=1529769&tstart=0
- 
- This whole scenario will disappear when the NavigationGroupProxy becomes a WindowProxy
- 
- See TIMOB-7773 for fail case
-*/
+ *	NavigationGroup was not made as a subclass of TiWindowProxy, which is our
+ *	analog/delegate/wrapper to native UIViewControllers (See TabGroup, etc).
+ *	A refactor along these lines should be done in the far future, as it will
+ *	help with window orientation, blur/focus, etc. However, it also would/should
+ *	depricate adding a navGroup to a window, preferring to open the navGroup
+ *	directly.
+ *
+ *	navGroup's willShow is the first step of this transition, to restore the
+ *	UIViewControllers' viewWill/DidAppear/Disappear event chain so that the root
+ *	view controller (And thus the root TiWindow) gets the proper focus event.
+ *	TODO: Make NavigationGroupProxy a full-fledged TiWindowProxy.
+ */
 
--(void)parentWillAppear:(id)args
+-(void)willShow
 {
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewWillAppear:[TiUtils boolValue:args def:NO]];
-        [super parentWillAppear:args];
-    }
-}
--(void)parentDidAppear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewDidAppear:[TiUtils boolValue:args def:NO]];
-        [super parentDidAppear:args];
-    }
-}
--(void)parentWillDisappear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewWillDisappear:[TiUtils boolValue:args def:NO]];
-        [super parentWillDisappear:args];
-    }
-}
--(void)parentDidDisappear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewDidDisappear:[TiUtils boolValue:args def:NO]];
-        [super parentDidDisappear:args];
-    }
+	TiUIiPhoneNavigationGroup * ourView = (id)[self view];
+	UINavigationController * ourNC = [ourView controller];
+	UIViewController * ourVC = [ourNC topViewController];
+	
+	[ourView navigationController:ourNC willShowViewController:ourVC animated:NO];
+	[super willShow];
+	[ourView navigationController:ourNC didShowViewController:ourVC animated:NO];
 }
 
 @end

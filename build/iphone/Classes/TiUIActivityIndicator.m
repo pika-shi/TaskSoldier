@@ -213,12 +213,12 @@
 
 }
 
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)contentHeightForWidth:(CGFloat)width
+-(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	return [self sizeThatFits:CGSizeZero].height;
 }

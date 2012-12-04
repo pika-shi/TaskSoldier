@@ -35,16 +35,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return picker.frame.size.height;
 }
 
--(CGFloat)verifyWidth:(CGFloat)suggestedWidth
-{
-    if (suggestedWidth <= 0 && picker != nil) {
-        return picker.frame.size.width;
-    }
-    else {
-        return suggestedWidth;
-    }
-}
-
 -(UIControl*)picker 
 {
 	if (picker==nil)

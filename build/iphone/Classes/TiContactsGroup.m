@@ -21,10 +21,7 @@
 	
 	if (record == NULL) {
 		if (recordId != kABRecordInvalidID) {
-			ABAddressBookRef ourAddressBook = [module addressBook];
-			if (ourAddressBook != NULL) {
-				record = ABAddressBookGetGroupWithRecordID(ourAddressBook, recordId);
-			}
+			record = ABAddressBookGetGroupWithRecordID([module addressBook], recordId);
 		}
 	}
 	return record;

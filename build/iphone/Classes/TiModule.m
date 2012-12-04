@@ -74,10 +74,6 @@
 {
 }
 
--(void)paused:(id)sender
-{
-}
-
 -(void)suspend:(id)sender
 {
 }
@@ -96,7 +92,6 @@
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
 }
@@ -156,7 +151,7 @@
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{
-			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.",className);
+			NSLog(@"[WARN] attempted to load: %@",className);
 			@throw [NSException exceptionWithName:@"org.tasksoldier.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];

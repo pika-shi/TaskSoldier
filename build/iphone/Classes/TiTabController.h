@@ -7,14 +7,8 @@
  * WARNING: This is generated code. Modify at your own risk and without support.
  */
 
-/**
- The protocol for tab controller.
- */
 @protocol TiTabController
 
-/**
- Returns the window associated with the tab controller.
- */
 -(id)window;
 
 @end

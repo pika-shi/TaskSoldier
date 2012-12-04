@@ -70,7 +70,7 @@ extern NSString * const TI_APPLICATION_ID;
 	if (self = [super init])
 	{
 		modules = [[NSMutableDictionary alloc] init];
-		contexts = TiCreateNonRetainingDictionary();
+		contexts = [[NSMutableDictionary alloc] init];
 		 
 		NSString *fn = @"app.js";
 		const char *start = getenv("TI_STARTPAGE");
@@ -138,30 +138,23 @@ extern NSString * const TI_APPLICATION_ID;
 	TiModule *m = [modules objectForKey:name];
 	if (m == nil || [m destroyed]) // Need to re-allocate any modules which have been destroyed
 	{
-		@synchronized(self)
+		Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module",name]);
+		if (moduleClass!=nil)
 		{
-			m = [modules objectForKey:name];
-			if (m == nil || [m destroyed])
+			m = [[moduleClass alloc] _initWithPageContext:context];
+			if (![m isJSModule])
 			{
-				Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module",name]);
-				if (moduleClass!=nil)
+				[m setHost:self];
+				[modules setObject:m forKey:name];
+				[m release];
+			}
+			else
+			{
+				[m release];
+				m = [[self krollBridge] require:context path:name];
+				if (m != nil)
 				{
-					m = [[moduleClass alloc] _initWithPageContext:context];
-					if (![m isJSModule])
-					{
-						[m setHost:self];
-						[modules setObject:m forKey:name];
-						[m release];
-					}
-					else
-					{
-						[m release];
-						m = [[self krollBridge] require:context path:name];
-						if (m != nil)
-						{
-							[modules setObject:m forKey:name];
-						}
-					}
+					[modules setObject:m forKey:name];
 				}
 			}
 		}
@@ -178,7 +171,7 @@ extern NSString * const TI_APPLICATION_ID;
 -(void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn context:(id<TiEvaluator>)evaluator thisObject:(TiProxy*)thisObject_
 {
 #if DEBUG_EVENTS==1
-	NSLog(@"[DEBUG] fireEvent: %@, object: %@",listener,obj);
+	NSLog(@"fireEvent: %@, object: %@",listener,obj);
 #endif	
 	[evaluator fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
 }

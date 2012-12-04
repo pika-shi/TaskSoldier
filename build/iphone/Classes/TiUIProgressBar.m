@@ -41,12 +41,12 @@
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }
 
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeForFont:suggestedWidth].width;
 }
 
--(CGFloat)contentHeightForWidth:(CGFloat)width
+-(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	CGSize fontSize = [self sizeForFont:width];
 	CGSize progressSize = [progress sizeThatFits:fontSize];

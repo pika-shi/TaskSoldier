@@ -21,17 +21,17 @@
 
 -(id)version
 {
-	return @"2.1.4";
+	return @"1.8.2";
 }
 
 -(id)buildDate
 {
-	return @"11/09/12 12:46";
+	return @"02/23/12 17:46";
 }
 
 -(id)buildHash
 {
-	return @"51f2c64";
+	return @"59b3a90";
 }
 
 +(BOOL)shouldRegisterOnInit
@@ -55,7 +55,9 @@
 		// only allow includes that are local to our execution context url
 		// for security, refuse to load non-compiled in Javascript code
 		NSURL *url = [TiUtils toURL:file relativeToURL:rootURL];
-		DebugLog(@"[DEBUG] Include url: %@",[url absoluteString]);
+#ifdef DEBUG
+		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
+#endif
 		[context setCurrentURL:url];
 		[context evalFile:[url absoluteString]];
 	}
@@ -69,7 +71,7 @@
 {
 	for (id file in jsfiles)
 	{
-		DebugLog(@"[DEBUG] Absolute url: %@", file);
+		NSLog(@"[DEBUG] absolute url: %@", file);
 
 		NSURL *url = nil;
 		if (![file hasPrefix:@"file:"]) {
@@ -77,6 +79,7 @@
 		} else {
 			url = [[NSURL fileURLWithPath:file] standardizedURL];
 		}
+		NSLog(@"[DEBUG] include absolute url: %@", [url absoluteString]);
 		[[self executionContext] evalFile:[url absoluteString]];
 	}
 }

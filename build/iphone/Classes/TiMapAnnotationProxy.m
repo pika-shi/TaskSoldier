@@ -13,7 +13,6 @@
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
-#import "TiMapViewProxy.h"
 #import "TiMapView.h"
 
 @implementation TiMapAnnotationProxy
@@ -101,9 +100,9 @@
 		{
 			return; //Already done.
 		}
-		if (delegate!=nil && [delegate viewAttached])
+		if (delegate!=nil)
 		{
-			[(TiMapView*)[delegate view] refreshAnnotation:self readd:needsRefreshingWithSelection];
+			[delegate refreshAnnotation:self readd:needsRefreshingWithSelection];
 		}
 		needsRefreshing = NO;
 		needsRefreshingWithSelection = NO;
@@ -118,12 +117,6 @@
 	result.latitude = [TiUtils doubleValue:[self valueForUndefinedKey:@"latitude"]];
 	result.longitude = [TiUtils doubleValue:[self valueForUndefinedKey:@"longitude"]];
 	return result;
-}
-
--(void)setCoordinate:(CLLocationCoordinate2D)coordinate
-{
-	[self setValue:[NSNumber numberWithDouble:coordinate.latitude] forUndefinedKey:@"latitude"];
-	[self setValue:[NSNumber numberWithDouble:coordinate.longitude] forUndefinedKey:@"longitude"];
 }
 
 // Title and subtitle for use by selection UI.
@@ -260,17 +253,6 @@
 		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
-
--(void)setImage:(id)image
-{
-	id current = [self valueForUndefinedKey:@"image"];
-	[self replaceValue:image forKey:@"image" notification:NO];
-	if ([current isEqual: image] == NO)
-	{
-		[self setNeedsRefreshingWithSelection:YES];
-	}
-}
-
 
 -(int)tag
 {

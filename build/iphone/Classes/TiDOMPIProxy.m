@@ -23,11 +23,6 @@
 	[node setStringValue:data];
 }
 
--(void)setNodeValue:(NSString *)data
-{
-	[self setData:data];
-}
-
 -(NSString*)target
 {
     return [node name];

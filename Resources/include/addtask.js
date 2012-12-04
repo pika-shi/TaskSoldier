@@ -22,8 +22,9 @@
         });
 
         var BackGroundView = Ti.UI.createImageView({
-            image: './back.jpg',
-            width: '700dp',
+                image: './back.jpg',
+                //backgroundColor: '#f0ffff',
+                //width: '1000dp',
         });
 
         // FORM (Task Name)
@@ -44,7 +45,7 @@
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var TaskNameLabel = Ti.UI.createLabel({
-            color:'#000',
+            color:'#888',
             text: 'タスク名',
             height: '30dp',
             top: '10dp',

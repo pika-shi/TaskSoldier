@@ -14,8 +14,8 @@
 
 @implementation TiUIProgressBarProxy
 
-USE_VIEW_FOR_CONTENT_WIDTH
-USE_VIEW_FOR_CONTENT_HEIGHT
+USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_AUTO_HEIGHT
 
 -(TiUIView*)newView
 {
@@ -24,14 +24,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	return [[TiUIProgressBar alloc] initWithStyle:style];
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
 @end
 
 #endif

@@ -52,7 +52,7 @@
 	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];
 	
 	if ([urlString length] == 0) {
-		return nil;
+		return;
 	}
 	
 	if (backgroundServices == nil) {
@@ -171,18 +171,29 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_UI_THREAD(cancelLocalNotification,args);
+	NSInteger theid = [TiUtils intValue:args];
 	NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
 	if (notifications!=nil)
 	{
-		for (UILocalNotification *notification in notifications)
-		{
-			if([[[notification userInfo] objectForKey:@"id"] isEqual:args])
-			{
-				[[UIApplication sharedApplication] cancelLocalNotification:notification];
-				return;
-			}
-		}
+		UILocalNotification *notification = nil;
 		
+		for (notification in notifications)
+		{
+			id i = [[notification userInfo] objectForKey:@"id"];
+			if (i!=nil)
+			{
+				if ([i intValue]==theid)
+				{
+					break;
+				}
+			}
+			notification = nil;
+		}
+		if (notification!=nil)
+		{
+			notification.userInfo = nil;
+			[[UIApplication sharedApplication] cancelLocalNotification:notification];
+		}
 	}
 }
 

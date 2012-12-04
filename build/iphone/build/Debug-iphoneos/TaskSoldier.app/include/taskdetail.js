@@ -1,1 +1,1 @@
-/Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/Resources/include/taskdetail.js
+/Users/takemurahikaru/Documents/Titanium Studio Workspace/TaskSoldier/Resources/include/taskdetail.js

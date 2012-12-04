@@ -24,7 +24,7 @@
 #import "ASIDataCompressor.h"
 
 // Automatically set on build
-NSString *ASIHTTPRequestVersion = @"v1.8.1-61 2011-09-19";
+NSString *ASIHTTPRequestVersion = @"v1.8.1-8 2011-06-05";
 
 static NSString *defaultUserAgent = nil;
 
@@ -143,8 +143,6 @@ static NSOperationQueue *sharedQueue = nil;
 static NSString* ASI_TLS_VERSION_1_0 = @"kCFStreamSocketSecurityLevelTLSv1_0SSLv3";
 static NSString* ASI_TLS_VERSION_1_1 = @"kCFStreamSocketSecurityLevelTLSv1_1SSLv3";
 static NSString* ASI_TLS_VERSION_1_2 = @"kCFStreamSocketSecurityLevelTLSv1_2SSLv3";
-
-static NSMutableSet* legacyTlsServers = nil;
 
 // Private stuff
 @interface ASIHTTPRequest ()
@@ -280,7 +278,7 @@ static NSMutableSet* legacyTlsServers = nil;
 		ASITooMuchRedirectionError = [[NSError alloc] initWithDomain:NetworkRequestErrorDomain code:ASITooMuchRedirectionErrorType userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The request failed because it redirected too many times",NSLocalizedDescriptionKey,nil]];
 		sharedQueue = [[NSOperationQueue alloc] init];
 		[sharedQueue setMaxConcurrentOperationCount:4];
-		legacyTlsServers = [[NSMutableSet alloc] init];
+
 	}
 }
 
@@ -468,11 +466,6 @@ static NSMutableSet* legacyTlsServers = nil;
 		[blocks addObject:authenticationNeededBlock];
 		[authenticationNeededBlock release];
 		authenticationNeededBlock = nil;
-	}
-	if (requestRedirectedBlock) {
-		[blocks addObject:requestRedirectedBlock];
-		[requestRedirectedBlock release];
-		requestRedirectedBlock = nil;
 	}
 	[[self class] performSelectorOnMainThread:@selector(releaseBlocks:) withObject:blocks waitUntilDone:[NSThread isMainThread]];
 }
@@ -864,20 +857,18 @@ static NSMutableSet* legacyTlsServers = nil;
 		
 		#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 		if ([ASIHTTPRequest isMultitaskingSupported] && [self shouldContinueWhenAppEntersBackground]) {
-            if (!backgroundTask || backgroundTask == UIBackgroundTaskInvalid) {
-                backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-                    // Synchronize the cleanup call on the main thread in case
-                    // the task actually finishes at around the same time.
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (backgroundTask != UIBackgroundTaskInvalid)
-                        {
-                            [[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
-                            backgroundTask = UIBackgroundTaskInvalid;
-                            [self cancel];
-                        }
-                    });
-                }];
-            }
+			backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+				// Synchronize the cleanup call on the main thread in case
+				// the task actually finishes at around the same time.
+				dispatch_async(dispatch_get_main_queue(), ^{
+					if (backgroundTask != UIBackgroundTaskInvalid)
+					{
+						[[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
+						backgroundTask = UIBackgroundTaskInvalid;
+						[self cancel];
+					}
+				});
+			}];
 		}
 		#endif
 
@@ -1222,26 +1213,13 @@ static NSMutableSet* legacyTlsServers = nil;
     //
 
     if([[[[self url] scheme] lowercaseString] isEqualToString:@"https"]) {
-		bool validates = [self validatesSecureCertificate];
-		CFBooleanRef validatesRef;
-		CFBooleanRef notValidatesRef;
-        if (validates) {
-			validatesRef = kCFBooleanTrue;
-			notValidatesRef = kCFBooleanFalse;
-		} else {
-			validatesRef = kCFBooleanFalse;
-			notValidatesRef = kCFBooleanTrue;
-		}
-		
-        NSMutableDictionary *sslProperties = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-				(id)validatesRef,(NSString*)kCFStreamSSLValidatesCertificateChain,
-				(id)notValidatesRef,(NSString*)kCFStreamSSLAllowsAnyRoot,
-			    (id)notValidatesRef,(NSString*)kCFStreamSSLAllowsExpiredCertificates,
-											  nil];
-		
-		if (!validates) {
-			[sslProperties setObject:(id)kCFNull forKey:(NSString*)kCFStreamSSLPeerName];
-		}
+
+        NSMutableDictionary *sslProperties = [NSMutableDictionary dictionaryWithCapacity:1];
+
+        // Tell CFNetwork not to validate SSL certificates
+        if (![self validatesSecureCertificate]) {
+            [sslProperties setObject:(NSString *)kCFBooleanFalse forKey:(NSString *)kCFStreamSSLValidatesCertificateChain];
+        }
 
         // Tell CFNetwork to use a client certificate
         if (clientCertificateIdentity) {
@@ -1257,8 +1235,9 @@ static NSMutableSet* legacyTlsServers = nil;
 			}
             [sslProperties setObject:certificates forKey:(NSString *)kCFStreamSSLCertificates];
         }
-		NSString* sslVersion = nil;
-		if (tlsVersion != 0) {
+        
+        if (tlsVersion) {
+            NSString* sslVersion = nil;
             switch (tlsVersion) {
                 case TLS_VERSION_1_0:
                     sslVersion = ASI_TLS_VERSION_1_0;
@@ -1270,21 +1249,10 @@ static NSMutableSet* legacyTlsServers = nil;
                     sslVersion = ASI_TLS_VERSION_1_2;
                     break;
             }
-        } else {
-			NSString* serverName = [[[self url] host] lowercaseString];
-			if (!useLegacyTls) {
-				@synchronized(legacyTlsServers){
-					serverInlegacyTlsServers = [legacyTlsServers containsObject:serverName];
-					useLegacyTls = serverInlegacyTlsServers;
-				}
-			}
-			if (useLegacyTls) {
-				sslVersion = ASI_TLS_VERSION_1_0;
-			}
-		}
-		if (sslVersion != nil) {
-			[sslProperties setObject:sslVersion forKey:(NSString*)kCFStreamSSLLevel];
-		}
+            if (sslVersion != nil) {
+                [sslProperties setObject:sslVersion forKey:(NSString*)kCFStreamSSLLevel];
+            }
+        }
 
         CFReadStreamSetProperty((CFReadStreamRef)[self readStream], kCFStreamPropertySSLSettings, sslProperties);
     }
@@ -3456,13 +3424,6 @@ static NSMutableSet* legacyTlsServers = nil;
 #if DEBUG_REQUEST_STATUS
 	NSLog(@"[STATUS] Request %@ finished downloading data (%qu bytes)",self, [self totalBytesRead]);
 #endif
-	if (!serverInlegacyTlsServers && useLegacyTls) {
-		@synchronized(legacyTlsServers){
-			NSString* serverName = [[[self url] host] lowercaseString];
-			[legacyTlsServers addObject:serverName];
-		}
-	}
-	
 	[self setStatusTimer:nil];
 	[self setDownloadComplete:YES];
 	
@@ -3595,16 +3556,13 @@ static NSMutableSet* legacyTlsServers = nil;
 
 	// dealloc won't be called when running with GC, so we'll clean these up now
 	if (request) {
-		CFRelease(request);
-		request = nil;
+		CFMakeCollectable(request);
 	}
 	if (requestAuthentication) {
-		CFRelease(requestAuthentication);
-		requestAuthentication = nil;
+		CFMakeCollectable(requestAuthentication);
 	}
 	if (proxyAuthentication) {
-		CFRelease(proxyAuthentication);
-		proxyAuthentication = nil;
+		CFMakeCollectable(proxyAuthentication);
 	}
 
     BOOL wasInProgress = inProgress;
@@ -3732,19 +3690,6 @@ static NSMutableSet* legacyTlsServers = nil;
 		if (([[underlyingError domain] isEqualToString:NSPOSIXErrorDomain] && ([underlyingError code] == ENOTCONN || [underlyingError code] == EPIPE)) 
 			|| ([[underlyingError domain] isEqualToString:(NSString *)kCFErrorDomainCFNetwork] && [underlyingError code] == -1005)) {
 			if ([self retryUsingNewConnection]) {
-				return;
-			}
-		}
-		
-		// If at first you don't succeed with https, scale down to TLS1.0 and try again.
-		// Note that this fallback scheme happens ONLY when a TLS version wasn't requested.
-		if (!useLegacyTls && (tlsVersion == 0) && [[[self url] scheme] isEqualToString:@"https"]) {
-			useLegacyTls = YES;
-			if ([self retryUsingNewConnection]) {
-#if defined(DEBUG) || defined(DEVELOPER)
-				NSLog(@"[WARN] Unable to securely connect to %@ with the latest TLS. Trying again with TLS1.0. "
-					  "It is highly suggested that the server be updated to the latest TLS support.",[[self url] host]);
-#endif
 				return;
 			}
 		}
@@ -4183,7 +4128,6 @@ static NSMutableSet* legacyTlsServers = nil;
 	[newRequest setShouldUseRFC2616RedirectBehaviour:[self shouldUseRFC2616RedirectBehaviour]];
 	[newRequest setShouldAttemptPersistentConnection:[self shouldAttemptPersistentConnection]];
 	[newRequest setPersistentConnectionTimeoutSeconds:[self persistentConnectionTimeoutSeconds]];
-    [newRequest setAuthenticationScheme:[self authenticationScheme]];
 	return newRequest;
 }
 
@@ -4338,7 +4282,7 @@ static NSMutableSet* legacyTlsServers = nil;
 		if ([self username] && [self password]) {
 			NSDictionary *usernameAndPassword = [theCredentials objectForKey:@"Credentials"];
 			NSString *storedUsername = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationUsername];
-			NSString *storedPassword = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationPassword];
+			NSString *storedPassword = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationUsername];
 			if (![storedUsername isEqualToString:[self username]] || ![storedPassword isEqualToString:[self password]]) {
 				continue;
 			}
@@ -4793,7 +4737,6 @@ static NSMutableSet* legacyTlsServers = nil;
     @synchronized(self) {
         return [[defaultCache retain] autorelease];
     }
-	return nil;
 }
 
 
@@ -4929,35 +4872,6 @@ static NSMutableSet* legacyTlsServers = nil;
     }
 	
     return [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
-}
-
-+ (NSDate *)expiryDateForRequest:(ASIHTTPRequest *)request maxAge:(NSTimeInterval)maxAge
-{
-	NSDictionary *responseHeaders = [request responseHeaders];
-  
-	// If we weren't given a custom max-age, lets look for one in the response headers
-	if (!maxAge) {
-		NSString *cacheControl = [[responseHeaders objectForKey:@"Cache-Control"] lowercaseString];
-		if (cacheControl) {
-			NSScanner *scanner = [NSScanner scannerWithString:cacheControl];
-			[scanner scanUpToString:@"max-age" intoString:NULL];
-			if ([scanner scanString:@"max-age" intoString:NULL]) {
-				[scanner scanString:@"=" intoString:NULL];
-				[scanner scanDouble:&maxAge];
-			}
-		}
-	}
-  
-	// RFC 2612 says max-age must override any Expires header
-	if (maxAge) {
-		return [[NSDate date] addTimeInterval:maxAge];
-	} else {
-		NSString *expires = [responseHeaders objectForKey:@"Expires"];
-		if (expires) {
-			return [ASIHTTPRequest dateFromRFC1123String:expires];
-		}
-	}
-	return nil;
 }
 
 // Based on hints from http://stackoverflow.com/questions/1850824/parsing-a-rfc-822-date-with-nsdateformatter

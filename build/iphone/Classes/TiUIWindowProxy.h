@@ -27,8 +27,7 @@
 	id latch;
 }
 
--(void)refreshBackButton;
--(void)updateNavBar;
+-(void)_refreshBackButton;
 -(void)boot:(BOOL)timeout args:(id)args;
 
 @end

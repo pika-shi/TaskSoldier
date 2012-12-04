@@ -118,7 +118,7 @@
 				break;
 			default:
 			{
-				NSLog(@"[WARN] Unsupported recording audio format: %d",fmt);
+				NSLog(@"[WARN] unsupported recording audio format: %d",fmt);
 			}
 		}
 		
@@ -203,16 +203,16 @@
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode != kAudioSessionCategory_RecordAudio && newMode != kAudioSessionCategory_PlayAndRecord) {
-        DebugLog(@"[WARN] Invalid mode for audio recorder... setting to default.");
+        NSLog(@"[WARN] Invalid mode for audio recorder... setting to default.");
         newMode = kAudioSessionCategory_RecordAudio;
     }
-	DebugLog(@"[WARN] 'Ti.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");
+	NSLog(@"[WARN] 'TaskSoldier.Media.AudioRecorder.audioSessionMode' is deprecated; use 'TaskSoldier.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	DebugLog(@"[WARN] 'Ti.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");	
+	NSLog(@"[WARN] 'TaskSoldier.Media.AudioRecorder.audioSessionMode' is deprecated; use 'TaskSoldier.Media.audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

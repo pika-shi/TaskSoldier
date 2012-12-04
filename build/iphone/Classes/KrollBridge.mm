@@ -18,7 +18,6 @@
 #import <libkern/OSAtomic.h>
 #import "KrollContext.h"
 #import "TiDebugger.h"
-#import "TiConsole.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -71,12 +70,12 @@ NSString * TaskSoldier$ModuleRequireFormat = @"(function(exports){"
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[MEMRORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -213,7 +212,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (self = [super init])
 	{
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-		NSLog(@"[DEBUG] INIT: %@",self);
+		NSLog(@"INIT: %@",self);
 #endif		
 		modules = [[NSMutableDictionary alloc] init];
 		proxyLock = OS_SPINLOCK_INIT;
@@ -272,12 +271,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[MEMORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -313,7 +312,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)dealloc
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"[MEMORY DEBUG] DEALLOC: %@",self);
+	NSLog(@"DEALLOC: %@",self);
 #endif
 		
 	[self removeProxies];
@@ -417,7 +416,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (error!=nil)
 	{
-		NSLog(@"[ERROR] Error loading path: %@, %@",path,error);
+		NSLog(@"[ERROR] error loading path: %@, %@",path,error);
 		
 		// check for file not found a give a friendlier message
 		if ([error code]==260 && [error domain]==NSCocoaErrorDomain)
@@ -441,7 +440,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (!TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception))
 	{
 		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Syntax Error = %@",[TiUtils exceptionMessage:excm]);
+		NSLog(@"[ERROR] Syntax Error = %@",[TiUtils exceptionMessage:excm]);
 		[self scriptError:[TiUtils exceptionMessage:excm]];
 	}
 	
@@ -461,7 +460,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
-			DebugLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
+			NSLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
 			[self scriptError:[TiUtils exceptionMessage:excm]];
 		}
         else {
@@ -489,7 +488,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	if (![listener isKindOfClass:[KrollCallback class]])
 	{
-		DebugLog(@"[ERROR] Listener callback is of a non-supported type: %@",[listener class]);
+		NSLog(@"[ERROR] listener callback is of a non-supported type: %@",[listener class]);
 		return;
 	}
 
@@ -515,7 +514,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)shutdown:(NSCondition*)condition
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"[MEMORY DEBUG] DESTROY: %@",self);
+	NSLog(@"DESTROY: %@",self);
 #endif
 	
 	if (shutdown==NO)
@@ -555,7 +554,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// create TaskSoldier global object
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-    // Load the "TaskSoldier" object into the global scope
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	_tasksoldier = [[TaskSoldierObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
@@ -570,11 +568,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
-    
-    // Load the "console" object into the global scope
-    console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
-    prop = TiStringCreateWithCFString((CFStringRef)@"console");
-    TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 	
 	//if we have a preload dictionary, register those static key/values into our namespace
 	if (preload!=nil)
@@ -633,7 +626,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiThreadPerformOnMainThread(^{[self unregisterForMemoryWarning];}, NO);
 	[self removeProxies];
 	RELEASE_TO_NIL(_tasksoldier);
-    RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 	[self autorelease]; // Safe to release now that the context is done
@@ -719,7 +711,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return result;
 }
 
--(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
+-(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
 	NSString *js = [[NSString alloc] initWithFormat:TaskSoldier$ModuleRequireFormat,code];
 
@@ -727,7 +719,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
 	 * done, we should have as little footprint 
 	 */
-	KrollEval *eval = [[KrollEval alloc] initWithCode:js sourceURL:sourceURL startingLineNo:1];
+	KrollEval *eval = [[KrollEval alloc] initWithCode:js];
 	TiValueRef exception = NULL;
 	TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
 	[js release];
@@ -735,7 +727,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 		@throw excm;
 	}
@@ -793,19 +785,19 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		if (moduleClass!=nil)
 		{
 			module = [[moduleClass alloc] _initWithPageContext:self];
-            
-            // Load any JS associated with the module if there, so that it
-            // can be exported
+			// we might have a module that's simply a JS native module wrapper
+			// in which case we simply load it and don't register our native module
 			if ([module isJSModule])
 			{
 				data = [module moduleJS];
 			}
-            
-            [module setHost:host];
-            [module _setName:moduleClassName];
-            // register it
-            [modules setObject:module forKey:path];
-            
+			else
+			{
+				[module setHost:host];
+				[module _setName:moduleClassName];
+				// register it
+				[modules setObject:module forKey:path];
+			}
 			[module autorelease];
 		}
 	}
@@ -827,57 +819,29 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         NSString* urlPath = (filepath != nil) ? filepath : path;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
        	const char *urlCString = [[url_ absoluteString] UTF8String];
-        KrollWrapper* wrapper = nil;
-        
-        if ([[self host] debugMode] && ![module isJSModule]) {
+        if ([[self host] debugMode]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
         
 		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
+		module = [self loadCommonJSModule:dataContents withPath:path];
         [dataContents release];
 		
-        if ([[self host] debugMode] && ![module isJSModule]) {
+        if ([[self host] debugMode]) {
             TiDebuggerEndScript([self krollContext]);
         }
         
-		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
 			@throw [NSException exceptionWithName:@"org.tasksoldier.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
 		}
 		
-		// register the module if it's pure JS
-        if (module == nil) {
-            module = (id)wrapper;
-            
-            [modules setObject:module forKey:path];
-            if (filepath!=nil && module!=nil)
-            {
-                // uri is optional but we point it to where we loaded it
-                [module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
-            }
-        }
-        else {
-            // For right now, we need to mix any compiled JS on top of a compiled module, so that both components
-            // are accessible. We store the exports object and then put references to its properties on the toplevel
-            // object.
-            
-            TiContextRef jsContext = [[self krollContext] context];
-            TiObjectRef jsObject = [wrapper jsobject];
-            KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
-            [moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
-            
-            TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
-            size_t count = TiPropertyNameArrayGetCount(properties);
-            for (size_t i=0; i < count; i++) {
-                // Mixin the property onto the module JS object if it's not already there
-                TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
-                if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
-                    TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
-                    TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
-                }
-            }
-            TiPropertyNameArrayRelease(properties);
-        }
+		// register it
+		[modules setObject:module forKey:path];
+		if (filepath!=nil && module!=nil)
+		{
+			// uri is optional but we point it to where we loaded it
+			[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
+		}
 	}
 	
 	if (module!=nil)
