@@ -169,6 +169,8 @@
 		// 月
 		var monthName = '';
 		var date = new Date();
+		var year = date.getYear() + 1900;
+		var previousYear = year - 1;
 		var mon = date.getMonth() + 1;
 		var tableView = Ti.UI.createTableView({
 			backgroundColor : 'transparent',
@@ -176,6 +178,7 @@
 			separatorColor : '#000'
 		});
 		yearlyGraphView.add(tableView);
+		con.execute('DELETE FROM task WHERE endtime LIKE ' + '\'' + previousYear + '-' + mon + '-%\';');
 
 		for (var i = 0; i < 12; i++) {
 			if (i == 0) {
@@ -190,12 +193,13 @@
 				mon = "0" + mon;
 			}
 			monthName = mon + '月';
+
 			var tableViewRow = Ti.UI.createTableViewRow({
 				title : monthName,
 				height : 44,
 				monthNum : mon
 			});
-
+			
 			// 月の合計集中時間を取得
 			var rows = con.execute('SELECT total(passedtime) FROM task WHERE endtime LIKE \'%-' + mon + '-%\';');
 

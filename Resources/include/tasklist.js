@@ -6,7 +6,11 @@
 		// create win
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
+<<<<<<< HEAD
+			backgroundColor : '#f0ffff',
+=======
 			backgroundColor : '#f0ffff'
+>>>>>>> ae68032b89db2f085755bf59d13416772fefd675
 			// backgroundImage : 'back.jpg'
 		});
 
