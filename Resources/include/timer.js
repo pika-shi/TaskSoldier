@@ -6,8 +6,8 @@
         // create win
         var timerWin = Titanium.UI.createWindow({
             title: 'timer',
-            backgroundColor: '#f0ffff'
-            // backgroundImage: 'back.jpg'
+            // backgroundColor: '#f0ffff'
+            backgroundImage: 'back.jpg'
         });
         
         // label to put section in
