@@ -15,7 +15,6 @@
 		// create view (global)
 		TaskDetailView = Ti.UI.createImageView({
 			image : './back.jpg',
-			width : '500dp',
 		});
 
 		var TaskView = Ti.UI.createImageView({
@@ -79,36 +78,30 @@
 			image : './star_on.png',
 			height : '30dp',
 			top : '180dp',
-			left : '190dp',
+			left : '100dp',
 			width : '30dp',
 		});
 		var ImportanceView2 = Ti.UI.createImageView({
 			image : './star_off.png',
-			height : '33dp',
+			height : '30dp',
 			top : '180dp',
-			left : '230dp',
-			width : '33dp',
+			left : '140dp',
+			width : '30dp',
 		});
 		var ImportanceView3 = Ti.UI.createImageView({
 			image : './star_off.png',
-			height : '33dp',
+			height : '30dp',
 			top : '180dp',
-			left : '270dp',
-			width : '33dp',
+			left : '180dp',
+			width : '30dp',
 		});
 
 		if (task.importance == 2) {
 			ImportanceView2.image = './star_on.png';
-			ImportanceView2.height = '33dp';
-			ImportanceView2.width = '33dp';
 		}
 		if (task.importance == 3) {
 			ImportanceView2.image = './star_on.png';
-			ImportanceView2.height = '33dp';
-			ImportanceView2.width = '33dp';
 			ImportanceView3.image = './star_on.png';
-			ImportanceView3.height = '33dp';
-			ImportanceView3.width = '33dp';
 		}
 
 		// memo
@@ -123,8 +116,8 @@
 		var Memo = Ti.UI.createLabel({
 			color : '#000',
 			text : task.memo,
-			height : '90dp',
-			top : '200dp',
+			height : '70dp',
+			top : '215dp',
 			textAlign : 'center',
 			width : '180dp',
 		});
@@ -135,11 +128,11 @@
 		});
 
 		var TimerButton = Ti.UI.createButton({
-			title : 'タイマー',
-			top : '320dp',
-			left : '200dp',
-			width : '70dp',
-			height : '30dp'
+			backgroundImage:'start.png',
+			top : '300dp',
+			left : '85dp',
+			width : '150dp',
+			height : '50dp'
 		});
 
 		EditButton.addEventListener('click', function(e) {
@@ -174,4 +167,4 @@
 
 		return win;
 	};
-})(); 
+})();

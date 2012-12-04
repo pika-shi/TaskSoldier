@@ -23,8 +23,6 @@
 
         var BackGroundView = Ti.UI.createImageView({
                 image: './back.jpg',
-                //backgroundColor: '#f0ffff',
-                //width: '1000dp',
         });
 
         // FORM (Task Name)
@@ -38,14 +36,14 @@
         });
         var TaskNameView = Ti.UI.createImageView({
             image: './text.png',
-            height: '30dp',
-            top: '45dp',
-            left: '30dp',
-            width: '260dp',
+            height: '45dp',
+            top: '40dp',
+            left: '0dp',
+            //width: '260dp',
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED
         });
         var TaskNameLabel = Ti.UI.createLabel({
-            color:'#888',
+            color:'#666',
             text: 'タスク名',
             height: '30dp',
             top: '10dp',
@@ -62,7 +60,7 @@
             borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
         });
         var DeadLineLabel = Ti.UI.createLabel({
-            color:'#000',
+            color:'#666',
             text: '締切日時',
             height: '30dp',
             top: '80dp',
@@ -79,7 +77,7 @@
 
         // Importance Level
         var ImportanceLabel = Ti.UI.createLabel({
-            color:'#000',
+            color:'#666',
             text: '重要度',
             height: '30dp',
             top: '150dp',
@@ -95,45 +93,33 @@
         });
         var ImportanceView2 = Ti.UI.createImageView({
             image: 'star_off.png',
-            height: '33dp',
+            height: '30dp',
             top: '180dp',
             left: '140dp',
-            width: '33dp',
+            width: '30dp',
         });
         var ImportanceView3 = Ti.UI.createImageView({
             image: 'star_off.png',
-            height: '33dp',
+            height: '30dp',
             top: '180dp',
             left: '200dp',
-            width: '33dp',
+            width: '30dp',
         });
 
         // click importance mark
         ImportanceView1.addEventListener('click', function(e){
             ImportanceView2.image = 'star_off.png';
-            ImportanceView2.width = '33dp',
-            ImportanceView2.height = '33dp',
             ImportanceView3.image = 'star_off.png';
-            ImportanceView3.width = '33dp',
-            ImportanceView3.height = '33dp',
             ImportanceLevel = 1;
         });
         ImportanceView2.addEventListener('click', function(e){
             ImportanceView2.image = 'star_on.png';
-            ImportanceView2.width = '30dp',
-            ImportanceView2.height = '30dp',
             ImportanceView3.image = 'star_off.png';
-            ImportanceView3.width = '33dp',
-            ImportanceView3.height = '33dp',
             ImportanceLevel = 2;
         });
         ImportanceView3.addEventListener('click', function(e){
             ImportanceView2.image = 'star_on.png';
-            ImportanceView2.width = '30dp',
-            ImportanceView2.height = '30dp',
             ImportanceView3.image = 'star_on.png';
-            ImportanceView3.width = '30dp',
-            ImportanceView3.height = '30dp',
             ImportanceLevel = 3;
         });
 
@@ -149,7 +135,7 @@
             borderRadius:10
         });
         var MemoLabel = Ti.UI.createLabel({
-            color:'#000',
+            color:'#666',
             text: 'メモ',
             height: '30dp',
             top: '210dp',
@@ -159,19 +145,19 @@
 
         // add button
         var SubmitButton = Ti.UI.createButton({
-            title: '追加',
-            top: '335dp',
-            left: '80dp',
-            width: '160dp',
-            height: '30dp'
+            backgroundImage:'add.png',
+            top: '325dp',
+            left: '85dp',
+            width: '150dp',
+            height: '50dp'
         });
 
         if (TaskId) {
-            SubmitButton.title = '更新';
+            SubmitButton.backgroundImage = 'upload.png';
             var db = new TaskDB();
             task = db.fetchOne(TaskId);
             TaskNameForm.value = task.name;
-            DeadLineForm.value = task.deadline;
+            DeadLineForm.value = task.deadline.split('-').join('/').slice(0, 16);
             ImportanceLevel = task.importance;
             MemoForm.value = task.memo;
 
@@ -189,6 +175,7 @@
 
         SubmitButton.addEventListener('click', function(e){
             if (TaskNameForm.getValue() && DeadLineForm.getValue()) {
+                Ti.API.info(DeadLineForm.getValue());
                 // add record into TaskDB
                 var record = {};
                 record.name = TaskNameForm.getValue();
