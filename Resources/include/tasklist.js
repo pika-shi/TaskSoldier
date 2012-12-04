@@ -6,8 +6,8 @@
 		// create win
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
-			backgroundColor : '#fff',
-			backgroundImage : 'back.jpg'
+			backgroundColor : '#f0ffff',
+			// backgroundImage : 'back.jpg'
 		});
 
 		// scroll view
