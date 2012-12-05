@@ -2,7 +2,8 @@ var day_detail = function(monthNum, dayNum, tab) {
 	var con = Ti.Database.open('task');
 	var dayDetail = Ti.UI.createWindow({
 		title : dayNum + '日',
-		backgroundColor : '#fff'
+		backgroundColor : '#fff',
+		barColor: '#87CEEB'
 	});
 	var tableView = Ti.UI.createTableView({
 		backgroundColor : 'transparent',

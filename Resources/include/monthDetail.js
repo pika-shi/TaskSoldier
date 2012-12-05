@@ -11,7 +11,8 @@ var pika_shi = function(monthNum, tab) {
 	}
 	var monthDetail = Ti.UI.createWindow({
 		title : monthNum + '月',
-		backgroundColor : '#fff'
+		backgroundColor : '#fff',
+		barColor: '#87CEEB'
 	});
 	var tableView = Ti.UI.createTableView({
 		backgroundColor : 'transparent',

@@ -4,7 +4,8 @@ var past_task_detail = function(id) {
 	var pastTaskDetail = Ti.UI.createWindow({
 		title : 'タスク詳細',
 		backgroundColor : 'transparent',
-		backgroundImage : 'back.jpg'
+		backgroundImage : 'back.jpg',
+		barColor: '#87CEEB'
 	});
 
 	// fetchOneとほぼ同じメソッド
