@@ -13,14 +13,19 @@ var day_detail = function(monthNum, dayNum, tab) {
 	// その日のタスクを取得
 	var rows = con.execute('SELECT name, passedtime, id FROM task WHERE endtime LIKE \'%-' + monthNum + '-' + dayNum + '%\';');
 	while (rows.isValidRow()) {
-		// Ti.API.info(jstrlen(rows.field(0)));
 		var str = rows.field(0);
-		if (jstrlen(rows.field(0)) > 60) {
-			str = unescape(escape(rows.field(0)).slice(0, 60));
-			str = str.concat('...');
-		}
+		var titleLabel = Ti.UI.createLabel({
+			text : str,
+			left : 10,
+			width : 220,
+			height : 40,
+			font : {
+				fontSize : 20,
+				fontWeight : 'bold'
+			}
+		});
+		
 		var tableViewRow = Ti.UI.createTableViewRow({
-			title : str,
 			height : 44,
 			id : rows.field(2)
 		});
@@ -40,6 +45,7 @@ var day_detail = function(monthNum, dayNum, tab) {
 			text : hour + ':' + minute + ':' + second,
 			right : 10
 		});
+		tableViewRow.add(titleLabel);
 		tableViewRow.add(timeLabel);
 		tableView.appendRow(tableViewRow);
 		rows.next();
@@ -54,18 +60,3 @@ var day_detail = function(monthNum, dayNum, tab) {
 
 	return dayDetail;
 };
-
-function jstrlen(str) {
-	len = 0;
-	str = escape(str);
-	for (i = 0; i < str.length; i++, len++) {
-		if (str.charAt(i) == "%") {
-			if (str.charAt(++i) == "u") {
-				i += 3;
-				len++;
-			}
-			i++;
-		}
-	}
-	return len;
-}

@@ -184,4 +184,4 @@ var past_task_detail = function(id) {
 	TaskDetailView.add(endTime);
 	pastTaskDetail.add(TaskDetailView);
 	return pastTaskDetail;
-};
+}; 

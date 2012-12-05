@@ -36,24 +36,24 @@ var logWin = Titanium.UI.createWindow({
         barColor: '#87CEEB'
 });
 // create tab
-var logTab2 = Titanium.UI.createTab({
+var logTab = Titanium.UI.createTab({
 	icon : 'log.png',
 	title : 'ログ',
 	window : logWin
 });
 
 var logView = {};
-logView = app.log.createView(logTab2);
+logView = app.log.createView(logTab);
 logWin.add(logView);
 
 // add tabs
 tabGroup.addTab(TaskListTab);
-tabGroup.addTab(logTab2);
+tabGroup.addTab(logTab);
 tabGroup.addTab(ConfigTab);
 tabGroup.addEventListener('focus', function(e) {
 	if (e.index == 1) {
 		logWin.remove(logView);
-		logView = app.log.createView(logTab2);
+		logView = app.log.createView(logTab);
 		logWin.add(logView);
 	}
 });
