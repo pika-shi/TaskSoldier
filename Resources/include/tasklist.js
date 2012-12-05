@@ -7,7 +7,7 @@
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
 			backgroundImage : 'back.jpg',
-                        barColor: '#87CEEB'
+            barColor: '#87CEEB'
 		});
 
 		// scroll view
@@ -114,8 +114,7 @@
 			//last day
 			var last = subDate(rec) / (60 * 60 * 24);
 
-			if (last < 0) return 15;
-			else if (last < 1) return rec.importance * (15 + 5 * (1 - last)) + 25;	// myzac's secret formula!!
+			if (0 < last && last < 1) return rec.importance * (15 + 5 * (1 - last)) + 25;	// myzac's secret formula!!
 			else if (last < 3) return rec.importance * (14 + 0.5 * (3 - last)) + 20;
 			else if (last < 7) return rec.importance * (10 + 0.5 * (7 - last)) + 20;
 			else return rec.importance * 8 + 20;
@@ -125,21 +124,20 @@
 		function drawTasks(recs) {
 			initialize();
 			var excessRecords = new Array(0);
-			var dangerRecords = new Array(0);
+			var message = '';
 			for (var i = 0; i < recs.length; i++) {
 				// arranging image and label for each task
 				var rec = recs[i];
 				if (subDate(rec) < 0) {
 					excessRecords.push(rec);
 				} else {
-					if(subDate(rec) < 60 * 60 * 24) {
-						dangerRecords.push(rec);
+					if(subDate(rec) < 60 * 60 * 24) {	//FIXME
+						message = message + rec.name + '\n';
 					}
 					var next = addTask(rec, prevPoint, prevRadius);
 					prevPoint = next.point;
 					prevRadius = next.radius;
 				}
-				Ti.API.info(rec.name + ',' + prevPoint.x + ',' + prevPoint.y + ',' + subDate(rec));
 			}
 			for (var i = 0; i < excessRecords.length; i++) {
 				var rec = excessRecords[i];
@@ -147,13 +145,8 @@
 				prevPoint = next.point;
 				prevRadius = next.radius;
 			}
-			// scrollView.contentHeight = prevPoint.y + prevRadius;
 
-			if (dangerRecords.length > 0) {
-				var message = '';
-				for (var i = 0; i < dangerRecords.length; i++) {
-					message = message + dangerRecords[i].name + '\n';
-				}
+			if (message.length > 0) {
 				Titanium.Media.vibrate();
 				Titanium.UI.createAlertDialog({
 					title: '締切が近付いています!!',
@@ -194,7 +187,6 @@
 				touchEnabled : false
 			}));
 			scrollView.contentHeight = nextPoint.y + nextRadius;
-			Ti.API.info(scrollView.contentHeight);
 			scrollView.add(imageView);
 			views[rec.id] = imageView;
 
