@@ -202,27 +202,27 @@
                     title:'Alert',
                     message:'締切日時がもう過ぎています'
                     }).show();
-                    break;
-                }
-                var AddTaskFlag = 0;
-                var db = new TaskDB();
-                if (TaskId) {
-                    db.updateTask(TaskId, record);
                 } else {
-                    TaskId = db.insertTask(record);
-                    AddTaskFlag = 1;
-                }
-                var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
-                AddTaskWin.title = "タスクの詳細";
-                AddTaskWin.add(TaskDetailWindow);
-                if (AddTaskFlag == 0) {
-                    Titanium.UI.createAlertDialog({
-                        title:'タスクを更新しました',
-                    }).show();
-                } else {
-                    Titanium.UI.createAlertDialog({
-                        title:'タスクを追加しました',
-                    }).show();
+                    var AddTaskFlag = 0;
+                    var db = new TaskDB();
+                    if (TaskId) {
+                        db.updateTask(TaskId, record);
+                    } else {
+                        TaskId = db.insertTask(record);
+                        AddTaskFlag = 1;
+                    }
+                    var TaskDetailWindow = app.taskdetail.createWindow('addtask', TaskId);
+                    AddTaskWin.title = "タスクの詳細";
+                    AddTaskWin.add(TaskDetailWindow);
+                    if (AddTaskFlag == 0) {
+                        Titanium.UI.createAlertDialog({
+                            title:'タスクを更新しました',
+                        }).show();
+                    } else {
+                        Titanium.UI.createAlertDialog({
+                            title:'タスクを追加しました',
+                        }).show();
+                    }
                 }
             } else if (!TaskNameForm.getValue()) {
                 Titanium.UI.createAlertDialog({
