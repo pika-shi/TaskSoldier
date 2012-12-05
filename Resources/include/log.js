@@ -178,8 +178,9 @@
 			separatorColor : '#000'
 		});
 		yearlyGraphView.add(tableView);
-		con.execute('DELETE FROM task WHERE endtime LIKE ' + '\'' + previousYear + '-' + mon + '-%\';');
-
+		// con.execute('DELETE FROM task WHERE endtime LIKE ' + '\'' + previousYear + '-' + mon + '-%\';');
+		con.execute('DELETE FROM task WHERE endtime LIKE ' + '\'' + previousYear + '-' + mon + '-%\' AND EXISTS(SELECT * FROM task WHERE endtime LIKE ' + '\'' + previousYear + '-' + mon + '-%\');');
+		
 		for (var i = 0; i < 12; i++) {
 			if (i == 0) {
 				mon = date.getMonth() + 1;

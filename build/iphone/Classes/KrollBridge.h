@@ -45,6 +45,7 @@ extern NSString * TaskSoldier$ModuleRequireFormat;
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	TaskSoldierObject *_tasksoldier;
+    KrollObject* console;
 	BOOL shutdown;
     BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,

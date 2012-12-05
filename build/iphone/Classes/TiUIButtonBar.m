@@ -55,13 +55,16 @@
 // AND the width of the proxy is undefined, they want magic!
 -(void)frameSizeChanged:(CGRect)frame_ bounds:(CGRect)bounds_
 {
-	// Treat 'undefined' like 'auto' when we have an available width for ALL control segments
-	if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
-		UISegmentedControl* ourControl = [self segmentedControl];
-		CGRect controlBounds = bounds_;
-		controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
-		[ourControl setBounds:controlBounds];
-	}
+    // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
+    UISegmentedControl* ourControl = [self segmentedControl];
+    if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
+        CGRect controlBounds = bounds_;
+        controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
+        [ourControl setBounds:controlBounds];
+    }
+    else {
+        [ourControl setFrame:bounds_];
+    }
     [super frameSizeChanged:frame_ bounds:bounds_];
 }
 
@@ -223,12 +226,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].height;
 }

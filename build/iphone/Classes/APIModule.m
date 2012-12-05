@@ -6,42 +6,53 @@
  * 
  * WARNING: This is generated code. Modify at your own risk and without support.
  */
-#ifdef USE_TI_API
-
 #import "APIModule.h"
 #import "TiUtils.h"
 #import "TiBase.h"
 #import "TiApp.h"
 #import "TiDebugger.h"
 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+
 @implementation APIModule
 
--(void)logMessage:(NSString*)message severity:(NSString*)severity
+-(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
+    NSMutableString* message = [NSMutableString string];
+    
+    NSString* lcSeverity = [severity lowercaseString];
+    DebuggerLogLevel level = OUT;
+    if ([lcSeverity isEqualToString:@"warn"]) {
+        level = WARN;
+    }
+    else if ([lcSeverity isEqualToString:@"error"] ||
+             [lcSeverity isEqualToString:@"critical"] ||
+             [lcSeverity isEqualToString:@"fatal"]) {
+        level = ERR;
+    }
+    else if ([lcSeverity isEqualToString:@"trace"]) {
+        level = TRACE;
+    }
+    else if ([lcSeverity isEqualToString:@"debug"]) {
+        level = LOG_DEBUG;
+    }
+    
     if ([[TiApp app] debugMode]) {
-        NSString* lcSeverity = [severity lowercaseString];
-        DebuggerLogLevel level = OUT;
-        if ([lcSeverity isEqualToString:@"warn"]) {
-            level = WARN;
+        NSMutableArray* messages = [NSMutableArray arrayWithArray:args];
+        
+        if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
+            [messages insertObject:[NSString stringWithFormat:@"[%@]", severity] atIndex:0];
         }
-        else if ([lcSeverity isEqualToString:@"error"] ||
-                 [lcSeverity isEqualToString:@"critical"] ||
-                 [lcSeverity isEqualToString:@"fatal"]) {
-            level = ERR;
-        }
-        else if ([lcSeverity isEqualToString:@"trace"]) {
-            level = TRACE;
-        }
-        else if ([lcSeverity isEqualToString:@"debug"]) {
-            level = LOG_DEBUG;
-        }
-        else if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
-            message = [severity stringByAppendingString:message];
-        }
-        TiDebuggerLogMessage(level, message);
+        
+        TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
     }
     else {
-        NSLog(@"[%@] %@", [severity uppercaseString], message);
+        if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+            if (level != ERR) {
+                return;
+            }
+        }
+        NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
         fflush(stderr);
     }
 }
@@ -53,27 +64,27 @@
 
 -(void)debug:(NSArray*)args
 {
-    [self logMessage:[self transform:[args objectAtIndex:0]] severity:@"debug"];
+    [self logMessage:args severity:@"debug"];
 }
 
 -(void)info:(NSArray*)args
 {
-    [self logMessage:[self transform:[args objectAtIndex:0]] severity:@"info"];    
+    [self logMessage:args severity:@"info"];    
 }
 
 -(void)warn:(NSArray*)args
 {
-    [self logMessage:[self transform:[args objectAtIndex:0]] severity:@"warn"];        
+    [self logMessage:args severity:@"warn"];        
 }
 
 -(void)error:(NSArray*)args
 {
-    [self logMessage:[self transform:[args objectAtIndex:0]] severity:@"error"];            
+    [self logMessage:args severity:@"error"];            
 }
 
 -(void)trace:(NSArray*)args
 {
-    [self logMessage:[self transform:[args objectAtIndex:0]] severity:@"trace"];
+    [self logMessage:args severity:@"trace"];
 }
 
 -(void)timestamp:(NSArray*)args
@@ -84,24 +95,22 @@
 
 -(void)notice:(NSArray*)args
 {
-    [self logMessage:[args objectAtIndex:0] severity:@"info"];
+    [self logMessage:args severity:@"info"];
 }
 
 -(void)critical:(NSArray*)args
 {
-    [self logMessage:[args objectAtIndex:0] severity:@"error"];
+    [self logMessage:args severity:@"error"];
 }
 
 -(void)log:(NSArray*)args
 {
-	NSString * severityString = [args objectAtIndex:0];
-	id loggedObject = [args count] > 1 ? [self transform:[args objectAtIndex:1]] : nil;
-	
-	if(loggedObject == nil){
-		loggedObject = severityString;
-		severityString = @"info";
-	}
-    [self logMessage:loggedObject severity:severityString];
+    if ([args count] > 1) {
+        [self logMessage:[args subarrayWithRange:NSMakeRange(1, [args count]-1)] severity:[args objectAtIndex:0]];
+    }
+    else {
+        [self logMessage:args severity:@"info"];
+    }
 }
 
 -(void)reportUnhandledException:(NSArray*)args
@@ -116,5 +125,3 @@
 
 
 @end
-
-#endif
