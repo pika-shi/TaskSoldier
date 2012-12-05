@@ -7,6 +7,9 @@ con = Titanium.Database.open('task');
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
 
+// background service for notification
+var service = Titanium.App.iOS.registerBackgroundService({url: './include/notification.js'});
+
 // log
 Titanium.include('./include/log.js');
 // addtask

@@ -6,22 +6,20 @@
         // create win
         var timerWin = Titanium.UI.createWindow({
             title: 'timer',
-            // backgroundColor: '#f0ffff'
             backgroundImage: 'back.jpg'
         });
         
-        // label to put section in
-        var statusLabel = Titanium.UI.createLabel({
+        // imageview to put messages in
+        var messageView = Titanium.UI.createImageView({
         	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 50 + 'dp'},
-        	textAlign: 'center',
-			font: {fontSize: 20, fontFamily: 'Helvetica Neue'},
+        	width: Titanium.Platform.displayCaps.platformWidth * 0.7,
+        	height: 'auto',
 			touchEnabled: false
         });
         
         // basement of timer label
-        var whiteView = Titanium.UI.createView({
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 150 + 'dp'},
-        	// backgroundColor: 'white',
+        var baseView = Titanium.UI.createView({
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 170 + 'dp'},	//FIXME
         	backgroundColor: '#7fbfff',
         	opacity: 0.6,
         	width: 180 + 'dp',
@@ -30,7 +28,7 @@
         
         // label to put time in
         var timerLabel = Titanium.UI.createLabel({
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 150 + 'dp'},
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 170 + 'dp'},
         	textAlign: 'center',
 			font: {fontSize: 60, fontFamily: 'Helvetica Neue'},
 			color: 'white',
@@ -45,7 +43,7 @@
         } else if (timeSet == 50) {
         	chosenTime = new Array(50*60, 10*60);
         }
-        var section = 0;
+        var section = 0;	// 0 : work, 1 : rest
         var count = chosenTime[section];
         var totalTime = 0;
         var myTimer;
@@ -76,22 +74,28 @@
 	    	
 	    	second--;
 	    	if (second < 0) {
-	    		section++;
-	    		second = chosenTime[section % 2];
+	    		section = (section == 0)? 1 : 0;
+	    		second = chosenTime[section];
+	    		genMessage(section);
+	    		Titanium.Media.vibrate();
 	    	} else {
 	    		totalTime++;
 	    	}
 	    	return second;
         }
         
-        // generate message for statusLabel according to current section (work or rest)
+        // generate message for messageView according to current section (work or rest)
         function genMessage(section) {
-        	var message = {0: 'まだ慌てるような時間じゃない', 1: '今を大切に!!', 2: '明日やろうは馬鹿野郎', 3: '無限の彼方へェェェェェ!!'}[Math.floor(Math.random() * 4)];
-        	if (message == 'まだ慌てるような時間じゃない') timerWin.backgroundImage = 'sendou.jpg';	//FIXME
-        	switch(section % 2) {
-        		case 0: statusLabel.text = message; break;
-        		case 1: statusLabel.text = '休憩!!'; break;
-        		default: statusLabel.text = 'ERROR'; break;
+        	// var message = {0: 'まだ慌てるような時間じゃない', 1: '今を大切に!!', 2: '明日やろうは馬鹿野郎', 3: '無限の彼方へェェェェェ!!'}[Math.floor(Math.random() * 4)];
+        	// switch(section % 2) {
+        		// case 0: statusLabel.text = message; break;
+        		// case 1: statusLabel.text = '休憩!!'; break;
+        		// default: statusLabel.text = 'ERROR'; break;
+        	// }
+        	
+        	switch (section) {
+        		case 0 : messageView.image = 'messageImg/message' + (Math.floor(Math.random() * 4) + 1) + '.png';	break;
+        		case 1 : messageView.image = 'messageImg/message_rest.png';	break;
         	}
         }
         
@@ -99,7 +103,7 @@
         var pauseFlag = 0;
         var pauseButton = Titanium.UI.createButton({
             backgroundImage: 'button_pause.png',
-            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 280 + 'dp'},
+            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 300 + 'dp'},
             width: '150dp',
             height: '50dp'
         });
@@ -123,7 +127,7 @@
         // button to finish working on the task
         var finishButton = Titanium.UI.createButton({
             backgroundImage: 'button_exit.png',
-            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 350 + 'dp'},
+            center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 370 + 'dp'},
             width: '150dp',
             height: '50dp'
         });
@@ -211,6 +215,7 @@
         		} else {
         			clearInterval(myCount);
         			timerWin.remove(blackView);
+					genMessage(section);
         			drawTimer();
         			setTimer();	// start timer
         		}
@@ -219,14 +224,12 @@
 		
 		// arrange labels and buttons for timer
 		function drawTimer() {
-			timerWin.add(statusLabel);
-			timerWin.add(whiteView);
+			timerWin.add(messageView);
+			timerWin.add(baseView);
 			timerWin.add(timerLabel);
 			timerWin.add(pauseButton);
         	timerWin.add(finishButton);
 		}
-		
-		genMessage(section);
         
         // show countdown
         showCountDown();
