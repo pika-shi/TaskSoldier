@@ -6,8 +6,8 @@
 		// create win
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
-			backgroundColor : '#f0ffff'
-			// backgroundImage : 'back.jpg'
+			backgroundImage : 'back.jpg',
+                        barColor: '#87CEEB'
 		});
 
 		// scroll view
@@ -15,7 +15,7 @@
 
 		// create tab
 		tab = Titanium.UI.createTab({
-			icon : 'KS_nav_ui.png',
+			icon : 'task.png',
 			title : 'タスク',
 			window : taskListWin
 		});
@@ -35,30 +35,26 @@
 		var db = new TaskDB();
 		records = db.fetchToList(0);
 
-		function nextPnt(point, prevRad, nextRad) {
-			var x = point.x;
-			var nextX = 0;
-			if (x == 0) {
-				while (nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
-					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
-				}
-			} else {
-				while (Math.abs(nextX - x) < prevRad + nextRad / 2 || nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
-					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
-				}
-			}
+		// parameters to determine the position of tasks(images)
+		var views;
+		var prevPoint;
+		var prevRadius;
+		var initialY = 30;
 
-			var y = point.y;
-			var nextY = 0;
-			if (y == 0) {
-				nextY = nextRad;
-			} else {
-				nextY = y + prevRad + nextRad * (Math.random() / 2 + 0.5);
-			}
-			return {
-				x : nextX,
-				y : nextY
+		// initialize parameters
+		function initialize() {
+			views = {};
+			prevPoint = {
+				x : 0,
+				y : initialY
 			};
+			prevRadius = 0;
+			scrollView = Titanium.UI.createScrollView({
+				contentWidth : 'auto',
+				contentHeight : 'auto',
+				top : 0
+			});
+			taskListWin.add(scrollView);
 		}
 
 		function subDate(rec) {
@@ -79,7 +75,41 @@
 			// last sec
 			return (rDate.getTime() - date.getTime()) / 1000;
 		}
-		
+
+		function nextPnt(prevPnt, prevRad, nextRad) {
+			var x = prevPnt.x;
+			var nextX = 0;
+			var y = prevPnt.y;
+			var nextY = 0;
+
+			if (x == 0) {
+				while (nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
+					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
+				}
+			} else {
+				var count = 0;
+				while (Math.abs(nextX - x) < prevRad + nextRad || nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
+					count++;
+					if (count > 1000) {
+						while (nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
+							nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
+						}
+						nextY = y + prevRad + nextRad;
+						return {x: nextX, y: nextY};
+					} else {
+						nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
+					}
+				}
+			}
+
+			if (y == initialY) {
+				nextY = y + nextRad;
+			} else {
+				nextY = y + nextRad + prevRad * (Math.random() / 2 + 0.5);
+			}
+			return {x : nextX, y : nextY};
+		}
+
 		function nextRad(rec) {
 			//last day
 			var last = subDate(rec) / (60 * 60 * 24);
@@ -91,27 +121,6 @@
 			else return rec.importance * 8 + 20;
 		}
 
-		// parameters to determine the position of tasks(images)
-		var views;
-		var prevPoint;
-		var prevRadius;
-
-		// initialize parameters
-		function initialize() {
-			views = {};
-			prevPoint = {
-				x : 0,
-				y : 30
-			};
-			prevRadius = 0;
-			scrollView = Titanium.UI.createScrollView({
-				contentWidth : 'auto',
-				contentHeight : 'auto',
-				top : 0
-			});
-			taskListWin.add(scrollView);
-		}
-
 		// putting images for each task
 		function drawTasks(recs) {
 			initialize();
@@ -120,15 +129,17 @@
 			for (var i = 0; i < recs.length; i++) {
 				// arranging image and label for each task
 				var rec = recs[i];
-				if (subDate(rec) < 0) excessRecords.push(rec);
-				else {
-					var next = addTask(rec, prevPoint, prevRadius);
-					prevPoint = next.point;
-					prevRadius = next.radius;
+				if (subDate(rec) < 0) {
+					excessRecords.push(rec);
+				} else {
 					if(subDate(rec) < 60 * 60 * 24) {
 						dangerRecords.push(rec);
 					}
+					var next = addTask(rec, prevPoint, prevRadius);
+					prevPoint = next.point;
+					prevRadius = next.radius;
 				}
+				Ti.API.info(rec.name + ',' + prevPoint.x + ',' + prevPoint.y + ',' + subDate(rec));
 			}
 			for (var i = 0; i < excessRecords.length; i++) {
 				var rec = excessRecords[i];
@@ -136,8 +147,8 @@
 				prevPoint = next.point;
 				prevRadius = next.radius;
 			}
-			scrollView.contentHeight = prevPoint.y + prevRadius;
-			
+			// scrollView.contentHeight = prevPoint.y + prevRadius;
+
 			if (dangerRecords.length > 0) {
 				var message = '';
 				for (var i = 0; i < dangerRecords.length; i++) {
@@ -182,6 +193,8 @@
 				color: '#555555',
 				touchEnabled : false
 			}));
+			scrollView.contentHeight = nextPoint.y + nextRadius;
+			Ti.API.info(scrollView.contentHeight);
 			scrollView.add(imageView);
 			views[rec.id] = imageView;
 
@@ -286,6 +299,7 @@
 					removeTaskImage(removed);
 				}
 				prevRecords = new Array(0);
+				blurflag = 0;
 			}
 		});
 
@@ -293,4 +307,4 @@
 		taskListWin.setRightNavButton(button);
 		return tab;
 	};
-})(); 
+})();

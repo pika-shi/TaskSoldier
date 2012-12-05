@@ -99,8 +99,6 @@ var optionPickerDialog = (function(){
             picker.addEventListener('change',function(ee)
             {
                 e.value = ee.value.toString();
-                //e.value = ee.value;
-                Ti.API.info(e.value);
             });
 
             containerView = Ti.UI.createView({height:251, bottom:-251, zIndex:9});

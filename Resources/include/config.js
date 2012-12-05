@@ -10,11 +10,12 @@
         // create win
         var win = Titanium.UI.createWindow({
             title:'設定',
-            backgroundColor:'#fff'
+            backgroundColor:'#fff',
+            barColor: '#87CEEB'
         });
         // create tab
         var tab = Titanium.UI.createTab({
-            icon:'KS_nav_ui.png',
+            icon:'config.png',
             title:'設定',
             window:win
         });
