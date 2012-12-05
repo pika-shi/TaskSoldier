@@ -172,8 +172,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (trackingHeading) {
 		[locationManager stopUpdatingHeading];
 	}
+    
 	if (trackingLocation) {
-		[locationManager stopUpdatingLocation];
+        if (trackSignificantLocationChange) {
+            [locationManager stopMonitoringSignificantLocationChanges];
+        }
+        else{
+            [locationManager stopUpdatingLocation];
+        }
 	}
 	RELEASE_TO_NIL_AUTORELEASE(locationManager);
 	[lock unlock];
@@ -196,7 +202,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleHeading])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleHeading removeObject:callback];
@@ -212,7 +218,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleLocation])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleLocation removeObject:callback];
@@ -240,8 +246,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	heading = kCLHeadingFilterNone;
 	
 	// should we show heading calibration dialog? defaults to YES
-	calibration = YES; 
-	
+	calibration = YES;
+    
+    // track all location changes by default 
+	trackSignificantLocationChange = NO;
+    
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -255,20 +264,21 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		RELEASE_TO_NIL(tempManager);
 		locationManager = [[CLLocationManager alloc] init];
 		locationManager.delegate = self;
-		if (accuracy!=-1)
-		{
-			locationManager.desiredAccuracy = accuracy;
-		}
-		else 
-		{
-			locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-		}
-		locationManager.distanceFilter = distance;
+		if (!trackSignificantLocationChange) {
+            if (accuracy!=-1)
+            {
+                locationManager.desiredAccuracy = accuracy;
+            }
+            else
+            {
+                locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
+            }
+            locationManager.distanceFilter = distance;
+        }
 		locationManager.headingFilter = heading;
-		
 		if (purpose==nil)
 		{ 
-			NSLog(@"[ERROR] Starting in iOS 3.2, you must set the Ti.Geolocation.purpose property to indicate the purpose of using Location services for your application");
+			DebugLog(@"[WARN] The Ti.Geolocation.purpose property must be set.");
 		}
 		else
 		{
@@ -339,8 +349,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 		if (startLocation && trackingLocation==NO)
 		{
-			[lm startUpdatingLocation];
-			trackingLocation = YES;
+			if (trackSignificantLocationChange) {
+                [lm startMonitoringSignificantLocationChanges];
+            }
+            else{
+                [lm startUpdatingLocation];
+            }
+            trackingLocation = YES;
 		}
 	}
 	else if ((!startHeading || !startLocation) && locationManager!=nil)
@@ -354,14 +369,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		if (startLocation==NO && trackingLocation)
 		{
 			trackingLocation = NO;
-			[lm stopUpdatingLocation];
-		}
+            if (trackSignificantLocationChange){
+                [lm stopMonitoringSignificantLocationChanges];
+            }
+            else{
+                [lm stopUpdatingLocation];
+            }
+            
+        }
 		if ((startHeading==NO && startLocation==NO) ||
 			(trackingHeading==NO && trackingLocation==NO))
 		{
 			[self shutdownLocationManager];
 			trackingLocation = NO;
-			trackingHeading = NO;
+            trackingHeading = NO;
 		}
 	}
 }
@@ -454,7 +475,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
 							aguid,@"aguid",
-							[TiUtils uniqueIdentifier],@"mid",
+							[TiUtils appIdentifier],@"mid",
 							sid,@"sid",
 							address,@"q",
 							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",
@@ -596,6 +617,36 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return [self AUTHORIZATION_UNKNOWN];
 }
 
+-(NSNumber*)trackSignificantLocationChange
+{
+    return NUMBOOL(trackSignificantLocationChange);
+}
+
+-(void)setTrackSignificantLocationChange:(id)value
+{
+    if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
+        BOOL newval = [TiUtils boolValue:value def:YES];
+        
+        if (newval != trackSignificantLocationChange) {
+            if ( trackingLocation && locationManager != nil ) {
+                [lock lock];
+                [self shutdownLocationManager];
+                trackingHeading = NO;
+                trackingLocation = NO;
+                trackSignificantLocationChange = newval;
+                [lock unlock];
+                TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+                return ;
+            }
+        }
+        trackSignificantLocationChange = newval;
+    }
+    else{
+        trackSignificantLocationChange = NO;
+        DebugLog(@"[WARN] Ti.Geolocation.setTrackSignificantLocationChange is not supported on this device.");
+    }
+}
+
 -(void)restart:(id)arg
 {
 	[lock lock];
@@ -608,10 +659,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 }
 
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST,kCLLocationAccuracyBest);
+MAKE_SYSTEM_PROP_DBL(ACCURACY_HIGH,kCLLocationAccuracyBest);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_NEAREST_TEN_METERS,kCLLocationAccuracyNearestTenMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS,kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER,kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometers);
+MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
