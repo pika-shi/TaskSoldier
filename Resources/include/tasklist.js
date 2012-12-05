@@ -6,7 +6,8 @@
 		// create win
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
-			backgroundImage : 'back.jpg'
+			backgroundImage : 'back.jpg',
+                        barColor: '#87CEEB'
 		});
 
 		// scroll view
@@ -14,7 +15,7 @@
 
 		// create tab
 		tab = Titanium.UI.createTab({
-			icon : 'KS_nav_ui.png',
+			icon : 'task.png',
 			title : 'タスク',
 			window : taskListWin
 		});
@@ -33,7 +34,7 @@
 		// get tasks from DB
 		var db = new TaskDB();
 		records = db.fetchToList(0);
-		
+
 		// parameters to determine the position of tasks(images)
 		var views;
 		var prevPoint;
@@ -74,13 +75,13 @@
 			// last sec
 			return (rDate.getTime() - date.getTime()) / 1000;
 		}
-		
+
 		function nextPnt(prevPnt, prevRad, nextRad) {
 			var x = prevPnt.x;
 			var nextX = 0;
 			var y = prevPnt.y;
 			var nextY = 0;
-			
+
 			if (x == 0) {
 				while (nextX + nextRad > Titanium.Platform.displayCaps.platformWidth || nextX - nextRad < 0) {
 					nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
@@ -108,7 +109,7 @@
 			}
 			return {x : nextX, y : nextY};
 		}
-		
+
 		function nextRad(rec) {
 			//last day
 			var last = subDate(rec) / (60 * 60 * 24);
@@ -147,7 +148,7 @@
 				prevRadius = next.radius;
 			}
 			// scrollView.contentHeight = prevPoint.y + prevRadius;
-			
+
 			if (dangerRecords.length > 0) {
 				var message = '';
 				for (var i = 0; i < dangerRecords.length; i++) {
@@ -306,4 +307,4 @@
 		taskListWin.setRightNavButton(button);
 		return tab;
 	};
-})(); 
+})();

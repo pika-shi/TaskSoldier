@@ -9,7 +9,8 @@
             // create win (global)
             AddTaskWin = Ti.UI.createWindow({
                 title:'タスクの追加',
-                backgroundColor:'#fff'
+                backgroundColor:'#fff',
+                barColor: '#87CEEB'
             });
         }
 
@@ -175,13 +176,34 @@
 
         SubmitButton.addEventListener('click', function(e){
             if (TaskNameForm.getValue() && DeadLineForm.getValue()) {
-                Ti.API.info(DeadLineForm.getValue());
                 // add record into TaskDB
                 var record = {};
                 record.name = TaskNameForm.getValue();
                 record.deadline = DeadLineForm.getValue().split('/').join('-') + ':00';
                 record.importance = ImportanceLevel;
                 record.memo = MemoForm.getValue();
+                // Get Current Time
+                var now = new Date();
+                var year = now.getYear();
+                var month = now.getMonth() + 1;
+                var day = now.getDate();
+                var hour = now.getHours();
+                var min = now.getMinutes();
+                var sec = now.getSeconds();
+                if(year < 2000) { year += 1900; }
+                if(month < 10) { month = "0" + month; }
+                if(day < 10) { day = "0" + day; }
+                if(hour < 10) { hour = "0" + hour; }
+                if(min < 10) { min = "0" + min; }
+                if(sec < 10) { sec = "0" + sec; }
+                var CurrentTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+                if (CurrentTime > record.deadline) {
+                    Titanium.UI.createAlertDialog({
+                    title:'Alert',
+                    message:'締切日時がもう過ぎています'
+                    }).show();
+                    // break;
+                }
                 var AddTaskFlag = 0;
                 var db = new TaskDB();
                 if (TaskId) {
@@ -195,22 +217,22 @@
                 AddTaskWin.add(TaskDetailWindow);
                 if (AddTaskFlag == 0) {
                     Titanium.UI.createAlertDialog({
-                        title:'タスクを更新しました．',
+                        title:'タスクを更新しました',
                     }).show();
                 } else {
                     Titanium.UI.createAlertDialog({
-                        title:'タスクを追加しました．',
+                        title:'タスクを追加しました',
                     }).show();
                 }
             } else if (!TaskNameForm.getValue()) {
                 Titanium.UI.createAlertDialog({
                     title:'Alert',
-                    message:'タスク名が未入力です．'
+                    message:'タスク名が未入力です'
                 }).show();
             } else {
                 Titanium.UI.createAlertDialog({
                     title:'Alert',
-                    message:'締切日時が未入力です．'
+                    message:'締切日時が未入力です'
                 }).show();
             }
         });

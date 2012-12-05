@@ -29,11 +29,12 @@ var ConfigTab = app.config.createTab();
 
 // create win
 var logWin = Titanium.UI.createWindow({
-	title : 'ログ'
+	title : 'ログ',
+        barColor: '#87CEEB'
 });
 // create tab
 var logTab = Titanium.UI.createTab({
-	icon : 'KS_nav_ui.png',
+	icon : 'log.png',
 	title : 'ログ',
 	window : logWin
 });
@@ -55,4 +56,4 @@ tabGroup.addEventListener('focus', function(e) {
 });
 
 // open tab group
-tabGroup.open(); 
+tabGroup.open();

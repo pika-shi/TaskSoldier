@@ -9,7 +9,8 @@
 		// create win
 		var win = Ti.UI.createWindow({
 			title : 'タスクの詳細',
-			backgroundColor : '#fff'
+			backgroundColor : '#fff',
+                        barColor: '#87CEEB'
 		});
 
 		// create view (global)
