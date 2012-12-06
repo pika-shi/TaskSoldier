@@ -225,7 +225,7 @@ static NSDictionary* TI_filterableItemProperties;
 		if (popoverViewProxy!=nil)
 		{
 			poView = [popoverViewProxy view];
-			poFrame = [poView frame];
+			poFrame = [poView bounds];
 		}
 		else
 		{
@@ -319,7 +319,7 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	
 	RELEASE_TO_NIL(popover);
-	[self destroyPicker];
+	[self sendPickerCancel];
 	//Unregister for interface change notification 
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -440,10 +440,10 @@ static NSDictionary* TI_filterableItemProperties;
 				[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
 			}
 			[TiUtils setView:view positionRect:[picker view].bounds];
-			[cameraView layoutChildren:NO];
             [cameraView windowWillOpen];
 			[picker setCameraOverlayView:view];
             [cameraView windowDidOpen];
+            [cameraView layoutChildren:NO];
 			[picker setWantsFullScreenLayout:YES];
 		}
 		
@@ -532,7 +532,7 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
 // Deprecated old-school video control modes, mapped to the new values
 -(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"1.9.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
+    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
     return [self VIDEO_CONTROL_EMBEDDED];
 }
 
@@ -832,7 +832,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	else 
 	{
 		RELEASE_TO_NIL(editor);
-		NSLog(@"[ERROR] unsupported video media. %@",[media class]);
+		NSLog(@"[ERROR] Unsupported video media: %@",[media class]);
 		return;
 	}
 	
@@ -1255,13 +1255,13 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
     [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
 } 
 
 -(NSNumber*)defaultAudioSessionMode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
