@@ -11,7 +11,7 @@
         var win = Titanium.UI.createWindow({
             title:'設定',
             backgroundColor:'#fff',
-            barColor: '#87CEEB'
+            barColor: '#B0C4DE'
         });
         // create tab
         var tab = Titanium.UI.createTab({

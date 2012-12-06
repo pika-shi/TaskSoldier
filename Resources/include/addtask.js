@@ -10,7 +10,7 @@
             AddTaskWin = Ti.UI.createWindow({
                 title:'タスクの追加',
                 backgroundColor:'#fff',
-                barColor: '#87CEEB'
+                barColor: '#B0C4DE'
             });
         }
 
