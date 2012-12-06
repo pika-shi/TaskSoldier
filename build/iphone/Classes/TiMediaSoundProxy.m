@@ -75,7 +75,7 @@
 -(void)play:(id)args
 {
     [self rememberSelf];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_sync(dispatch_get_main_queue(), ^{
         // indicate we're going to start playback
         if (![[TiMediaAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
@@ -276,6 +276,13 @@
     });
 }
 
+// For backwards compatibility
+-(void)setSound:(id)sound
+{
+	NSLog(@"[WARN] Deprecated; use 'url'");
+	[self setUrl:sound];
+}
+
 -(NSURL*)url
 {
 	return url;
@@ -285,16 +292,16 @@
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode == kAudioSessionCategory_RecordAudio) {
-        DebugLog(@"[WARN] Invalid mode for audio player... setting to default.");
+        NSLog(@"[WARN] Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-	DebugLog(@"[WARN] 'Ti.Media.Sound.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");
+	NSLog(@"[WARN] 'TaskSoldier.Media.Sound.audioSessionMode' is deprecated; use 'TaskSoldier.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	DebugLog(@"[WARN] 'Ti.Media.Sound.audioSessionMode' is deprecated; use 'Ti.Media.audioSessionMode'");
+	NSLog(@"[WARN] 'TaskSoldier.Media.Sound.audioSessionMode' is deprecated; use 'TaskSoldier.Media.audioSessionMode'");
     return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

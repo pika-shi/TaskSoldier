@@ -29,7 +29,7 @@
 	UIView<UITextInputTraits>*	textWidgetView;
 	BOOL suppressReturn;
 	
-	TiUIView<TiScrolling> *	parentScrollView;
+	TiUIView<TiUIScrollView> *	parentScrollView;
 @private
 
 }

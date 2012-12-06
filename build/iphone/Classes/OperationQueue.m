@@ -75,7 +75,7 @@ OperationQueue *sharedQueue = nil;
 	}
 	@catch (NSException * e) 
 	{
-		DeveloperLog(@"[ERROR] Unhandled exception raised in OperationQueue. Exception was %@",[e description]);
+		NSLog(@"[ERROR] unhandled exception raised in OperationQueue. Exception was %@",[e description]);
 	}
 	[pool release];
 }

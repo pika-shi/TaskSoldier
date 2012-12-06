@@ -40,6 +40,5 @@
 #ifdef USE_TI_UIIOSTABBEDBAR
 -(id)createTabbedBar:(id)args;
 #endif
-
 @end
 

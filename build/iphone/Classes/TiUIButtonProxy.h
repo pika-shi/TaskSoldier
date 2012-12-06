@@ -17,7 +17,7 @@
 @private
 	UIButtonType styleCache;
 	TiUINavBarButton *button;
-	id<TiToolbar> toolbar; // weak
+	TiToolbar *toolbar;
 }
 
 @end

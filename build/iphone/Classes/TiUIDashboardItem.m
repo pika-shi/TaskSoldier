@@ -23,8 +23,7 @@
 	TiViewProxy *p = (TiViewProxy*)self.proxy;
 	[super frameSizeChanged:frame bounds:bounds];
 	
-    NSArray* children = [p children];
-	for (TiViewProxy *proxy in children)
+	for (TiViewProxy *proxy in [p children])
 	{
 		[(TiUIView*)[proxy view] frameSizeChanged:self.frame bounds:self.bounds];
 	}

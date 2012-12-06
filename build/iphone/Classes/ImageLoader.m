@@ -198,7 +198,6 @@
     if (self = [super init]) {
         remoteURL = [url retain];        
         local = NO;
-        
         if ([remoteURL isFileURL]) {
             localPath = [[remoteURL path] retain];
             local = YES;
@@ -225,16 +224,11 @@
 {
     if (!local && imageData != nil) {
         NSFileManager* fm = [NSFileManager defaultManager];
-        NSString* path = localPath;
-        if (hires && [TiUtils isRetinaDisplay]) { // Save as @2x w/retina
-            path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+        if ([fm isDeletableFileAtPath:localPath]) {
+            [fm removeItemAtPath:localPath error:nil];
         }
-        
-        if ([fm isDeletableFileAtPath:path]) {
-            [fm removeItemAtPath:path error:nil];
-        }
-        if (![fm createFileAtPath:path contents:imageData  attributes:nil]) {
-            NSLog(@"[ERROR] Unknown error serializing image %@ to path %@", remoteURL, path);
+        if (![fm createFileAtPath:localPath contents:imageData  attributes:nil]) {
+            NSLog(@"[WARN] Unknown error serializing image %@ to path %@", remoteURL, localPath);
         }
     }
 }
@@ -259,7 +253,7 @@
                                     create:YES 
                                      error:&error];
     if (error != nil) {
-        NSLog(@"[ERROR] Error finding cache directory: %@", [error localizedDescription]);
+        NSLog(@"[WARN] Error finding cache directory: %@", [error localizedDescription]);
         return nil;
     }
     
@@ -361,14 +355,14 @@ DEFINE_EXCEPTIONS
 	vm_statistics_data_t vmStats;
 	mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
 	kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[CACHE DEBUG] %d pages free before clearing image cache.",vmStats.free_count);
+	NSLog(@"[INFO] %d pages free before clearing image cache.",vmStats.free_count);
 #endif
     
     [cache removeAllObjects];
     
 #ifdef DEBUG_IMAGE_CACHE
 	kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[CACHE DEBUG] %d pages free after clearing image cache.",vmStats.free_count);
+	NSLog(@"[INFO] %d pages free after clearing image cache.",vmStats.free_count);
 #endif
 
 
@@ -386,7 +380,7 @@ DEFINE_EXCEPTIONS
 	return sharedLoader;
 }
 
--(ImageCacheEntry *)setImage:(id)image forKey:(NSURL *)url hires:(BOOL)hires;
+-(ImageCacheEntry *)setImage:(id)image forKey:(NSURL *)url
 {
 	NSString *urlString = [url absoluteString];
 	if (image==nil)
@@ -404,7 +398,6 @@ DEFINE_EXCEPTIONS
 #endif
 	}
 	ImageCacheEntry * newEntry = [[[ImageCacheEntry alloc] initWithURL:url] autorelease];
-    [newEntry setHires:hires];
     
     if ([image isKindOfClass:[UIImage class]]) {
         [newEntry setFullImage:image];
@@ -413,12 +406,12 @@ DEFINE_EXCEPTIONS
         [newEntry setData:image];
     }
     else {
-        DebugLog(@"[DEBUG] Unexpected image data type %@; not caching", [image class]);
+        NSLog(@"[WARN] Unexpected image data type %@; not caching", [image class]);
         return nil;
     }
 	
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"[CACHE DEBUG] Caching: %@",newEntry);
+    NSLog(@"Caching: %@",newEntry);
 #endif
     
     [cache setObject:newEntry forKey:urlString];
@@ -478,7 +471,7 @@ DEFINE_EXCEPTIONS
 					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
 				}
 			}
-		    result = [self setImage:resultImage forKey:url hires:NO];
+		    result = [self setImage:resultImage forKey:url];
 		}
         else // Check and see if we cached a file to disk
         {
@@ -488,7 +481,7 @@ DEFINE_EXCEPTIONS
                 NSLog(@"[CACHE DEBUG] Retrieving local image [prefetch]: %@", diskCache);
 #endif
                 UIImage* resultImage = [UIImage imageWithContentsOfFile:diskCache];
-                result = [self setImage:resultImage forKey:url hires:NO];                
+                result = [self setImage:resultImage forKey:url];                
             }
         }
 	}
@@ -496,14 +489,14 @@ DEFINE_EXCEPTIONS
 	return result;
 }
 
--(id)cache:(id)image forURL:(NSURL*)url size:(CGSize)imageSize hires:(BOOL)hires
+-(id)cache:(id)image forURL:(NSURL*)url size:(CGSize)imageSize
 {
-	return [[self setImage:image forKey:url hires:hires] imageForSize:imageSize];
+	return [[self setImage:image forKey:url] imageForSize:imageSize];
 }
 
 -(id)cache:(id)image forURL:(NSURL*)url
 {
-	return [self cache:image forURL:url size:CGSizeZero hires:NO];
+	return [self cache:image forURL:url size:CGSizeZero];
 }
 
 -(id)loadRemote:(NSURL*)url
@@ -525,7 +518,7 @@ DEFINE_EXCEPTIONS
 	{
 	   NSData *data = [req responseData];
 	   UIImage *resultImage = [UIImage imageWithData:data];
-	   ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
+	   ImageCacheEntry *result = [self setImage:resultImage forKey:url];
 	   [result setData:data];
 	   return [result imageForSize:CGSizeZero];
 	}
@@ -749,8 +742,9 @@ DEFINE_EXCEPTIONS
 		{
 			BOOL hires = [TiUtils boolValue:[[req userInfo] valueForKey:@"hires"] def:NO];
             
-		    [self cache:data forURL:[req url] size:CGSizeZero hires:hires];
+		    [self cache:data forURL:[req url]];
 			ImageCacheEntry *entry = [self entryForKey:[req url]];
+			[entry setHires:hires];
             
             image = [entry fullImage];
 		}
@@ -808,7 +802,7 @@ DEFINE_EXCEPTIONS
 -(void)cache:(NSCache *)cache willEvictObject:(id)obj
 {
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"[CACHE DEBUG] Purging image cache object %@", obj);
+    NSLog(@"Purging image cache object %@", obj);
 #endif
 }
 

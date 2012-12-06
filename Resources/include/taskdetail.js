@@ -161,9 +161,10 @@
 		TaskDetailView.add(ImportanceView3);
 		//TaskDetailView.add(MemoLabel);
 		TaskDetailView.add(Memo);
-		if (from == 'tasklist')
-			win.setRightNavButton(EditButton);
-		TaskDetailView.add(TimerButton);
+		if (from == 'tasklist') {
+		    win.setRightNavButton(EditButton);
+		    TaskDetailView.add(TimerButton);
+                }
 		win.add(TaskDetailView);
 
 		return win;

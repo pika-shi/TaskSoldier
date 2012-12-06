@@ -37,7 +37,6 @@ NSArray * tableKeySequence;
 	return [sections count];
 }
 
-USE_VIEW_FOR_CONTENT_HEIGHT
 
 #pragma mark Internal
 
@@ -49,13 +48,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 		sections = [[NSMutableArray array] retain];
 	}
 	return self;
-}
-
--(void)_initWithProperties:(NSDictionary *)properties
-{
-    [self replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
-    [self replaceValue:NUMBOOL(YES) forKey:@"hideSearchOnSelection" notification:NO];
-    [super _initWithProperties:properties];
 }
 
 - (void) dealloc
@@ -379,24 +371,22 @@ USE_VIEW_FOR_CONTENT_HEIGHT
         return;
     }
     
-    if (rowProxy != newrow) {
-        [[rowProxy section] rememberProxy:newrow];
-        
-        newrow.section = rowProxy.section;
-        newrow.row = rowProxy.row;
-        newrow.parent = newrow.section;
-        
-        //We now need to disconnect the old row proxy.
-        rowProxy.section = nil;
-        rowProxy.parent = nil;
-        rowProxy.table = nil;
-        
-        
-        // Only update the row if we're loading it with data; but most of this should
-        // be taken care of by -[TiUITableViewProxy tableRowFromArg:] anyway, right?
-        if ([data isKindOfClass:[NSDictionary class]]) {
-            [newrow updateRow:data withObject:anim];
-        }
+    [[rowProxy section] rememberProxy:newrow];
+    
+    newrow.section = rowProxy.section;
+    newrow.row = rowProxy.row;
+    newrow.parent = newrow.section;
+    
+    //We now need to disconnect the old row proxy.
+    rowProxy.section = nil;
+    rowProxy.parent = nil;
+    rowProxy.table = nil;
+    
+    
+    // Only update the row if we're loading it with data; but most of this should
+    // be taken care of by -[TiUITableViewProxy tableRowFromArg:] anyway, right?
+    if ([data isKindOfClass:[NSDictionary class]]) {
+        [newrow updateRow:data withObject:anim];
     }
     
     TiThreadPerformOnMainThread(^{
@@ -418,7 +408,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 		
 	if ([sections count]==0)
 	{
-		DebugLog(@"[WARN] No rows found in table, ignoring delete");
+		NSLog(@"[WARN] no rows found in table, ignoring delete");
 		return;
 	}
 	
@@ -427,7 +417,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	
 	if (section==nil || row == nil)
 	{
-		DebugLog(@"[WARN] No row found for index: %d",index);
+		NSLog(@"[WARN] no row found for index: %d",index);
 		return;
 	}
 	
@@ -524,7 +514,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called.");
+		NSLog(@"[WARN] Table view was not in place before insertRowBefore was called. (Tell Blain or Steve to fix it!)");
 	}
 
 }
@@ -601,7 +591,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called.");
+		NSLog(@"[WARN] Table view was not in place before insertRowAfter was called. (Tell Blain or Steve to fix it!)");
 	}
 
 }
@@ -633,15 +623,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-        __block TiUITableViewSectionProxy* section = nil;
-        TiThreadPerformOnMainThread(^{
-            section = [sections lastObject];
-        }, YES);
-        
+        TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-            NSInteger newSectionIndex = section.section + 1;
             section = [self sectionWithHeader:header table:table];		
-            section.section = newSectionIndex;
+            TiThreadPerformOnMainThread(^{
+                section.section = [sections count];
+            }, YES);
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;
@@ -737,13 +724,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(NSArray*)data
 {
-    __block NSArray* curSections = nil;
-    //TIMOB-9890. Ensure data is retrieved off of the main 
-    //thread to ensure any pending operations are completed
-    TiThreadPerformOnMainThread(^{
-        curSections = [[NSArray arrayWithArray:sections] retain];
-    }, YES);
-    return [curSections autorelease];
+	return sections;
 }
 
 -(void)setContentInsets:(id)args
@@ -764,7 +745,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
 }
 
-DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 @end 
 

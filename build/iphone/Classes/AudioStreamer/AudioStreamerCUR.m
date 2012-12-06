@@ -212,7 +212,6 @@ void ASReadStreamCallBackCUR
 	{
 		url = [aURL retain];
         bufferSize = 0;
-		volume = 1.0;
 	}
 	return self;
 }
@@ -910,53 +909,6 @@ cleanup:
 	return lastProgress * 1000;
 }
 
-
-//
-// volume
-//
-// returns the current playback volume.
-//
-- (double)volume
-{
-	@synchronized(self)
-	{
-		if ((audioQueue != nil) && ![self isFinishing])
-		{
-			AudioQueueParameterValue result;
-			OSStatus error = AudioQueueGetParameter(audioQueue,kAudioQueueParam_Volume,&result);
-			if (error == noErr)
-			{
-				volume = (double)result;
-			}
-			else {
-				NSLog(@"[WARN] An error %u occurred while fetching the volume of a stream.",(unsigned int)error);
-			}
-		}
-	}
-	return volume;
-}
-
-//
-// setVolume
-//
-// sets the current playback volume.
-//
-- (void)setVolume:(double)value
-{
-	volume = value;
-	@synchronized(self)
-	{
-		if ((audioQueue != nil) && ![self isFinishing])
-		{
-			OSStatus error = AudioQueueSetParameter(audioQueue,kAudioQueueParam_Volume,(AudioQueueParameterValue)value);
-			if (error != noErr) {
-				NSLog(@"[WARN] An error %u occurred while setting the volume of a stream.",(unsigned int)error);
-			}
-		}
-	}
-}
-
-
 //
 // calculatedBitRate
 //
@@ -1020,7 +972,6 @@ cleanup:
 		}
 		else if (state == AS_PAUSED)
 		{
-            AudioQueuePrime(audioQueue, 1, NULL);
 			err = AudioQueueStart(audioQueue, NULL);
 			if (err)
 			{
@@ -1312,7 +1263,6 @@ cleanup:
 			{
 				if (self.state == AS_BUFFERING)
 				{
-                    AudioQueuePrime(audioQueue, 1, NULL);
 					err = AudioQueueStart(audioQueue, NULL);
 					if (err)
 					{
@@ -1325,7 +1275,6 @@ cleanup:
 				{
 					self.state = AS_WAITING_FOR_QUEUE_TO_START;
 
-                    AudioQueuePrime(audioQueue, 1, NULL);
 					err = AudioQueueStart(audioQueue, NULL);
 					if (err)
 					{
@@ -1373,9 +1322,6 @@ cleanup:
 		[self failWithErrorCode:AS_AUDIO_QUEUE_CREATION_FAILED];
 		return;
 	}
-	
-	// set the volume
-	err = AudioQueueSetParameter(audioQueue, kAudioQueueParam_Volume, (AudioQueueParameterValue)volume);
 	
 	// start the queue if it has not been started already
 	// listen to the "isRunning" property
@@ -1517,10 +1463,6 @@ cleanup:
 			}
 			
 			AudioFormatListItem *formatList = malloc(formatListSize);
-			if (formatList == NULL) {
-				[self failWithErrorCode:AS_FILE_STREAM_GET_PROPERTY_FAILED];
-				return;
-			}
 	        err = AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_FormatList, &formatListSize, formatList);
 			if (err)
 			{

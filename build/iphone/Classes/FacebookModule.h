@@ -17,7 +17,7 @@
 @end
 
 
-@interface FacebookModule : TiModule <FBRequestDelegate, FBDialogDelegate, FBSessionDelegate>
+@interface FacebookModule : TiModule <FBSessionDelegate2, FBRequestDelegate2>
 {
 	Facebook *facebook;
 	BOOL loggedIn;

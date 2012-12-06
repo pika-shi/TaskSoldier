@@ -125,7 +125,7 @@ CFHashCode	simpleHash(const void *value)
 	
 }
 
-+(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+-(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
 {
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
@@ -145,13 +145,6 @@ CFHashCode	simpleHash(const void *value)
 		
 		if ( [prefix isEqualToString:@"xml"] ) {
 			if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
-				*error = @"Invalid URI for prefix";
-				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
-				return;
-			}
-		}
-		else if ( [prefix isEqualToString:@"xmlns"] ) {
-			if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
 				*error = @"Invalid URI for prefix";
 				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
 				return;
@@ -181,7 +174,7 @@ CFHashCode	simpleHash(const void *value)
 	}
 }
 
-+(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+-(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
 {
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
@@ -374,12 +367,8 @@ CFHashCode	simpleHash(const void *value)
 
 -(void)setNodeValue:(NSString *)data
 {
-	[self throwException:[NSString stringWithFormat:@"Setting NodeValue not supported for %d type of Node",[self nodeType]] subreason:nil location:CODELOCATION];
-}
-
-- (id)textContent
-{
-	return [node stringValue];
+	ENSURE_TYPE(data, NSString);
+    [node setStringValue:data];
 }
 
 -(id)text
@@ -457,15 +446,9 @@ CFHashCode	simpleHash(const void *value)
 -(id)ownerDocument
 {
 	xmlDocPtr p = [node XMLNode]->doc;
-	if (p == NULL) 
+	if (p==NULL) 
 	{
-		if ([self document] != nil) {
-			p = [[self document] docNode];
-		}
-		if (p == NULL) {
-			VerboseLog(@"[DEBUG]ownerDocument property is NULL for node %@",[self class]);
-			return [NSNull null];
-		}
+		return [NSNull null];
 	}
     TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
     if (proxy == nil)
