@@ -12,7 +12,6 @@
 #import "TiUITextFieldProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
@@ -270,6 +269,7 @@
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
 		[self addSubview:textWidgetView];
+		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
@@ -463,25 +463,12 @@
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-	NSString *curText = [tf text];
-    
+    NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
+   
     NSInteger maxLength = [[self textWidgetView] maxLength];    
-    if (maxLength > -1) {
-        NSInteger length = [curText length] + [string length] - range.length;
-        
-        if (length > maxLength) {
-            return NO;
-        }
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        return NO;
     }
-	
-	if ([string isEqualToString:@""])
-	{
-		curText = [curText substringToIndex:[curText length]-range.length];
-	}
-	else
-	{
-		curText = [NSString stringWithFormat:@"%@%@",curText,string];
-	}
 
 	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
 	return YES;
@@ -525,6 +512,18 @@
 
 	return YES;
 }
+
+-(CGFloat)contentWidthForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].height;
+}
+
+
 	
 @end
 
