@@ -1,0 +1,171 @@
+(function() {
+	// name space for taskdetail
+	app.taskdetail = {};
+	// tab object
+	app.taskdetail.createWindow = function(from, TaskId) {
+		// get record from DB
+		var db = new TaskDB();
+		task = db.fetchOne(TaskId);
+		// create win
+		var win = Ti.UI.createWindow({
+			title : 'タスクの詳細',
+			backgroundColor : '#fff',
+                        barColor: '#87CEEB'
+		});
+
+		// create view (global)
+		TaskDetailView = Ti.UI.createImageView({
+			image : './back.jpg',
+		});
+
+		var TaskView = Ti.UI.createImageView({
+			image : './detail.png',
+			top : '40dp',
+			left : '-20dp',
+			height : '250dp'
+		});
+
+		// Task Name
+		var TaskNameLabel = Ti.UI.createLabel({
+			color : '#999',
+			text : 'タスク名',
+			height : '30dp',
+			top : '30dp',
+			left : '20dp',
+			width : '100dp',
+		});
+
+		var TaskName = Ti.UI.createLabel({
+			color : '#000',
+			text : task.name,
+			height : '60dp',
+			top : '90dp',
+			textAlign : 'center',
+			width : '180dp',
+			font : {
+				fontSize : 20
+			},
+		});
+
+		// DeadLine
+		var DeadLineLabel = Ti.UI.createLabel({
+			color : '#999',
+			text : '締切日時',
+			height : '30dp',
+			top : '70dp',
+			left : '20dp',
+			width : '70dp',
+		});
+
+		var DeadLine = Ti.UI.createLabel({
+			color : '#000',
+			text : task.deadline.split('-').join('/').slice(0, 16) + ' まで',
+			height : '35dp',
+			top : '145dp',
+			textAlign : 'center',
+			width : '200dp',
+		});
+
+		// Importance Level
+		var ImportanceLabel = Ti.UI.createLabel({
+			color : '#999',
+			text : '重要度',
+			height : '30dp',
+			top : '110dp',
+			left : '20dp',
+			width : '70dp',
+		});
+		var ImportanceView1 = Ti.UI.createImageView({
+			image : './star_on.png',
+			height : '30dp',
+			top : '180dp',
+			left : '100dp',
+			width : '30dp',
+		});
+		var ImportanceView2 = Ti.UI.createImageView({
+			image : './star_off.png',
+			height : '30dp',
+			top : '180dp',
+			left : '140dp',
+			width : '30dp',
+		});
+		var ImportanceView3 = Ti.UI.createImageView({
+			image : './star_off.png',
+			height : '30dp',
+			top : '180dp',
+			left : '180dp',
+			width : '30dp',
+		});
+
+		if (task.importance == 2) {
+			ImportanceView2.image = './star_on.png';
+		}
+		if (task.importance == 3) {
+			ImportanceView2.image = './star_on.png';
+			ImportanceView3.image = './star_on.png';
+		}
+
+		// memo
+		var MemoLabel = Ti.UI.createLabel({
+			color : '#999',
+			text : 'メモ',
+			height : '30dp',
+			top : '150dp',
+			left : '20dp',
+			width : '70dp',
+		});
+		var Memo = Ti.UI.createLabel({
+			color : '#000',
+			text : task.memo,
+			height : '70dp',
+			top : '215dp',
+			textAlign : 'center',
+			width : '180dp',
+		});
+
+		// add button
+		var EditButton = Ti.UI.createButton({
+			systemButton : Ti.UI.iPhone.SystemButton.COMPOSE
+		});
+
+		var TimerButton = Ti.UI.createButton({
+			backgroundImage:'start.png',
+			top : '300dp',
+			left : '85dp',
+			width : '150dp',
+			height : '50dp'
+		});
+
+		EditButton.addEventListener('click', function(e) {
+			// add record into TaskDB
+			var addTaskWin = app.addtask.createWindow(TaskId);
+			addTaskWin.title = "タスクの編集";
+			tab.open(addTaskWin);
+		});
+
+		TimerButton.addEventListener('click', function(e) {
+			// add record into TaskDB
+			var TimerWindow = app.timer.createWindow(TaskId, win);
+			TimerWindow.open();
+		});
+
+		// set label ＆ form
+		//TaskDetailView.add(TaskNameLabel);
+		TaskDetailView.add(TaskView);
+		TaskDetailView.add(TaskName);
+		//TaskDetailView.add(DeadLineLabel);
+		TaskDetailView.add(DeadLine);
+		//TaskDetailView.add(ImportanceLabel);
+		TaskDetailView.add(ImportanceView1);
+		TaskDetailView.add(ImportanceView2);
+		TaskDetailView.add(ImportanceView3);
+		//TaskDetailView.add(MemoLabel);
+		TaskDetailView.add(Memo);
+		if (from == 'tasklist')
+			win.setRightNavButton(EditButton);
+		TaskDetailView.add(TimerButton);
+		win.add(TaskDetailView);
+
+		return win;
+	};
+})();

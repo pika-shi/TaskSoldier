@@ -8,7 +8,9 @@ con = Titanium.Database.open('task');
 var tabGroup = Titanium.UI.createTabGroup();
 
 // background service for notification
-var service = Titanium.App.iOS.registerBackgroundService({url: './include/notification.js'});
+var service = Titanium.App.iOS.registerBackgroundService({
+	url : './include/notification.js'
+});
 
 // log
 Titanium.include('./include/log.js');
@@ -33,7 +35,8 @@ var ConfigTab = app.config.createTab();
 // create win
 var logWin = Titanium.UI.createWindow({
 	title : 'ログ',
-        barColor: '#87CEEB'
+	barColor : '#87CEEB',
+	backgroundImage : 'back.png'
 });
 // create tab
 var logTab = Titanium.UI.createTab({
