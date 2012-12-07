@@ -3,7 +3,7 @@ var day_detail = function(monthNum, dayNum, tab) {
 	var dayDetail = Ti.UI.createWindow({
 		title : dayNum + '日',
 		backgroundColor : '#fff',
-		barColor: '#87CEEB'
+		barColor: '#B0C4DE'
 	});
 	var tableView = Ti.UI.createTableView({
 		backgroundColor : 'transparent',
@@ -25,7 +25,7 @@ var day_detail = function(monthNum, dayNum, tab) {
 				fontWeight : 'bold'
 			}
 		});
-		
+
 		var tableViewRow = Ti.UI.createTableViewRow({
 			height : 44,
 			id : rows.field(2)

@@ -12,7 +12,7 @@ var pika_shi = function(monthNum, tab) {
 	var monthDetail = Ti.UI.createWindow({
 		title : monthNum + '月',
 		backgroundColor : '#fff',
-		barColor: '#87CEEB'
+		barColor: '#B0C4DE'
 	});
 	var tableView = Ti.UI.createTableView({
 		backgroundColor : 'transparent',
@@ -92,4 +92,4 @@ var myzac = function(year, month) {
 	//そのため、ここでは month - 1 は行いません
 	var dt = new Date(year, month, 0);
 	return dt.getDate();
-}; 
+};
