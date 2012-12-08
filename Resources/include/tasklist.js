@@ -7,7 +7,7 @@
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
 			backgroundImage : 'back.jpg',
-                        barColor: '#B0C4DE'
+            barColor: '#B0C4DE'
 		});
 
 		// scroll view
@@ -49,6 +49,9 @@
 				y : initialY
 			};
 			prevRadius = 0;
+			if (taskListWin.getChildren().length > 0) {
+				taskListWin.remove(taskListWin.getChildren()[0]);
+			}
 			scrollView = Titanium.UI.createScrollView({
 				contentWidth : 'auto',
 				contentHeight : 'auto',
@@ -57,6 +60,27 @@
 			taskListWin.add(scrollView);
 		}
 
+		// make a date match format
+		function getDate() {
+			var date = new Date();
+			var year = date.getYear();
+			var mon = date.getMonth() + 1;
+			var day = date.getDate();
+			var hour = date.getHours();
+			var min = date.getMinutes();
+			var sec = date.getSeconds();
+
+			year = (year < 2000) ? year + 1900 : year;
+			if (mon < 10) mon = "0" + mon;
+			if (day < 10) day = "0" + day;
+			if (hour < 10) hour = "0" + hour;
+			if (min < 10) min = "0" + min;
+			if (sec < 10) sec = "0" + sec;
+
+			return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec; 
+		}
+		
+		// subtract date (returns in sec)
 		function subDate(rec) {
 			// record deadline
 			var tmp = rec.deadline.split('-');
@@ -121,50 +145,63 @@
 		}
 
 		// putting images for each task
-		function drawTasks(recs) {
+		function drawTasks(recs, showDialog) {
 			initialize();
 			var excessRecords = new Array(0);
 			var message = '';
 			for (var i = 0; i < recs.length; i++) {
 				// arranging image and label for each task
 				var rec = recs[i];
-				if (subDate(rec) < 0) {
+				var last = subDate(rec);
+				if (last < - 60 * 60 * 24 * 7) {
+					// db.updateCell(rec.id, 'endtime', getDate());
+					db.deleteTask(rec.id);
+				} else if (last < 0) {
 					excessRecords.push(rec);
 				} else {
-					if(subDate(rec) < 60 * 60 * 24) {	//FIXME
+					if(showDialog == true && last < 60 * 60 * 6) {
 						message = message + rec.name + '\n';
 					}
-					var next = addTask(rec, prevPoint, prevRadius);
+					var next = addTask(rec, last, prevPoint, prevRadius);
 					prevPoint = next.point;
 					prevRadius = next.radius;
 				}
 			}
-			for (var i = 0; i < excessRecords.length; i++) {
+			for (var i = excessRecords.length - 1; i >= 0; i--) {
 				var rec = excessRecords[i];
-				var next = addTask(rec, prevPoint, prevRadius);
+				var last = subDate(rec);
+				var next = addTask(rec, last, prevPoint, prevRadius);
 				prevPoint = next.point;
 				prevRadius = next.radius;
 			}
 
-			if (message.length > 0) {
-				Titanium.Media.vibrate();
-				Titanium.UI.createAlertDialog({
-					title: '締切が近付いています!!',
-					message: message
-				}).show();
+			if (showDialog == true && message.length > 0) {
+				setTimeout(function(){
+					Titanium.Media.vibrate();
+					Titanium.UI.createAlertDialog({
+						title: '締切が近付いています!!',
+						message: message
+					}).show();
+				}, 100);
 			}
 		}
 
-		drawTasks(records);
+		drawTasks(records, true);
 
 		//add a task with imageView
-		function addTask(rec, prevPnt, prevRad) {
+		function addTask(rec, last, prevPnt, prevRad) {
 			var nextRadius = nextRad(rec);
 			var nextPoint = nextPnt(prevPnt, prevRad, nextRadius);
+			var img;
+			if (last < 0) {
+				img = './circleImg/g.png';
+			} else {
+				img = {1: './circleImg/b1.png', 2: './circleImg/y1.png', 3: './circleImg/r1.png'}[rec.importance]
+			}
 			var imageView = Titanium.UI.createImageView({
 				id : rec.id,
 				name : rec.name,
-				image : {1: './circleImg/b1.png', 2: './circleImg/y1.png', 3: './circleImg/r1.png'}[rec.importance],
+				image : img,
 				width : nextRadius * 2 + 'dp',
 				height : nextRadius * 2 + 'dp',
 				center : {
@@ -266,6 +303,7 @@
 		// memory (ids of) existing tasks when the window unfocused
 		var blurFlag = 0;
 		var prevRecords = new Array(0);
+		
 		taskListWin.addEventListener('blur', function(e) {
 			blurFlag = 1;
 			for (var i = 0; i < records.length; i++) {
@@ -285,14 +323,23 @@
 				var added = laterRecords.filter(exists, prevRecords)[0];
 				var removed = prevRecords.filter(exists, laterRecords)[0];
 				if (added != null) {
-					taskListWin.remove(scrollView);
-					drawTasks(records);
+					drawTasks(records, false);
 				} else if (removed != null && views[removed] != null) {
 					removeTaskImage(removed);
 				}
 				prevRecords = new Array(0);
 				blurflag = 0;
 			}
+		});
+		
+		Ti.App.addEventListener('pause', function(e) {
+			initialize();
+		});
+		
+		Ti.App.addEventListener('resume', function(e) {
+			setTimeout(function(){
+				drawTasks(db.fetchToList(0), true);
+			}, 10);
 		});
 
 		// set button
