@@ -25,7 +25,7 @@ var day_detail = function(monthNum, dayNum, tab) {
 				fontWeight : 'bold'
 			}
 		});
-		
+
 		var tableViewRow = Ti.UI.createTableViewRow({
 			height : 44,
 			id : rows.field(2)

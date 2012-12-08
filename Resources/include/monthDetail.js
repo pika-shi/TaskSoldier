@@ -92,4 +92,4 @@ var myzac = function(year, month) {
 	//そのため、ここでは month - 1 は行いません
 	var dt = new Date(year, month, 0);
 	return dt.getDate();
-}; 
+};
