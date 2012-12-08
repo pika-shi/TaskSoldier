@@ -10,7 +10,7 @@
 		var win = Ti.UI.createWindow({
 			title : 'タスクの詳細',
 			backgroundColor : '#fff',
-                        barColor: '#87CEEB'
+                        barColor: '#B0C4DE'
 		});
 
 		// create view (global)
@@ -21,7 +21,6 @@
 		var TaskView = Ti.UI.createImageView({
 			image : './detail.png',
 			top : '40dp',
-			left : '-20dp',
 			height : '250dp'
 		});
 
@@ -161,9 +160,10 @@
 		TaskDetailView.add(ImportanceView3);
 		//TaskDetailView.add(MemoLabel);
 		TaskDetailView.add(Memo);
-		if (from == 'tasklist')
-			win.setRightNavButton(EditButton);
-		TaskDetailView.add(TimerButton);
+		if (from == 'tasklist') {
+		    win.setRightNavButton(EditButton);
+		    TaskDetailView.add(TimerButton);
+                }
 		win.add(TaskDetailView);
 
 		return win;

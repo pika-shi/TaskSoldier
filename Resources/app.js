@@ -35,8 +35,8 @@ var ConfigTab = app.config.createTab();
 // create win
 var logWin = Titanium.UI.createWindow({
 	title : 'ログ',
-	barColor : '#87CEEB',
-	backgroundImage : 'back.png'
+    barColor: '#B0C4DE',
+    backgroundImage : 'back2.jpg'
 });
 // create tab
 var logTab = Titanium.UI.createTab({

@@ -5,7 +5,7 @@ var past_task_detail = function(id) {
 		title : 'タスク詳細',
 		backgroundColor : 'transparent',
 		backgroundImage : 'back.jpg',
-		barColor: '#87CEEB'
+		barColor: '#B0C4DE'
 	});
 
 	// fetchOneとほぼ同じメソッド
@@ -74,36 +74,30 @@ var past_task_detail = function(id) {
 		image : './star_on.png',
 		height : '30dp',
 		top : '180dp',
-		left : '190dp',
+		left : '100dp',
 		width : '30dp',
 	});
 	var ImportanceView2 = Ti.UI.createImageView({
 		image : './star_off.png',
-		height : '33dp',
+		height : '30dp',
 		top : '180dp',
-		left : '230dp',
-		width : '33dp',
+		left : '140dp',
+		width : '30dp',
 	});
 	var ImportanceView3 = Ti.UI.createImageView({
 		image : './star_off.png',
-		height : '33dp',
+		height : '30dp',
 		top : '180dp',
-		left : '270dp',
-		width : '33dp',
+		left : '180dp',
+		width : '30dp',
 	});
 
 	if (task.importance == 2) {
 		ImportanceView2.image = './star_on.png';
-		ImportanceView2.height = '33dp';
-		ImportanceView2.width = '33dp';
 	}
 	if (task.importance == 3) {
 		ImportanceView2.image = './star_on.png';
-		ImportanceView2.height = '33dp';
-		ImportanceView2.width = '33dp';
 		ImportanceView3.image = './star_on.png';
-		ImportanceView3.height = '33dp';
-		ImportanceView3.width = '33dp';
 	}
 
 	// memo
