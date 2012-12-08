@@ -10,7 +10,7 @@
         }
 
         if (Ti.App.Properties.getString('noticeset')) {
-            TimeSet = Ti.App.Properties.getString('noticeset');
+            NoticeSet = Ti.App.Properties.getString('noticeset');
         }
 
         // create win
@@ -167,6 +167,7 @@
 
         SaveButton.addEventListener('click', function(e){
             Ti.App.Properties.setString('timeset', TimeSet);
+            Ti.App.Properties.setString('noticeset', NoticeSet);
             Titanium.UI.createAlertDialog({
                 title:'設定を保存しました',
             }).show();
