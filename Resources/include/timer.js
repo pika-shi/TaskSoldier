@@ -19,7 +19,7 @@
         
         // basement of timer label
         var baseView = Titanium.UI.createView({
-        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 170 + 'dp'},	//FIXME
+        	center: {x:Titanium.Platform.displayCaps.platformWidth / 2 + 'dp', y: 170 + 'dp'},
         	backgroundColor: '#7fbfff',
         	opacity: 0.6,
         	width: 180 + 'dp',
@@ -86,13 +86,6 @@
         
         // generate message for messageView according to current section (work or rest)
         function genMessage(section) {
-        	// var message = {0: 'まだ慌てるような時間じゃない', 1: '今を大切に!!', 2: '明日やろうは馬鹿野郎', 3: '無限の彼方へェェェェェ!!'}[Math.floor(Math.random() * 4)];
-        	// switch(section % 2) {
-        		// case 0: statusLabel.text = message; break;
-        		// case 1: statusLabel.text = '休憩!!'; break;
-        		// default: statusLabel.text = 'ERROR'; break;
-        	// }
-        	
         	switch (section) {
         		case 0 : messageView.image = 'messageImg/message' + (Math.floor(Math.random() * 4) + 1) + '.png';	break;
         		case 1 : messageView.image = 'messageImg/message_rest.png';	break;
@@ -224,11 +217,11 @@
 		
 		// arrange labels and buttons for timer
 		function drawTimer() {
-			timerWin.add(messageView);
 			timerWin.add(baseView);
 			timerWin.add(timerLabel);
 			timerWin.add(pauseButton);
         	timerWin.add(finishButton);
+			timerWin.add(messageView);
 		}
         
         // show countdown
