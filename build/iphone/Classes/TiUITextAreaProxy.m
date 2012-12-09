@@ -13,6 +13,11 @@
 
 @implementation TiUITextAreaProxy
 
+#pragma mark Defaults
+
+DEFINE_DEF_PROP(value,@"");
+DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
+
 @end
 
 #endif
