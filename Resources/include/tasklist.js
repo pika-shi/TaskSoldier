@@ -49,7 +49,7 @@
 				y : initialY
 			};
 			prevRadius = 0;
-			if (taskListWin.getChildren().length > 0) {
+			if (taskListWin.getChildren() != null) {
 				taskListWin.remove(taskListWin.getChildren()[0]);
 			}
 			scrollView = Titanium.UI.createScrollView({
@@ -77,9 +77,9 @@
 			if (min < 10) min = "0" + min;
 			if (sec < 10) sec = "0" + sec;
 
-			return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec; 
+			return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec;
 		}
-		
+
 		// subtract date (returns in sec)
 		function subDate(rec) {
 			// record deadline
@@ -303,7 +303,7 @@
 		// memory (ids of) existing tasks when the window unfocused
 		var blurFlag = 0;
 		var prevRecords = new Array(0);
-		
+
 		taskListWin.addEventListener('blur', function(e) {
 			blurFlag = 1;
 			for (var i = 0; i < records.length; i++) {
@@ -331,11 +331,11 @@
 				blurflag = 0;
 			}
 		});
-		
+
 		Ti.App.addEventListener('pause', function(e) {
 			initialize();
 		});
-		
+
 		Ti.App.addEventListener('resume', function(e) {
 			setTimeout(function(){
 				drawTasks(db.fetchToList(0), true);
