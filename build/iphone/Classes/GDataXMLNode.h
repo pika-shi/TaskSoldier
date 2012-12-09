@@ -193,8 +193,6 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)addAttribute:(GDataXMLNode *)attribute;
 
 - (NSString *)resolvePrefixForNamespaceURI:(NSString *)namespaceURI;
-//Need to make this visible. Used in appendChild of ElementProxy
-+ (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix graftingToTreeNode:(xmlNodePtr)graftPointNode;
 
 @end
 

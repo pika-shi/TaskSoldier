@@ -110,15 +110,7 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    //Update the barImage here as well. Might have the wrong bounds but that will be corrected 
-    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
-    if ( (!animating) && (controller != nil) && ([controller navigationController] != nil) ) {
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
-        }
-    }
-    [TiLayoutQueue addViewProxy:self];
+	[TiLayoutQueue addViewProxy:self];
 }
 
 -(void)_destroy
@@ -142,20 +134,20 @@
 
 -(void)boot:(BOOL)timeout args:args
 {
-    RELEASE_TO_NIL(latch);
-    contextReady = YES;
+	RELEASE_TO_NIL(latch);
+	contextReady = YES;
 
-    if (navWindow) {
-        [self prepareForNavView:[self navController]];
-        if (timeout) {
-            [self windowDidOpen];
-        }
-    }
-    else {
-        if (timeout && ![context evaluationError]) {
-            [self open:args];
-        }
-    }
+	if (navWindow) 
+	{
+		[self prepareForNavView:[self navController]];
+	}
+	else 
+	{
+		if (timeout && ![context evaluationError])
+		{
+			[self open:args];
+		}
+	}
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -165,27 +157,13 @@
 
 #pragma mark Public
 
--(void)windowDidOpen
-{
-    if (context != nil) {
-        if (contextReady) {
-            [super windowDidOpen];
-        }
-        else {
-            VerboseLog(@"Ignoring windowDidOpen since context is not ready");
-        }
-    }
-    else {
-        [super windowDidOpen];
-    }
-}
-
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
+		[self fireFocus:YES];
 		return YES;
 	}
 	
@@ -228,7 +206,7 @@
 		}
 		else 
 		{
-			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
+			NSLog(@"[ERROR] url not supported in a window. %@",url);
 		}
 	}
 	
@@ -313,7 +291,7 @@
 
 		UINavigationController * ourNC = [controller navigationController];
 		[TiUtils applyColor:newColor toNavigationController:ourNC];
-		[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -352,7 +330,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, [NSThread isMainThread]);
 	}
 }
 
@@ -482,7 +460,7 @@
 	[self setTabBarHidden:[NSNumber numberWithBool:NO]];
 }
 
--(void)refreshBackButton
+-(void)_refreshBackButton
 {
 	ENSURE_UI_THREAD_0_ARGS;
 	
@@ -529,7 +507,7 @@
 	[self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
 	if (controller!=nil)
 	{
-		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
 		//we can't attach this until we're in the navbar stack.
 	}
 }
@@ -540,27 +518,9 @@
 	[self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, 
 		//we can't attach this until we're in the navbar stack.
 	}
-}
-
--(void)updateNavBar
-{
-    //Called from the view when the screen rotates. 
-    //Resize titleControl and barImage based on navbar bounds
-    if (animating || controller == nil || [controller navigationController] == nil) {
-        return; // No need to update the title if not in a nav controller
-    }
-    TiThreadPerformOnMainThread(^{
-        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
-            [self updateTitleView];
-        }
-        id barImageValue = [self valueForKey:@"barImage"];
-        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
-            [self updateBarImage];
-        }
-    }, NO);
 }
 
 -(void)updateTitleView
@@ -571,40 +531,24 @@
 		return; // No need to update the title if not in a nav controller
 	}
 	
-    UINavigationItem * ourNavItem = [controller navigationItem];
-    UINavigationBar * ourNB = [[controller navigationController] navigationBar];
-    CGRect barFrame = [ourNB bounds];
-    CGSize availableTitleSize = CGSizeZero;
-    availableTitleSize.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
-    availableTitleSize.height = barFrame.size.height;
+	UINavigationItem * ourNavItem = [controller navigationItem];
 
-    TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
+	TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
 
-    UIView * oldView = [ourNavItem titleView];
-    if ([oldView isKindOfClass:[TiUIView class]]) {
-        TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
-        if (oldProxy == titleControl) {
-            //relayout titleControl
-            CGRect barBounds;
-            barBounds.origin = CGPointZero;
-            barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
-            
-            [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
-            [oldView setAutoresizingMask:UIViewAutoresizingNone];
-            
-            //layout the titleControl children
-            [titleControl layoutChildren:NO];
-            
-            [self updateBarImage];
-            
-            return;
-        }
-        [oldProxy removeBarButtonView];
-    }
+	UIView * oldView = [ourNavItem titleView];
+	if ([oldView isKindOfClass:[TiUIView class]])
+	{
+		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
+		if (oldProxy == titleControl)
+		{
+			return;	//No need to update?
+		}
+		[oldProxy removeBarButtonView];
+	}
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
+		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
 	}
 	else
 	{
@@ -820,7 +764,7 @@ else{\
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
 	SETPROP(@"barImage",setBarImage);
-	[self refreshBackButton];
+	[self _refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
 	if (navBarHidden!=nil)

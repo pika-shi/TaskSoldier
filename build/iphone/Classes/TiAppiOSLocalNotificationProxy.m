@@ -25,9 +25,7 @@
 
 -(void)cancel:(id)args
 {
-	UILocalNotification * cancelledNotification = [notification retain];
-	TiThreadPerformOnMainThread(^{[[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-		[cancelledNotification release];}, NO);
+	TiThreadPerformOnMainThread(^{[[UIApplication sharedApplication] cancelLocalNotification:notification];}, NO);
 }
 
 @end

@@ -258,11 +258,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @synthesize tableClass, table, section, row, callbackCell;
 
--(NSString *)className
-{
-	return [self tableClass];
-}
-
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
@@ -297,11 +292,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return tableClass;
 }
 
--(id)height
-{
-    return [self valueForUndefinedKey:@"height"];
-}
-
 -(void)setHeight:(id)value
 {
 	height = [TiUtils dimensionValue:value];
@@ -312,16 +302,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
-        //CAN NOT USE THE MACRO 
-        if (ENFORCE_BATCH_UPDATE) {
-            if (updateStarted) {
-                [self setTempProperty:value forKey:key]; \
-                return;
-            }
-            else if(!allowLayoutUpdate){
-                return;
-            }
-        }
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
         return;
@@ -363,14 +343,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(CGFloat)rowHeight:(CGFloat)width
 {
-	if (TiDimensionIsDip(height))
+	if (TiDimensionIsPixels(height))
 	{
 		return height.value;
 	}
 	CGFloat result = 0;
-	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
+	if (TiDimensionIsAuto(height))
 	{
-		result = [self minimumParentHeightForSize:CGSizeMake(width, [self table].bounds.size.height)];
+		result = [self autoHeightForWidth:width];
 	}
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);
@@ -412,19 +392,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[textLabel setTextColor:(textColor==nil)?[UIColor blackColor]:textColor];
 		
 		UIColor * selectedTextColor = [[TiUtils colorValue:[self valueForKey:@"selectedColor"]] _color];
-		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];
-		
-		id fontValue = [self valueForKey:@"font"];
-		UIFont * font;
-		if (fontValue!=nil)
-		{
-			font = [[TiUtils fontValue:fontValue] font];
-		}
-		else
-		{
-			font = [UIFont systemFontOfSize:0];
-		}
-		[textLabel setFont:font];
+		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];	
 	}
 	else
 	{
@@ -634,8 +602,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
 {
 	[[proxy view] setTouchDelegate:touchDelegate];
-    NSArray* subproxies = [proxy children];
-	for (TiViewProxy * childProxy in subproxies)
+	for (TiViewProxy * childProxy in [proxy children])
 	{
 		[self redelegateViews:childProxy toView:touchDelegate];
 	}
@@ -671,7 +638,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
 	configuredChildren = YES;
-	if ([[self children] count] > 0)
+	if (self.children!=nil)
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
@@ -696,8 +663,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];
 		[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
-        NSArray* subviews = [self children];
-		for (TiViewProxy *proxy in subviews)
+		for (TiViewProxy *proxy in self.children)
 		{
 			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
 				[proxy setSandboxBounds:rect];
@@ -737,8 +703,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)willShow
 {
 	pthread_rwlock_rdlock(&childrenLock);
-    NSArray* subproxies = [self children];
-	for (TiViewProxy* child in subproxies) {
+	for (TiViewProxy* child in [self children]) {
 		[child setParentVisible:YES];
 	}
 	pthread_rwlock_unlock(&childrenLock);
@@ -907,10 +872,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
+
 @end
 
 #endif

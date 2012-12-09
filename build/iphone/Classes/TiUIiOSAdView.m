@@ -34,14 +34,14 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	return adview;
 }
 
--(CGFloat)contentHeightForWidth:(CGFloat)value
+-(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
 	return size.height;
 }
 
--(CGFloat)contentWidthForWidth:(CGFloat)value
+-(CGFloat)autoWidthForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
@@ -76,7 +76,6 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
-    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
@@ -84,7 +83,11 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
 	}
-	[(TiUIiOSAdViewProxy*) self.proxy fireLoad:nil];
+	if ([self.proxy _hasListeners:@"load"])
+	{
+		NSMutableDictionary *event = [NSMutableDictionary dictionary];
+		[self.proxy fireEvent:@"load" withObject:event];
+	}
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner

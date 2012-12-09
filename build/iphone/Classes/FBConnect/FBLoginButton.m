@@ -20,7 +20,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@implementation FBLoginButton
+@implementation FBLoginButton2
 
 @synthesize isLoggedIn = _isLoggedIn;
 @synthesize style = _style;

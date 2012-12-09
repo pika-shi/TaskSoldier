@@ -34,10 +34,10 @@ int CaselessCompare(const char * firstString, const char * secondString, int siz
 }
 
 
-#define TRYENCODING( encodingName, nameSize, returnValue, value )	\
-if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) {*value = returnValue; return YES;}
+#define TRYENCODING( encodingName, nameSize, returnValue )	\
+if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
 
-BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
+NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 {
 	int remainingSize = [inputData length];
 	int unsearchableSize;
@@ -55,19 +55,16 @@ BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
 		{
 			enc += 10;
 			data = enc;
-			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
-			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
-			TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
-			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
-			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
-			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
-			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
-			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
-			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
-			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
-			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
-			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
-			return NO;
+			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
+			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
+			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
+			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
+			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+			return NSUTF8StringEncoding;
 		}
 	}
 	
@@ -83,20 +80,17 @@ BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
 		data += 8;
 		remainingSize -= 8;
 		
-		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
-		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
-		TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
-		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
-		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
-		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
-		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
-		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
-		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
-		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
-		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
-		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
+		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
+		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
+		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
+		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
 	}	
-	return NO;
+	return NSUTF8StringEncoding;
 }
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
@@ -211,19 +205,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		{
 			// encoding failed, probably a bad webserver or content we have to deal
 			// with in a _special_ way
-            NSStringEncoding encoding = NSUTF8StringEncoding;
-            BOOL didExtractEncoding = ExtractEncodingFromData(data, &encoding);
-            if (didExtractEncoding) {
-                //If I did extract encoding use that
-                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
-            }
-            else {
-                //If the encoding was not extracted correctly, try UTF 8. If it fails try ISO-8859-1 (HTTP.DEFAULT_CONTENT_CHARSET)
-                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSUTF8StringEncoding] autorelease];
-                if (result == nil) {
-                    result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSISOLatin1StringEncoding] autorelease];
-                }
-            }
+			NSStringEncoding encoding = ExtractEncodingFromData(data);
+			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
 			
 		}
 		if (result!=nil)
@@ -419,7 +402,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setUseCookiePersistence:YES];
 	[request setShowAccurateProgress:YES];
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
-	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:NO];
+	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
@@ -490,7 +473,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
 	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		DebugLog(@"[ERROR] Must set a connection to OPENED before send()");
+		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	

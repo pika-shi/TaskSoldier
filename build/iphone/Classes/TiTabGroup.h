@@ -10,15 +10,8 @@
 #import <UIKit/UIKit.h>
 
 
-/**
- The tab group protocol
- */
 @protocol TiTabGroup
 
-/**
- Returns the tab bar for the tag group.
- @return The tag bar.
- */
 -(UITabBar*)tabbar;
 
 @end

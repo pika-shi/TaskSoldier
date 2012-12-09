@@ -42,21 +42,10 @@ NSArray* pickerKeySequence;
 
 -(void)viewDidAttach
 {
-    //Window might not have opened yet, so delay till we get windowDidOpen
-    if (selectOnLoad != nil && windowOpened) {
-        [self setSelectedRow:selectOnLoad];
-        RELEASE_TO_NIL(selectOnLoad);
-    }
-    [super viewDidAttach];
-}
-
--(void)windowDidOpen
-{
-    [super windowDidOpen];
-    if (selectOnLoad != nil) {
-        [self setSelectedRow:selectOnLoad];
-        RELEASE_TO_NIL(selectOnLoad);
-    }
+	if (selectOnLoad != nil) {
+		[self setSelectedRow:selectOnLoad];
+		RELEASE_TO_NIL(selectOnLoad);
+	}
 }
 
 -(BOOL)supportsNavBarPositioning
@@ -303,7 +292,6 @@ NSArray* pickerKeySequence;
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
-USE_VIEW_FOR_VERIFY_WIDTH
 
 
 -(void)reloadColumn:(id)column
@@ -330,15 +318,6 @@ USE_VIEW_FOR_VERIFY_WIDTH
 
 	ENSURE_VALUE_RANGE(columnIndex,0,[columnArray count]-1);
 	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:NUMINT(columnIndex) createIfNeeded:YES waitUntilDone:NO];
-}
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
 }
 
 @end

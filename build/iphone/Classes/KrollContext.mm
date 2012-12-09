@@ -26,7 +26,7 @@
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
 
-static pthread_mutex_t KrollEntryLock;
+static pthread_rwlock_t KrollGarbageCollectionLock;
 
 @implementation KrollUnprotectOperation
 
@@ -58,6 +58,8 @@ static pthread_mutex_t KrollEntryLock;
 
 @end
 
+
+
 @implementation KrollInvocation
 
 -(id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition*)condition_
@@ -71,7 +73,6 @@ static pthread_mutex_t KrollEntryLock;
 	}
 	return self;
 }
-
 -(id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ callback:(id)callback_ selector:(SEL)selector_
 {
 	if (self = [super init])
@@ -84,7 +85,6 @@ static pthread_mutex_t KrollEntryLock;
 	}
 	return self;
 }
-
 -(void)dealloc
 {
 	[target release];
@@ -93,33 +93,22 @@ static pthread_mutex_t KrollEntryLock;
 	[notify release];
 	[super dealloc];
 }
-
 -(void)invoke:(KrollContext*)context
 {
-    pthread_mutex_lock(&KrollEntryLock);
-    
-    @try {
-        if (target!=nil)
-        {
-            [target performSelector:method withObject:obj withObject:context];
-        }
-        if (condition!=nil)
-        {
-            [condition lock];
-            [condition signal];
-            [condition unlock];
-        }
-        if (notify!=nil)
-        {
-            [notify performSelector:notifySelector];
-        }
-    }
-    @catch (NSException* e) {
-        @throw e;
-    }
-    @finally {
-        pthread_mutex_unlock(&KrollEntryLock);
-    }
+	if (target!=nil)
+	{
+		[target performSelector:method withObject:obj withObject:context];
+	}
+	if (condition!=nil)
+	{
+		[condition lock];
+		[condition signal];
+		[condition unlock];
+	}
+	if (notify!=nil)
+	{
+		[notify performSelector:notifySelector];
+	}
 }
 
 @end
@@ -147,8 +136,7 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 	double duration = TiValueToNumber(context, durationRef, &exception);
 	if (exception!=NULL)
 	{
-		DebugLog(@"[ERROR] Conversion of timer duration to number failed.");
-        return TiValueMakeUndefined(context);
+		NSLog(@"[ERROR] timer duration conversion failed");
 	}
 	KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
 	[ctx registerTimer:timer timerId:timerID];
@@ -565,85 +553,55 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(id)initWithCode:(NSString*)code_
 {
-	return [self initWithCode:code_ sourceURL:nil];
-}
-
-- (id)initWithCode:(NSString *)code_ sourceURL:(NSURL *)sourceURL_
-{
-	return [self initWithCode:code_ sourceURL:sourceURL_ startingLineNo:1];
-}
-
-- (id)initWithCode:(NSString *)code_ sourceURL:(NSURL *)sourceURL_ startingLineNo:(NSInteger)startingLineNo_
-{
-    self = [super init];
-    if (self) {
+	if (self = [super init])
+	{
 		code = [code_ copy];
-		sourceURL = [sourceURL_ copy];
-		startingLineNo = startingLineNo_;
-    }
-    return self;
+	}
+	return self;
 }
-
 -(void)dealloc
 {
 	[code release];
-	[sourceURL release];
 	[super dealloc];
 }
 
 -(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer
 {
-    pthread_mutex_lock(&KrollEntryLock);
-	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) code);
-	TiStringRef jsURL = NULL;
-	if (sourceURL != nil) {
-		jsURL = TiStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
-	}
+	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, startingLineNo, exceptionPointer);
+	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, exceptionPointer);
 		
-	TiStringRelease(jsCode);
-	if (jsURL != NULL) {
-		TiStringRelease(jsURL);
-	}
-    pthread_mutex_unlock(&KrollEntryLock);
+	TiStringRelease(js);
 	
 	return result;
 }
 
 -(void)invoke:(KrollContext*)context
 {
-    pthread_mutex_lock(&KrollEntryLock);
 	TiValueRef exception = NULL;
 	[self jsInvokeInContext:context exception:&exception];
 
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 	}
-    pthread_mutex_unlock(&KrollEntryLock);
 }
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-    pthread_mutex_lock(&KrollEntryLock);
 	TiValueRef exception = NULL;
 	TiValueRef result = [self jsInvokeInContext:context exception:&exception];
 	
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-        
-        pthread_mutex_unlock(&KrollEntryLock);
 		@throw excm;
 	}
-    pthread_mutex_unlock(&KrollEntryLock);
-    
 	return [KrollObject toID:context value:result];
 }
 
@@ -686,7 +644,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 -(void)invoke:(KrollContext*)context
 {
-    pthread_mutex_lock(&KrollEntryLock);
 	if(callbackObject != nil)
 	{
 		[callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
@@ -696,7 +653,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
 	}
-    pthread_mutex_unlock(&KrollEntryLock);
 }
 @end
 
@@ -709,10 +665,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	if(self == [KrollContext class])
 	{
-        pthread_mutexattr_t entryLockAttrs; 
-        pthread_mutexattr_init(&entryLockAttrs);
-        pthread_mutexattr_settype(&entryLockAttrs, PTHREAD_MUTEX_RECURSIVE);
-		pthread_mutex_init(&KrollEntryLock, &entryLockAttrs);
+		pthread_rwlock_init(&KrollGarbageCollectionLock, NULL);
 	}
 }
 
@@ -726,7 +679,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (self = [super init])
 	{
 #if CONTEXT_MEMORY_DEBUG==1
-		NSLog(@"[DEBUG] INIT: %@",self);
+		NSLog(@"INIT: %@",self);
 #endif
 		contextId = [[NSString stringWithFormat:@"kroll$%d",++KrollContextIdCounter] copy];
 		condition = [[NSCondition alloc] init];
@@ -749,7 +702,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)destroy
 {
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"[DEBUG] DESTROY: %@",self);
+	NSLog(@"DESTROY: %@",self);
 #endif
 	[self stop];
 	RELEASE_TO_NIL(condition);
@@ -776,12 +729,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #if CONTEXT_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"[DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release]; 
 }
 #endif
@@ -795,7 +748,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)dealloc
 {
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"[DEBUG] DEALLOC: %@",self);
+	NSLog(@"DEALLOC: %@",self);
 #endif
 	assert(!destroyed);
 	destroyed = YES;
@@ -921,16 +874,17 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(id)object
 {
-	pthread_mutex_lock(&KrollEntryLock);
+	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
+	//Mwahahaha! Pre-emptively putting in NSOperations before the Queue.
 	if([object isKindOfClass:[NSOperation class]])
 	{
 		[(NSOperation *)object start];
-		pthread_mutex_unlock(&KrollEntryLock);
+		pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 		return;
 	}
 
 	[object invoke:self];
-	pthread_mutex_unlock(&KrollEntryLock);
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 }
 
 -(void)enqueue:(id)obj
@@ -970,7 +924,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	if (![self isKJSThread])
 	{
-		DeveloperLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
+		NSLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
 		@throw @"Invalid Thread Access";
 	}
 	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
@@ -997,18 +951,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		return;
 	}
 	[self enqueue:invocation];
-}
-
--(void)invokeBlockOnThread:(void (^)())block
-{
-    if ([self isKJSThread]) {
-        pthread_mutex_lock(&KrollEntryLock);
-        block();
-        pthread_mutex_unlock(&KrollEntryLock);
-        return;
-    }
-    NSBlockOperation* blockOp = [NSBlockOperation blockOperationWithBlock:block];
-    [self enqueue:blockOp];
 }
 
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
@@ -1045,11 +987,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
-	NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested",self);
+	NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
 #endif
-	pthread_mutex_lock(&KrollEntryLock);
+	pthread_rwlock_wrlock(&KrollGarbageCollectionLock);
 	TiGarbageCollect(context);
-	pthread_mutex_unlock(&KrollEntryLock);
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 	gcrequest = NO;
 	loopCount = 0;
 	[garbagePool drain];
@@ -1058,16 +1000,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)main
 {
-
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[[NSThread currentThread] setName:[self threadName]];
 	cachedThreadId = [NSThread currentThread];
-	pthread_mutex_lock(&KrollEntryLock);
+	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
 //	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
-	
-    incrementKrollCounter();
+		
 
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
@@ -1167,7 +1107,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[delegate performSelector:@selector(didStartNewContext:) withObject:self];
 	}
-	pthread_mutex_unlock(&KrollEntryLock);
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 	
 	BOOL exit_after_flush = NO;
 	
@@ -1185,9 +1125,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			if (suspended && ([queue count] == 0))
 			{
 				VerboseLog(@"Waiting: %@",self);
-                decrementKrollCounter();
-                [condition wait];
-                incrementKrollCounter();
+				[condition wait];
 				VerboseLog(@"Resumed! %@",self)
 			} 
 		}
@@ -1210,7 +1148,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			[lock unlock];
 
 #if CONTEXT_DEBUG == 1	
-			NSLog(@"[DEBUG] CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
+			NSLog(@"CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
 #endif
 			
 			// we're stopped, nothing in the queue, time to bail
@@ -1268,18 +1206,18 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				@try 
 				{
 #if CONTEXT_DEBUG == 1	
-					NSLog(@"[DEBUG] CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
+					NSLog(@"CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
 #endif
 					[self invoke:entry];
 #if CONTEXT_DEBUG == 1	
-					NSLog(@"[DEBUG] CONTEXT<%@>: after action event invoke: %@",self,entry);
+					NSLog(@"CONTEXT<%@>: after action event invoke: %@",self,entry);
 #endif
 				}
 				@catch (NSException * e) 
 				{
 					// this should never happen as we raise a JS exception inside the 
 					// method above but this is a guard anyway
-					DebugLog(@"[ERROR] Application raised an exception: %@",e);
+					NSLog(@"[ERROR] application raised an exception. %@",e);
 				}
 				@finally 
 				{
@@ -1306,7 +1244,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		
 		
 #if CONTEXT_DEBUG == 1	
-		NSLog(@"[DEBUG] CONTEXT<%@>: waiting for new event (count=%d)",self,KrollContextCount);
+		NSLog(@"CONTEXT<%@>: waiting for new event (count=%d)",self,KrollContextCount);
 #endif
 		
 		[condition lock];
@@ -1317,21 +1255,19 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-            decrementKrollCounter();
-			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-            incrementKrollCounter();
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
 		}
 		[condition unlock]; 
 		
 #if CONTEXT_DEBUG == 1	
-		NSLog(@"[DEBUG] CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
+		NSLog(@"CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
 #endif
 		
 		RELEASE_TO_NIL(innerpool);
 	}
 
 #if CONTEXT_DEBUG == 1	
-	NSLog(@"[DEBUG] CONTEXT<%@>: is shutting down",self);
+	NSLog(@"CONTEXT<%@>: is shutting down",self);
 #endif
 	
 	// call before we start the shutdown while context and timers are alive
@@ -1362,8 +1298,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	}
 
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"[DEBUG] SHUTDOWN: %@",self);
-	NSLog(@"[DEBUG] KROLL RETAIN COUNT: %d",[kroll retainCount]);
+	NSLog(@"SHUTDOWN: %@",self);
+	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
 	[self destroy];
 
@@ -1377,8 +1313,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);
 	
-    decrementKrollCounter();
-    
 	[kroll autorelease];
 	[pool release];
 }

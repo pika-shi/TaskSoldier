@@ -2118,7 +2118,7 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 		
 			if([self hasBytesAvailable:theSocket])
 			{
-				ssize_t result = -1;
+				ssize_t result;
 				CFSocketNativeHandle theNativeSocket = CFSocketGetNative(theSocket);
 				
 				// Allocate buffer for recvfrom operation.
@@ -2127,80 +2127,80 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 				void *buf = malloc(maxReceiveBufferSize);
 				size_t bufSize = maxReceiveBufferSize;
 				
-				if (buf != NULL) {
-					if(theSocket == theSocket4)
+				if(theSocket == theSocket4)
+				{
+					struct sockaddr_in sockaddr4;
+					socklen_t sockaddr4len = sizeof(sockaddr4);
+					
+					result = recvfrom(theNativeSocket, buf, bufSize, 0, (struct sockaddr *)&sockaddr4, &sockaddr4len);
+					
+					if(result >= 0)
 					{
-						struct sockaddr_in sockaddr4;
-						socklen_t sockaddr4len = sizeof(sockaddr4);
+						NSString *host = [self addressHost4:&sockaddr4];
+						UInt16 port = ntohs(sockaddr4.sin_port);
 						
-						result = recvfrom(theNativeSocket, buf, bufSize, 0, (struct sockaddr *)&sockaddr4, &sockaddr4len);
-						
-						if(result >= 0)
+						if([self isConnected] && ![self isConnectedToHost:host port:port])
 						{
-							NSString *host = [self addressHost4:&sockaddr4];
-							UInt16 port = ntohs(sockaddr4.sin_port);
-							
-							if([self isConnected] && ![self isConnectedToHost:host port:port])
-							{
-								// The user connected to an address, and the received data doesn't match the address.
-								// This may happen if the data is received by the kernel prior to the connect call.
-								appIgnoredReceivedData = YES;
-							}
-							else
-							{
-								if(result != bufSize)
-								{
-									buf = realloc(buf, result);
-								}
-								theCurrentReceive->buffer = [[NSMutableData alloc] initWithBytesNoCopy:buf
-																								length:result
-																						  freeWhenDone:YES];
-								theCurrentReceive->host = [host retain];
-								theCurrentReceive->port = port;
-							}
+							// The user connected to an address, and the received data doesn't match the address.
+							// This may happen if the data is received by the kernel prior to the connect call.
+							appIgnoredReceivedData = YES;
 						}
-						
-						theFlags &= ~kSock4HasBytesAvailable;
-					}
-					else
-					{
-						struct sockaddr_in6 sockaddr6;
-						socklen_t sockaddr6len = sizeof(sockaddr6);
-						
-						result = recvfrom(theNativeSocket, buf, bufSize, 0, (struct sockaddr *)&sockaddr6, &sockaddr6len);
-						
-						if(result >= 0)
+						else
 						{
-							NSString *host = [self addressHost6:&sockaddr6];
-							UInt16 port = ntohs(sockaddr6.sin6_port);
-							
-							if([self isConnected] && ![self isConnectedToHost:host port:port])
+							if(result != bufSize)
 							{
-								// The user connected to an address, and the received data doesn't match the address.
-								// This may happen if the data is received by the kernel prior to the connect call.
-								appIgnoredReceivedData = YES;
+								buf = realloc(buf, result);
 							}
-							else
-							{
-								if(result != bufSize)
-								{
-									buf = realloc(buf, result);
-								}
-								theCurrentReceive->buffer = [[NSMutableData alloc] initWithBytesNoCopy:buf
-																								length:result
-																						  freeWhenDone:YES];
-								theCurrentReceive->host = [host retain];
-								theCurrentReceive->port = port;
-							}
+							theCurrentReceive->buffer = [[NSMutableData alloc] initWithBytesNoCopy:buf
+																					 length:result
+																			   freeWhenDone:YES];
+							theCurrentReceive->host = [host retain];
+							theCurrentReceive->port = port;
 						}
-						theFlags &= ~kSock6HasBytesAvailable;
 					}
-					// Check to see if we need to free our alloc'd buffer
-					// If the buffer is non-nil, this means it has taken ownership of the buffer
-					if(theCurrentReceive->buffer == nil)
+					
+					theFlags &= ~kSock4HasBytesAvailable;
+				}
+				else
+				{
+					struct sockaddr_in6 sockaddr6;
+					socklen_t sockaddr6len = sizeof(sockaddr6);
+					
+					result = recvfrom(theNativeSocket, buf, bufSize, 0, (struct sockaddr *)&sockaddr6, &sockaddr6len);
+					
+					if(result >= 0)
 					{
-						free(buf);
+						NSString *host = [self addressHost6:&sockaddr6];
+						UInt16 port = ntohs(sockaddr6.sin6_port);
+						
+						if([self isConnected] && ![self isConnectedToHost:host port:port])
+						{
+							// The user connected to an address, and the received data doesn't match the address.
+							// This may happen if the data is received by the kernel prior to the connect call.
+							appIgnoredReceivedData = YES;
+						}
+						else
+						{
+							if(result != bufSize)
+							{
+								buf = realloc(buf, result);
+							}
+							theCurrentReceive->buffer = [[NSMutableData alloc] initWithBytesNoCopy:buf
+																					 length:result
+																			   freeWhenDone:YES];
+							theCurrentReceive->host = [host retain];
+							theCurrentReceive->port = port;
+						}
 					}
+					
+					theFlags &= ~kSock6HasBytesAvailable;
+				}
+				
+				// Check to see if we need to free our alloc'd buffer
+				// If the buffer is non-nil, this means it has taken ownership of the buffer
+				if(theCurrentReceive->buffer == nil)
+				{
+					free(buf);
 				}
 				
 				if(result < 0)

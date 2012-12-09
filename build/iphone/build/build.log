@@ -5,38 +5,32 @@ reporting an issue to help us understand your environment, build settings
 and aid in debugging. Please attach this log to any issue that you report.
 ================================================================================
 
-Starting build at 12/09/12 02:55
+Starting build at 12/10/12 00:24
 
 Build details:
 
-   timestamp=11/09/12 12:46
+   timestamp=02/23/12 17:46
    module_apiversion=2
-   version=2.1.4
-   githash=51f2c64
+   version=1.8.2
+   githash=59b3a90
 
 
 Script arguments:
-   /Users/Yosuke/Library/Application Support/Titanium/mobilesdk/osx/2.1.4.GA/iphone/builder.py
-   simulator
-   6.0
-   /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier
-   jp.co.TaskSoldier
-   TaskSoldier
-   universal
-   iphone
-   
+   /Library/Application Support/Titanium/mobilesdk/osx/1.8.2/iphone/builder.py
+   run
+   /Users/takemurahikaru/Documents/Titanium Studio Workspace/TaskSoldier/
 
-Building from: /Users/Yosuke/Library/Application Support/Titanium/mobilesdk/osx/2.1.4.GA/iphone
-Platform: Darwin Kernel Version 12.2.1: Thu Oct 18 16:32:48 PDT 2012; root:xnu-2050.20.9~2/RELEASE_X86_64
+Building from: /Library/Application Support/Titanium/mobilesdk/osx/1.8.2/iphone
+Platform: Darwin Kernel Version 10.8.0: Tue Jun  7 16:33:36 PDT 2011; root:xnu-1504.15.3~1/RELEASE_I386
 
-Xcode path is: /Applications/Xcode.app/Contents/Developer
+Xcode path is: /Developer
 
 
-githash=51f2c64, existing_git_hash=51f2c64
-writing contents of /Users/Yosuke/Documents/Titanium_Studio_Workspace/TaskSoldier/build/iphone/project.xcconfig:
+githash=59b3a90, existing_git_hash=59b3a90
+writing contents of /Users/takemurahikaru/Documents/Titanium Studio Workspace/TaskSoldier/build/iphone/project.xcconfig:
 
-TI_VERSION=2.1.4.GA
-TI_SDK_DIR=/Users/Yosuke/Library/Application Support/Titanium/mobilesdk/osx/$(TI_VERSION)/iphone
+TI_VERSION=1.8.2
+TI_SDK_DIR=/Library/Application Support/Titanium/mobilesdk/osx/$(TI_VERSION)/iphone
 TI_APPID=jp.co.TaskSoldier
 OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd
 OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd
