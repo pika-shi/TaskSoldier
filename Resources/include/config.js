@@ -33,7 +33,7 @@
 
         var ConfigView = Ti.UI.createImageView({
                 image: './config.jpg',
-                top: '-60dp',
+                top: '20dp',
                 width: '280dp',
             });
 
