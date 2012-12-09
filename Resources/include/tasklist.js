@@ -50,7 +50,7 @@
 			};
 			prevRadius = 0;
 			// if (taskListWin.getChildren() != null) {
-			if (taskListWin.getChildren().length > 0) {
+			if (taskListWin.getChildren() != null) {
 				taskListWin.remove(taskListWin.getChildren()[0]);
 			}
 			scrollView = Titanium.UI.createScrollView({
