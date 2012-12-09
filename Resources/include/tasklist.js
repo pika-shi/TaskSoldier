@@ -49,7 +49,8 @@
 				y : initialY
 			};
 			prevRadius = 0;
-			if (taskListWin.getChildren() != null) {
+			// if (taskListWin.getChildren() != null) {
+			if (taskListWin.getChildren().length > 0) {
 				taskListWin.remove(taskListWin.getChildren()[0]);
 			}
 			scrollView = Titanium.UI.createScrollView({
@@ -154,7 +155,6 @@
 				var rec = recs[i];
 				var last = subDate(rec);
 				if (last < - 60 * 60 * 24 * 7) {
-					// db.updateCell(rec.id, 'endtime', getDate());
 					db.deleteTask(rec.id);
 				} else if (last < 0) {
 					excessRecords.push(rec);
@@ -194,7 +194,7 @@
 			var nextPoint = nextPnt(prevPnt, prevRad, nextRadius);
 			var img;
 			if (last < 0) {
-				img = './circleImg/g.png';
+				img = './circleImg/g1.png';
 			} else {
 				img = {1: './circleImg/b1.png', 2: './circleImg/y1.png', 3: './circleImg/r1.png'}[rec.importance]
 			}
