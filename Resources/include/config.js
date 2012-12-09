@@ -31,6 +31,12 @@
                 width: '500dp',
             });
 
+        var ConfigView = Ti.UI.createImageView({
+                image: './config.jpg',
+                top: '-60dp',
+                width: '280dp',
+            });
+
         var TimeLabel = Titanium.UI.createLabel({
             font:{fontSize:20},
             color: '#333',
@@ -126,7 +132,7 @@
         var SaveButton = Titanium.UI.createButton({
             backgroundImage:'save.png',
             height: '50dp',
-            top: '280dp',
+            top: '300dp',
             left: '85dp',
             width: '150dp'
         });
@@ -175,6 +181,7 @@
 
         // set label
         win.add(BackGroundView);
+        win.add(ConfigView);
         win.add(TimeLabel);
         win.add(TimeLabel25);
         win.add(TimeLabel50);
