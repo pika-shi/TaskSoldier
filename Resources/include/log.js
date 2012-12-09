@@ -74,7 +74,7 @@
 			});
 			var timeLabel = Ti.UI.createLabel({
 				text : hour + ':' + minute + ':' + second,
-				right : 10
+				right : '10dp'
 			});
 			tableViewRow.add(graphView);
 			tableViewRow.add(timeLabel);

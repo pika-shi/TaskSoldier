@@ -21,7 +21,6 @@
 		var TaskView = Ti.UI.createImageView({
 			image : './detail.png',
 			top : '40dp',
-			left : '-20dp',
 			height : '250dp'
 		});
 

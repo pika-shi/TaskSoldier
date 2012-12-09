@@ -1,5 +1,13 @@
 eclipse.preferences.version=1
-provisioning_profiles/development/6775E23B-35E2-4BC5-881E-89B4E75F3718/appid=me.pikashi.pikashi
-provisioning_profiles/development/6775E23B-35E2-4BC5-881E-89B4E75F3718/filepath=/Users/takemurahikaru/Library/MobileDevice/Provisioning Profiles/6775E23B-35E2-4BC5-881E-89B4E75F3718.mobileprovision
-provisioning_profiles/development/6775E23B-35E2-4BC5-881E-89B4E75F3718/name=pika_shi
-provisioning_profiles/development/6775E23B-35E2-4BC5-881E-89B4E75F3718/uuid=6775E23B-35E2-4BC5-881E-89B4E75F3718
+provisioning_profiles/development/1343C531-A337-4EB7-AB55-326C35E78B9F/appid=jp.co.rich.smacon
+provisioning_profiles/development/1343C531-A337-4EB7-AB55-326C35E78B9F/filepath=/Users/Yosuke/Library/MobileDevice/Provisioning Profiles/1343C531-A337-4EB7-AB55-326C35E78B9F.mobileprovision
+provisioning_profiles/development/1343C531-A337-4EB7-AB55-326C35E78B9F/name=smacon
+provisioning_profiles/development/1343C531-A337-4EB7-AB55-326C35E78B9F/uuid=1343C531-A337-4EB7-AB55-326C35E78B9F
+provisioning_profiles/development/8285A505-A258-49F2-BAF4-CA715A695AEC/appid=jp.co.rich.smacon
+provisioning_profiles/development/8285A505-A258-49F2-BAF4-CA715A695AEC/filepath=/Users/Yosuke/Library/MobileDevice/Provisioning Profiles/8285A505-A258-49F2-BAF4-CA715A695AEC.mobileprovision
+provisioning_profiles/development/8285A505-A258-49F2-BAF4-CA715A695AEC/name=smacon
+provisioning_profiles/development/8285A505-A258-49F2-BAF4-CA715A695AEC/uuid=8285A505-A258-49F2-BAF4-CA715A695AEC
+provisioning_profiles/development/C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB/appid=jp.co.rich.smacon
+provisioning_profiles/development/C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB/filepath=/Users/Yosuke/Library/MobileDevice/Provisioning Profiles/C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB.mobileprovision
+provisioning_profiles/development/C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB/name=smacon
+provisioning_profiles/development/C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB/uuid=C2F15D5A-1830-4E3B-A8A0-B8B83CCBE3AB
