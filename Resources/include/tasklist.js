@@ -50,7 +50,7 @@
 			};
 			prevRadius = 0;
 			// if (taskListWin.getChildren() != null) {
-			if (taskListWin.getChildren() != null) {
+			if (taskListWin.getChildren().length > 0) {
 				taskListWin.remove(taskListWin.getChildren()[0]);
 			}
 			scrollView = Titanium.UI.createScrollView({
@@ -331,11 +331,7 @@
 				blurflag = 0;
 			}
 		});
-
-		Ti.App.addEventListener('pause', function(e) {
-			initialize();
-		});
-
+		
 		Ti.App.addEventListener('resume', function(e) {
 			setTimeout(function(){
 				drawTasks(db.fetchToList(0), true);

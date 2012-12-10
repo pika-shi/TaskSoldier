@@ -154,14 +154,13 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
+		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
 		{
 			spinner.center = self.center;
-		}
-		
-		[[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
+		}		
 	}
 }
 
@@ -250,6 +249,23 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 	{
 		[[self webview] setScalesPageToFit:NO];
 	}
+}
+
+-(UIScrollView*)scrollview
+{
+	UIWebView* webView = [self webview];
+	if ([webView respondsToSelector:@selector(scrollView)]) {
+		// as of iOS 5.0, we can return the scroll view
+		return [webView scrollView];
+	} else {
+		// in earlier versions, we need to find the scroll view
+		for (id subview in [webView subviews]) {
+			if ([subview isKindOfClass:[UIScrollView class]]) {
+				return (UIScrollView*)subview;
+			}
+		}
+	}
+	return nil;
 }
 
 
@@ -398,6 +414,18 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 	[[self webview] setScalesPageToFit:scaling];
 }
 
+-(void)setDisableBounce_:(id)value
+{
+	BOOL bounces = ![TiUtils boolValue:value];
+	[[self scrollview] setBounces:bounces];
+}
+
+-(void)setScrollsToTop_:(id)value
+{
+	BOOL scrollsToTop = [TiUtils boolValue:value def:YES];
+	[[self scrollview] setScrollsToTop:scrollsToTop];
+}
+
 #ifndef USE_BASE_URL
 #define USE_BASE_URL	1
 #endif
@@ -454,7 +482,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 				{
 					//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
 					//at this point we're just going to fail
-					NSLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
+					DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
 				}
 				else
 				{
@@ -492,7 +520,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 				}
 				else 
 				{
-					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to TaskSoldier support.",url);
+					DebugLog(@"[WARN] Could not determine correct text encoding for content: %@.",url);
 				}
 			}
 			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])
@@ -509,7 +537,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 			}
 			else if (error!=nil)
 			{
-				NSLog(@"[ERROR] error loading file: %@. Message was: %@",path,error);
+				NSLog(@"[ERROR] Error loading file: %@. Message was: %@",path,error);
 				RELEASE_TO_NIL(url);
 			}
 		}
@@ -556,12 +584,10 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
 	const char *data = [toEncode UTF8String];
 	size_t len = [toEncode length];
-	
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
@@ -573,9 +599,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 		{
 			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
 		}
-		return;
 	}    
-	free(base64Result);
 }
 
 -(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code
@@ -587,7 +611,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 // not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
 // 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
 // when placing webviews with other elements.
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
 	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
@@ -596,7 +620,7 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 	return result;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     CGRect oldBounds = [[self webview] bounds];
     CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
@@ -611,15 +635,24 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+
+	if ([self.proxy _hasListeners:@"beforeload"])
+	{
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
+		[self.proxy fireEvent:@"beforeload" withObject:event];
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
-		NSLog(@"New scheme: %@",request);
-		if (ignoreNextRequest)
-		{
-			ignoreNextRequest = NO;
-		}
-		else
+		DebugLog(@"[DEBUG] New scheme: %@",request);
+        BOOL valid = !ignoreNextRequest;
+        if ([scheme hasPrefix:@"http"]) {
+            //UIWebViewNavigationTypeOther means we are either in a META redirect
+            //or it is a js request from within the page 
+            valid = valid && (navigationType != UIWebViewNavigationTypeOther);
+        }
+		if (valid)
 		{
 			[self setReloadData:[newUrl absoluteString]];
 			[self setReloadDataProperties:nil];
@@ -642,11 +675,6 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-	if ([self.proxy _hasListeners:@"beforeload"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -669,7 +697,8 @@ static NSString * const kTaskSoldierJavascript = @"Ti.App={};Ti.API={};Ti.App._l
 		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[self.proxy fireEvent:@"load" withObject:event];
 	}
-	
+	[webView setNeedsDisplay];
+	ignoreNextRequest = NO;
 	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
 	[ourProxy contentsWillChange];
 }

@@ -12,7 +12,6 @@
 #import "TiUITextAreaProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "Webcolor.h"
 #import "TiApp.h"
 
@@ -30,10 +29,12 @@
 {
 	if (textWidgetView==nil)
 	{
-		textWidgetView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+		textWidgetView = [[UITextView alloc] initWithFrame:CGRectZero];
 		((UITextView *)textWidgetView).delegate = self;
 		[self addSubview:textWidgetView];
 		[(UITextView *)textWidgetView setContentInset:UIEdgeInsetsZero];
+		self.clipsToBounds = YES;
+        ((UITextView *)textWidgetView).text = @""; //Setting TextArea text to empty string 
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	}
 	return textWidgetView;
@@ -66,6 +67,10 @@
 	//TODO
 }
 
+-(void)setScrollsToTop_:(id)value
+{
+	[(UITextView *)[self textWidgetView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+}
 
 -(void)setBackgroundColor_:(id)color
 {
@@ -124,8 +129,9 @@
 	if ([self.proxy _hasListeners:@"selected"])
 	{
 		NSRange range = tv.selectedRange;
-		TiRange *r = [[[TiRange alloc] initWithRange:range] autorelease];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:r forKey:@"range"];
+        NSDictionary* rangeDict = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(range.location),@"location",
+                                   NUMINT(range.length),@"length", nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
 }
@@ -151,6 +157,47 @@
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }
+
+/*
+Text area constrains the text event though the content offset and edge insets are set to 0 
+*/
+#define TXT_OFFSET 20
+-(CGFloat)contentWidthForWidth:(CGFloat)value
+{
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    //sizeThatFits does not seem to work properly.
+    CGFloat txtWidth = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(value, 1E100) lineBreakMode:UILineBreakModeWordWrap].width;
+    if (value - txtWidth >= TXT_OFFSET) {
+        return (txtWidth + TXT_OFFSET);
+    }
+    return txtWidth + 2 * self.layer.borderWidth;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)value
+{
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    if (txt.length == 0) {
+        txt = @" ";
+    }
+    
+    return [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
+}
+
+- (void)scrollViewDidScroll:(id)scrollView
+{
+    //Ensure that system messages that cause the scrollView to 
+    //scroll are ignored if scrollable is set to false
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    if (![ourView isScrollEnabled]) {
+        CGPoint origin = [scrollView contentOffset]; 
+        if ( (origin.x != 0) || (origin.y != 0) ) {
+            [scrollView setContentOffset:CGPointZero animated:NO];
+        }
+    }
+}
+
 
 @end
 
