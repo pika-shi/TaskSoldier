@@ -331,11 +331,7 @@
 				blurflag = 0;
 			}
 		});
-
-		Ti.App.addEventListener('pause', function(e) {
-			initialize();
-		});
-
+		
 		Ti.App.addEventListener('resume', function(e) {
 			setTimeout(function(){
 				drawTasks(db.fetchToList(0), true);

@@ -59,8 +59,8 @@
 				hour = '0' + hour;
 			}
 			var length;
-			if (rows.field(0) > 360000) {
-				length = 360000;
+			if (rows.field(0) > 180000) {
+				length = 180000;
 			} else {
 				length = rows.field(0);
 			}
@@ -68,7 +68,7 @@
 			// 最長のグラフに白いグラフを重ねて集中時間を表現
 			var graphView = Ti.UI.createView({
 				height : 20,
-				width : (length / 360000) * 150,
+				width : (length / 180000) * 150,
 				left : 70,
 				backgroundColor : '#228b22'
 			});
