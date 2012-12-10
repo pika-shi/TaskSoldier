@@ -69,6 +69,8 @@
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
+-(void)invokeBlockOnThread:(void(^)(void))block;
+
 -(void)evalJS:(NSString*)code;
 -(id)evalJSAndWait:(NSString*)code;
 
@@ -114,8 +116,12 @@
 @interface KrollEval : NSObject {
 @private
 	NSString *code;
+	NSURL *sourceURL;
+	NSInteger startingLineNo;
 }
 -(id)initWithCode:(NSString*)code;
+-(id)initWithCode:(NSString*)code sourceURL:(NSURL *)sourceURL;
+-(id)initWithCode:(NSString*)code sourceURL:(NSURL *)sourceURL startingLineNo:(NSInteger)startingLineNo;
 -(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer;
 -(void)invoke:(KrollContext*)context;
 -(id)invokeWithResult:(KrollContext*)context;

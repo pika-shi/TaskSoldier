@@ -43,4 +43,4 @@ setInterval( function() {
 			notifications.push(Ti.App.iOS.scheduleLocalNotification(notification_params));
 		}
 	}
-}, 1000 * 60 * 60);	//FIXME
+}, 1000 * 7200);	//FIXME

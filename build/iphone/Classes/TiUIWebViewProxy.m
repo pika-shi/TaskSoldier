@@ -16,6 +16,8 @@
 
 @implementation TiUIWebViewProxy
 
+static NSArray* webKeySequence;
+
 #ifdef DEBUG_MEMORY
 -(void)dealloc
 {
@@ -32,6 +34,16 @@
 	[super release];
 }
 #endif
+
+-(NSArray *)keySequence
+{
+    if (webKeySequence == nil)
+    {
+        //URL has to be processed first since the spinner depends on URL being remote
+        webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
+    }
+    return webKeySequence;
+}
 
 -(BOOL)shouldDetachViewForSpace
 {
@@ -64,8 +76,8 @@
     return (inKJSThread ? evalResult : [evalResult autorelease]);
 }
 
-USE_VIEW_FOR_AUTO_HEIGHT
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_HEIGHT
+USE_VIEW_FOR_CONTENT_WIDTH
 
 - (NSString*)html
 {
@@ -109,6 +121,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)setHtml:(NSString*)content withObject:(id)property
 {
+    [self replaceValue:content forKey:@"html" notification:NO];
     TiThreadPerformOnMainThread(^{
         [(TiUIWebView *)[self view] setHtml_:content withObject:property];
     }, YES);
@@ -148,11 +161,15 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)windowDidClose
 {
-	[self _destroy];
-	NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotification:notification];
-	[super windowDidClose];
+    if (pageToken!=nil)
+    {
+        [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+        RELEASE_TO_NIL(pageToken);
+    }
+    NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
+    WARN_IF_BACKGROUND_THREAD_OBJ;
+    [[NSNotificationCenter defaultCenter] postNotification:notification];
+    [super windowDidClose];
 }
 
 -(void)_destroy
@@ -258,6 +275,8 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 
 }
+
+DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 @end
 
