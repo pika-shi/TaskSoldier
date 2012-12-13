@@ -192,11 +192,12 @@
 		function addTask(rec, last, prevPnt, prevRad) {
 			var nextRadius = nextRad(rec);
 			var nextPoint = nextPnt(prevPnt, prevRad, nextRadius);
+			var path = Titanium.Filesystem.resourcesDirectory + 'circleImg/';
 			var img;
 			if (last < 0) {
-				img = './circleImg/g1.png';
+				img = path + 'g1.png';
 			} else {
-				img = {1: './circleImg/b1.png', 2: './circleImg/y1.png', 3: './circleImg/r1.png'}[rec.importance]
+				img = {1: path + 'b1.png', 2: path + '/y1.png', 3: path + '/r1.png'}[rec.importance]
 			}
 			var imageView = Titanium.UI.createImageView({
 				id : rec.id,
@@ -232,6 +233,9 @@
 			imageView.addEventListener('touchstart', function(e) {
 				touched = true;
 				var img = e.source;
+				if (img.image.indexOf('1.png') != -1) {
+					img.image = img.image.replace('1.png', 'c.png');
+				}
 				var confirmAlert = Titanium.UI.createAlertDialog({
 					title : 'タスク"' + img.name + '"を削除します．',
 					message : 'よろしいですか?',
@@ -249,16 +253,27 @@
 					}
 				});
 				setTimeout(function() {
-					if (touched) confirmAlert.show();
+					if (touched) {
+						if (img.image.indexOf('c.png') != -1) {
+							img.image = img.image.replace('c.png', '1.png');	
+						}
+						confirmAlert.show();
+					}
 				}, 1000);
 				// interval to detect long-press is 1 sec
 			});
 
 			// create detail window according to the touched task
 			imageView.addEventListener('touchend', function(e) {
+				var img = e.source;
+				if (img.image.indexOf('c.png') != -1) {
+					img.image = img.image.replace('c.png', '1.png');	
+				}
+				if (touched) {
+					var taskDetailWindow = app.taskdetail.createWindow('tasklist', img.id);
+					tab.open(taskDetailWindow);
+				}
 				touched = false;
-				var taskDetailWindow = app.taskdetail.createWindow('tasklist', e.source.id);
-				tab.open(taskDetailWindow);
 			});
 
 			// cancel long-press when moved within detection interval
@@ -277,16 +292,14 @@
 			var imgView = views[id];
 			var imageIndex = 1;
 			var animationLength = 16;
-			var color = imgView.image.split('1')[0];
-			var suffix = imgView.image.split('1')[1];
 			var animate = setInterval(function() {
-				imgView.image = color + imageIndex + suffix;
 				imageIndex++;
 				if (imageIndex > animationLength) {
 					clearInterval(animate);
 					scrollView.remove(imgView);
 					delete views[imgView.id];
 				}
+				imgView.image = imgView.image.replace(imageIndex - 1 + '.png', imageIndex + '.png');
 			}, 100);
 		}
 
