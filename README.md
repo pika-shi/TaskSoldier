@@ -1,4 +1,4 @@
 TaskSoldier
 ===========
 
-Time &amp; Schedule Manegiment Tool (Android Application Developed by Titanium) 
+Time &amp; Schedule Manegement Tool (Android Application Developed by Titanium) 
