@@ -5,7 +5,7 @@ var past_task_detail = function(id) {
 		title : 'タスク詳細',
 		backgroundColor : 'transparent',
 		backgroundImage : 'back.jpg',
-		barColor: '#B0C4DE'
+		barColor : '#B0C4DE'
 	});
 
 	// fetchOneとほぼ同じメソッド
@@ -13,13 +13,14 @@ var past_task_detail = function(id) {
 
 	// create view (global)
 	TaskDetailView = Ti.UI.createImageView({
-		image : './back.jpg'
+		image : 'back.jpg'
 	});
 
 	var TaskView = Ti.UI.createImageView({
-		image : './detail_logo.png',
-		top : '40dp',
-		height : '320dp'
+		image : 'config_ver2.png',
+		top : '15dp',
+		height : 280,
+		width : 280
 	});
 
 	// Task Name
@@ -27,7 +28,7 @@ var past_task_detail = function(id) {
 		color : '#000',
 		text : task.name,
 		height : '60dp',
-		top : '90dp',
+		top : '28dp',
 		textAlign : 'center',
 		width : '180dp',
 		font : {
@@ -38,9 +39,9 @@ var past_task_detail = function(id) {
 	// DeadLine
 	var DeadLine = Ti.UI.createLabel({
 		color : '#000',
-		text : task.deadline.split('-').join('/').slice(0, 16) + ' まで',
-		height : '35dp',
-		top : '145dp',
+		text : task.deadline.split('-').join('/').slice(0, 15) + ' まで',
+		height : '30dp',
+		top : '85dp',
 		textAlign : 'center',
 		width : '200dp',
 	});
@@ -49,22 +50,22 @@ var past_task_detail = function(id) {
 	var ImportanceView1 = Ti.UI.createImageView({
 		image : './star_on.png',
 		height : '30dp',
-		top : '180dp',
-		left : '100dp',
+		top : '115dp',
+		left : '105dp',
 		width : '30dp',
 	});
 	var ImportanceView2 = Ti.UI.createImageView({
 		image : './star_off.png',
 		height : '30dp',
-		top : '180dp',
-		left : '140dp',
+		top : '115dp',
+		left : '145dp',
 		width : '30dp',
 	});
 	var ImportanceView3 = Ti.UI.createImageView({
 		image : './star_off.png',
 		height : '30dp',
-		top : '180dp',
-		left : '180dp',
+		top : '115dp',
+		left : '185dp',
 		width : '30dp',
 	});
 
@@ -81,7 +82,7 @@ var past_task_detail = function(id) {
 		color : '#000',
 		text : task.memo,
 		height : '70dp',
-		top : '215dp',
+		top : '150dp',
 		textAlign : 'center',
 		width : '180dp',
 	});
@@ -103,7 +104,7 @@ var past_task_detail = function(id) {
 		color : '#000',
 		text : hour + ':' + minute + ':' + second,
 		height : '30dp',
-		top : '290dp',
+		top : '220dp',
 		textAlign : 'center',
 		width : '200dp',
 	});
@@ -112,7 +113,7 @@ var past_task_detail = function(id) {
 		color : '#000',
 		text : task.endtime.split('-').join('/'),
 		height : '30dp',
-		top : '320dp',
+		top : '250dp',
 		textAlign : 'center',
 		width : '200dp',
 	});
@@ -129,4 +130,4 @@ var past_task_detail = function(id) {
 	TaskDetailView.add(endTime);
 	pastTaskDetail.add(TaskDetailView);
 	return pastTaskDetail;
-}; 
+};

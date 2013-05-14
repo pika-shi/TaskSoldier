@@ -28,15 +28,14 @@ Titanium.include('./include/config.js');
 Titanium.include('./include/db.js');
 
 // call objects
-// var LogTab = app.log.createTab();
 var TaskListTab = app.tasklist.createTab();
 var ConfigTab = app.config.createTab();
 
 // create win
 var logWin = Titanium.UI.createWindow({
 	title : 'ログ',
-    barColor: '#B0C4DE',
-    backgroundImage : 'back2.jpg'
+	barColor : '#B0C4DE',
+	backgroundImage : 'back2.jpg'
 });
 // create tab
 var logTab = Titanium.UI.createTab({

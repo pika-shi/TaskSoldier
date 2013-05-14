@@ -1,4 +1,3 @@
-
 Titanium.include('./db.js');
 var db = new TaskDB();
 
@@ -21,7 +20,7 @@ function subDate(rec) {
 	return (rDate.getTime() - date.getTime()) / 1000;
 }
 
-setInterval( function() {
+setInterval(function() {
 	Ti.App.iOS.cancelAllLocalNotifications();
 
 	if (Titanium.App.Properties.getString('noticeset') == 1) {
@@ -43,4 +42,5 @@ setInterval( function() {
 			notifications.push(Ti.App.iOS.scheduleLocalNotification(notification_params));
 		}
 	}
-}, 1000 * 7200);	//FIXME
+}, 1000 * 7200);
+//FIXME
