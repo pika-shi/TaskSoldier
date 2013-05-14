@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
     <deployment-targets>
+        <target device="tizen">false</target>
         <target device="mobileweb">false</target>
         <target device="iphone">true</target>
-        <target device="ipad">false</target>
+        <target device="ipad">true</target>
         <target device="android">false</target>
         <target device="blackberry">false</target>
     </deployment-targets>
     <sdk-version>2.1.4.GA</sdk-version>
-    <id>com.tasksoidier</id>
+    <id>jp.co.rich.smacon</id>
     <name>TaskSoldier</name>
     <version>1.0</version>
     <publisher>takemurahikaru</publisher>

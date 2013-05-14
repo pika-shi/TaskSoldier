@@ -10,7 +10,7 @@
 		var win = Ti.UI.createWindow({
 			title : 'タスクの詳細',
 			backgroundColor : '#fff',
-                        barColor: '#B0C4DE'
+			barColor : '#B0C4DE'
 		});
 
 		// create view (global)
@@ -19,26 +19,18 @@
 		});
 
 		var TaskView = Ti.UI.createImageView({
-			image : './detail.png',
-			top : '40dp',
-			height : '250dp'
+			image : 'config_ver2.png',
+			top : '15dp',
+			height : 280,
+			width : 280
 		});
 
 		// Task Name
-		var TaskNameLabel = Ti.UI.createLabel({
-			color : '#999',
-			text : 'タスク名',
-			height : '30dp',
-			top : '30dp',
-			left : '20dp',
-			width : '100dp',
-		});
-
 		var TaskName = Ti.UI.createLabel({
 			color : '#000',
 			text : task.name,
 			height : '60dp',
-			top : '90dp',
+			top : '28dp',
 			textAlign : 'center',
 			width : '180dp',
 			font : {
@@ -47,52 +39,35 @@
 		});
 
 		// DeadLine
-		var DeadLineLabel = Ti.UI.createLabel({
-			color : '#999',
-			text : '締切日時',
-			height : '30dp',
-			top : '70dp',
-			left : '20dp',
-			width : '70dp',
-		});
-
 		var DeadLine = Ti.UI.createLabel({
 			color : '#000',
-			text : task.deadline.split('-').join('/').slice(0, 16) + ' まで',
-			height : '35dp',
-			top : '145dp',
+			text : task.deadline.split('-').join('/').slice(0, 15) + ' まで',
+			height : '30dp',
+			top : '85dp',
 			textAlign : 'center',
 			width : '200dp',
 		});
 
 		// Importance Level
-		var ImportanceLabel = Ti.UI.createLabel({
-			color : '#999',
-			text : '重要度',
-			height : '30dp',
-			top : '110dp',
-			left : '20dp',
-			width : '70dp',
-		});
 		var ImportanceView1 = Ti.UI.createImageView({
 			image : './star_on.png',
 			height : '30dp',
-			top : '180dp',
-			left : '100dp',
+			top : '115dp',
+			left : '105dp',
 			width : '30dp',
 		});
 		var ImportanceView2 = Ti.UI.createImageView({
 			image : './star_off.png',
 			height : '30dp',
-			top : '180dp',
-			left : '140dp',
+			top : '115dp',
+			left : '145dp',
 			width : '30dp',
 		});
 		var ImportanceView3 = Ti.UI.createImageView({
 			image : './star_off.png',
 			height : '30dp',
-			top : '180dp',
-			left : '180dp',
+			top : '115dp',
+			left : '185dp',
 			width : '30dp',
 		});
 
@@ -105,19 +80,11 @@
 		}
 
 		// memo
-		var MemoLabel = Ti.UI.createLabel({
-			color : '#999',
-			text : 'メモ',
-			height : '30dp',
-			top : '150dp',
-			left : '20dp',
-			width : '70dp',
-		});
 		var Memo = Ti.UI.createLabel({
 			color : '#000',
 			text : task.memo,
 			height : '70dp',
-			top : '215dp',
+			top : '150dp',
 			textAlign : 'center',
 			width : '180dp',
 		});
@@ -128,11 +95,10 @@
 		});
 
 		var TimerButton = Ti.UI.createButton({
-			backgroundImage:'start.png',
+			title : '開始',
 			top : '300dp',
-			left : '85dp',
-			width : '150dp',
-			height : '50dp'
+			width : 100,
+			height : 40
 		});
 
 		EditButton.addEventListener('click', function(e) {
@@ -149,21 +115,17 @@
 		});
 
 		// set label ＆ form
-		//TaskDetailView.add(TaskNameLabel);
 		TaskDetailView.add(TaskView);
 		TaskDetailView.add(TaskName);
-		//TaskDetailView.add(DeadLineLabel);
 		TaskDetailView.add(DeadLine);
-		//TaskDetailView.add(ImportanceLabel);
 		TaskDetailView.add(ImportanceView1);
 		TaskDetailView.add(ImportanceView2);
 		TaskDetailView.add(ImportanceView3);
-		//TaskDetailView.add(MemoLabel);
 		TaskDetailView.add(Memo);
 		if (from == 'tasklist') {
-		    win.setRightNavButton(EditButton);
-		    TaskDetailView.add(TimerButton);
-                }
+			win.setRightNavButton(EditButton);
+			TaskDetailView.add(TimerButton);
+		}
 		win.add(TaskDetailView);
 
 		return win;
