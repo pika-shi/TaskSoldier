@@ -7,7 +7,7 @@
 		var taskListWin = Titanium.UI.createWindow({
 			title : 'タスク',
 			backgroundImage : 'back.jpg',
-            barColor: '#B0C4DE'
+			barColor : '#B0C4DE'
 		});
 
 		// scroll view
@@ -49,7 +49,6 @@
 				y : initialY
 			};
 			prevRadius = 0;
-			// if (taskListWin.getChildren() != null) {
 			if (taskListWin.getChildren().length > 0) {
 				taskListWin.remove(taskListWin.getChildren()[0]);
 			}
@@ -72,11 +71,16 @@
 			var sec = date.getSeconds();
 
 			year = (year < 2000) ? year + 1900 : year;
-			if (mon < 10) mon = "0" + mon;
-			if (day < 10) day = "0" + day;
-			if (hour < 10) hour = "0" + hour;
-			if (min < 10) min = "0" + min;
-			if (sec < 10) sec = "0" + sec;
+			if (mon < 10)
+				mon = "0" + mon;
+			if (day < 10)
+				day = "0" + day;
+			if (hour < 10)
+				hour = "0" + hour;
+			if (min < 10)
+				min = "0" + min;
+			if (sec < 10)
+				sec = "0" + sec;
 
 			return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec;
 		}
@@ -120,7 +124,10 @@
 							nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
 						}
 						nextY = y + prevRad + nextRad;
-						return {x: nextX, y: nextY};
+						return {
+							x : nextX,
+							y : nextY
+						};
 					} else {
 						nextX = Titanium.Platform.displayCaps.platformWidth * Math.random();
 					}
@@ -132,17 +139,25 @@
 			} else {
 				nextY = y + nextRad + prevRad * (Math.random() / 2 + 0.5);
 			}
-			return {x : nextX, y : nextY};
+			return {
+				x : nextX,
+				y : nextY
+			};
 		}
 
 		function nextRad(rec) {
 			//last day
 			var last = subDate(rec) / (60 * 60 * 24);
 
-			if (0 < last && last < 1) return rec.importance * (15 + 5 * (1 - last)) + 25;	// myzac's secret formula!!
-			else if (last < 3) return rec.importance * (14 + 0.5 * (3 - last)) + 20;
-			else if (last < 7) return rec.importance * (10 + 0.5 * (7 - last)) + 20;
-			else return rec.importance * 8 + 20;
+			if (0 < last && last < 1)
+				return rec.importance * (15 + 5 * (1 - last)) + 25;
+			// myzac's secret formula!!
+			else if (last < 3)
+				return rec.importance * (14 + 0.5 * (3 - last)) + 20;
+			else if (last < 7)
+				return rec.importance * (10 + 0.5 * (7 - last)) + 20;
+			else
+				return rec.importance * 8 + 20;
 		}
 
 		// putting images for each task
@@ -154,12 +169,12 @@
 				// arranging image and label for each task
 				var rec = recs[i];
 				var last = subDate(rec);
-				if (last < - 60 * 60 * 24 * 7) {
+				if (last < -60 * 60 * 24 * 7) {
 					db.deleteTask(rec.id);
 				} else if (last < 0) {
 					excessRecords.push(rec);
 				} else {
-					if(showDialog == true && last < 60 * 60 * 6) {
+					if (showDialog == true && last < 60 * 60 * 6) {
 						message = message + rec.name + '\n';
 					}
 					var next = addTask(rec, last, prevPoint, prevRadius);
@@ -176,11 +191,11 @@
 			}
 
 			if (showDialog == true && message.length > 0) {
-				setTimeout(function(){
+				setTimeout(function() {
 					Titanium.Media.vibrate();
 					Titanium.UI.createAlertDialog({
-						title: '締切が近付いています!!',
-						message: message
+						title : '締切が近付いています!!',
+						message : message
 					}).show();
 				}, 100);
 			}
@@ -209,7 +224,7 @@
 					x : nextPoint.x + 'dp',
 					y : nextPoint.y + 'dp'
 				},
-				opacity: 0.8
+				opacity : 0.8
 			});
 
 			imageView.add(Titanium.UI.createLabel({
@@ -218,10 +233,10 @@
 				height : 20,
 				textAlign : 'center',
 				font : {
-					fontSize : 20,
+					fontSize : 14,
 					fontFamily : 'Helvetica Neue'
 				},
-				color: '#555555',
+				color : '#333',
 				touchEnabled : false
 			}));
 			scrollView.contentHeight = nextPoint.y + nextRadius;
@@ -237,7 +252,7 @@
 					img.image = img.image.replace('1.png', 'c.png');
 				}
 				var confirmAlert = Titanium.UI.createAlertDialog({
-					title : 'タスク"' + img.name + '"を削除します．',
+					title : 'タスク"' + img.name + '"を削除します。',
 					message : 'よろしいですか?',
 					buttonNames : ['はい', 'いいえ'],
 					cancel : 1
@@ -255,7 +270,7 @@
 				setTimeout(function() {
 					if (touched) {
 						if (img.image.indexOf('c.png') != -1) {
-							img.image = img.image.replace('c.png', '1.png');	
+							img.image = img.image.replace('c.png', '1.png');
 						}
 						confirmAlert.show();
 					}
@@ -267,7 +282,7 @@
 			imageView.addEventListener('touchend', function(e) {
 				var img = e.source;
 				if (img.image.indexOf('c.png') != -1) {
-					img.image = img.image.replace('c.png', '1.png');	
+					img.image = img.image.replace('c.png', '1.png');
 				}
 				if (touched) {
 					var taskDetailWindow = app.taskdetail.createWindow('tasklist', img.id);
@@ -344,9 +359,9 @@
 				blurflag = 0;
 			}
 		});
-		
+
 		Ti.App.addEventListener('resume', function(e) {
-			setTimeout(function(){
+			setTimeout(function() {
 				drawTasks(db.fetchToList(0), true);
 			}, 10);
 		});
